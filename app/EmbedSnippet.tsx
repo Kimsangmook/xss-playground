@@ -34,7 +34,7 @@ export const EmbedSnippet = ({ slug }: IEmbedSnippetProps) => {
   }, []);
 
   const sandbox = SANDBOX_OPTIONS[sandboxIdx]?.value ?? null;
-  const url = `${origin || "https://YOUR-VERCEL-URL"}/scenarios/${slug}`;
+  const url = `${origin || "https://YOUR-VERCEL-URL"}/embed/${slug}`;
   const sandboxAttr =
     sandbox === null ? "" : sandbox === "" ? " sandbox" : ` sandbox="${sandbox}"`;
   const snippet = `<iframe src="${url}"${sandboxAttr} width="600" height="400"></iframe>`;
@@ -46,7 +46,7 @@ export const EmbedSnippet = ({ slug }: IEmbedSnippetProps) => {
   };
 
   return (
-    <div className="card">
+    <div className="card" data-only-standalone>
       <strong>임베드 스니펫</strong>
       <div className="actions" style={{ marginTop: 10 }}>
         {SANDBOX_OPTIONS.map((opt, i) => (

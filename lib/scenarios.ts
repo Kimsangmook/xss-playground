@@ -10,7 +10,14 @@ export interface IScenario {
   fullSandbox: "works" | "blocked" | "partial";
   /** SOP 가 직접 막아주는 시나리오인가 */
   sopBlocks: boolean;
-  category: "navigation" | "communication" | "phishing" | "annoyance" | "probe";
+  category:
+    | "navigation"
+    | "communication"
+    | "phishing"
+    | "annoyance"
+    | "probe"
+    | "exfil"
+    | "delayed";
 }
 
 export const SCENARIOS: IScenario[] = [
@@ -169,6 +176,17 @@ export const SCENARIOS: IScenario[] = [
     category: "communication",
   },
   {
+    slug: "token-exfil",
+    title: "부모 토큰 / 네트워크 탈취 시도",
+    summary:
+      "알렌 부모 페이지에서 JWT 토큰이나 진행 중 네트워크 요청을 빼낼 수 있는지 여러 각도로 시도한다. SOP 가 무엇을 막아주고 무엇이 통과하는지 한 페이지에서 확인.",
+    noSandbox: "partial",
+    scriptsOnly: "partial",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "exfil",
+  },
+  {
     slug: "parent-message-listener-probe",
     title: "부모의 message 리스너 fingerprinting",
     summary:
@@ -179,6 +197,28 @@ export const SCENARIOS: IScenario[] = [
     sopBlocks: false,
     category: "probe",
   },
+  {
+    slug: "delayed-attack",
+    title: "지연 / 자동 실행 페이로드",
+    summary:
+      "URL 파라미터(?action=&delay=)로 N초 뒤 자동 액션. 카운트다운 후 top-redirect, postMessage, form submit 등을 자동 발사. 사용자가 잠시 노트를 본 직후 발사하는 시나리오 재현용.",
+    noSandbox: "works",
+    scriptsOnly: "partial",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "delayed",
+  },
+  {
+    slug: "chained-attack",
+    title: "체인 공격 (피싱 + 풀스크린 + redirect)",
+    summary:
+      "여러 시나리오를 묶은 실전 공격 흐름. iframe 임베드 후 (1) 풀스크린 가짜 알렌 UI 띄우기 → (2) 비밀번호 수집 → (3) 수집 완료 후 진짜 알렌으로 다시 보내 의심 회피.",
+    noSandbox: "works",
+    scriptsOnly: "partial",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "delayed",
+  },
 ];
 
 export const findScenario = (slug: string) =>
@@ -187,7 +227,19 @@ export const findScenario = (slug: string) =>
 export const CATEGORY_LABEL: Record<IScenario["category"], string> = {
   navigation: "Navigation",
   communication: "Communication",
+  exfil: "Exfiltration",
   phishing: "Phishing",
+  delayed: "Delayed / Chained",
   annoyance: "Annoyance",
   probe: "Probe",
 };
+
+export const ALL_CATEGORIES: IScenario["category"][] = [
+  "navigation",
+  "communication",
+  "exfil",
+  "phishing",
+  "delayed",
+  "annoyance",
+  "probe",
+];

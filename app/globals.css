@@ -139,6 +139,132 @@ input:focus {
   max-width: 920px;
 }
 
+/* ============================================================
+ * EMBED MODE — iframe 안에서 열렸을 때 (html.embed)
+ *  또는 /embed/* 라우트 (body.embed-route)
+ * 사이드바 숨기고 한 컬럼, 반응형 패딩
+ * ============================================================ */
+html.embed .sidebar,
+body.embed-route .sidebar {
+  display: none;
+}
+html.embed .layout,
+body.embed-route .layout {
+  grid-template-columns: 1fr;
+}
+html.embed .main,
+body.embed-route .main {
+  padding: 14px 16px 40px;
+  max-width: 100%;
+  font-size: 13px;
+}
+html.embed .main h1,
+body.embed-route .main h1 {
+  font-size: 17px;
+}
+html.embed .main h2,
+body.embed-route .main h2 {
+  font-size: 14px;
+  margin: 18px 0 8px;
+}
+html.embed pre,
+html.embed .log,
+body.embed-route pre,
+body.embed-route .log {
+  font-size: 11.5px;
+}
+html.embed .card,
+body.embed-route .card {
+  padding: 12px;
+}
+html.embed .summary,
+body.embed-route .summary {
+  margin-bottom: 14px;
+}
+/* embed 모드에서는 임베드 스니펫 카드 자체가 의미 없으므로 숨김 */
+html.embed [data-only-standalone],
+body.embed-route [data-only-standalone] {
+  display: none;
+}
+
+/* ============================================================
+ * /embed/[slug] 페이지 전용 컴팩트 UI
+ * ============================================================ */
+.embed-page {
+  padding: 10px 12px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
+}
+.embed-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.embed-header .embed-badge {
+  display: inline-block;
+}
+.embed-countdown {
+  margin-left: auto;
+  font-size: 12px;
+  background: var(--warn);
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.embed-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.embed-actions button {
+  font-size: 12px;
+  padding: 6px 10px;
+}
+.embed-extra {
+  margin: 8px 0;
+}
+.embed-log {
+  min-height: 80px;
+  max-height: 220px;
+  font-size: 11px;
+  margin-top: 8px;
+}
+/* embed 모드 전용 배지 */
+.embed-badge {
+  display: none;
+}
+html.embed .embed-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* 모바일 일반 케이스도 같이 잡아둠 */
+@media (max-width: 640px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .main {
+    padding: 16px 18px 40px;
+    max-width: 100%;
+  }
+}
+
 .main h1 {
   font-size: 22px;
   margin: 0 0 6px;

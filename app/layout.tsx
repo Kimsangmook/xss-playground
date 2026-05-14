@@ -1,22 +1,51 @@
 import type { Metadata } from "next";
-import { Sidebar } from "./Sidebar";
+import { Analytics } from "./Analytics";
+import { GOOGLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "iframe XSS Playground",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "XSS Playground",
+    template: "%s · XSS Playground",
+  },
   description:
-    "DOMPurify sanitize 정책 검증용 iframe 공격 시나리오 모음. 본인 서비스 보안 PoC 목적으로만 사용.",
-  robots: { index: false, follow: false },
+    "Open PoC catalog for iframe sanitize / XSS scenarios. Verify how DOMPurify-style sanitizers handle iframe embeds across sandbox policies.",
+  applicationName: "XSS Playground",
+  authors: [{ name: "Sangmook Kim" }],
+  creator: "Sangmook Kim",
+  keywords: [
+    "XSS",
+    "iframe",
+    "sandbox",
+    "DOMPurify",
+    "sanitize",
+    "web security",
+    "PoC",
+  ],
+  verification: GOOGLE.searchConsole
+    ? { google: GOOGLE.searchConsole }
+    : undefined,
 };
+
+const EMBED_DETECTION = `
+try { if (window.self !== window.top) document.documentElement.classList.add('embed'); }
+catch (e) { document.documentElement.classList.add('embed'); }
+`;
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="ko">
+    <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: EMBED_DETECTION }} />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+      </head>
       <body>
-        <div className="layout">
-          <Sidebar />
-          <main className="main">{children}</main>
-        </div>
+        {children}
+        <Analytics />
       </body>
     </html>
   );

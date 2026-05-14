@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SCENARIOS, CATEGORY_LABEL, IScenario } from "@/lib/scenarios";
+import { SCENARIOS, CATEGORY_LABEL, ALL_CATEGORIES } from "@/lib/scenarios";
 
-const CATEGORIES: IScenario["category"][] = [
-  "navigation",
-  "communication",
-  "phishing",
-  "annoyance",
-  "probe",
-];
+const CATEGORIES = ALL_CATEGORIES;
 
 export const Sidebar = () => {
   const pathname = usePathname();

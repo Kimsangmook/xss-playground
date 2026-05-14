@@ -13,10 +13,13 @@ const BadgeMap: Record<IScenario["noSandbox"], string> = {
 export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
   return (
     <>
-      <h1>{scenario.title}</h1>
+      <h1>
+        {scenario.title}
+        <span className="embed-badge">EMBEDDED</span>
+      </h1>
       <p className="summary">{scenario.summary}</p>
 
-      <div className="card">
+      <div className="card" data-only-standalone>
         <strong>sandbox 정책별 동작</strong>
         <table className="matrix">
           <thead>
