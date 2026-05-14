@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 라이선스 / 기여 정책 확인
+    url: https://github.com/Kimsangmook/xss-playground/blob/main/CONTRIBUTING.md
+    about: 이슈를 등록하기 전에 contribution 가이드를 한 번 읽어 주세요.

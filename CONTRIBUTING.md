@@ -48,9 +48,24 @@ within the license:
 
 ### Branch & commit conventions
 
-- Branch name: `feat/<short-slug>`, `fix/<short-slug>`, `docs/<short-slug>`
+- Branch name: `feat/<short-slug>`, `fix/<short-slug>`, `docs/<short-slug>`,
+  `chore/<short-slug>`
 - Commit style: short imperative title (e.g. `feat: add dom-eval sink scenario`)
 - Keep PRs small and focused.
+
+### PR body format
+
+This repository follows the same PR template used by 모네플 `study-service-web`.
+`.github/pull_request_template.md` will automatically fill the PR body with the
+four sections below — please complete each one:
+
+1. **What is this PR? 🔎** — 이 PR의 목적을 한두 문장으로 설명
+2. **Changes 🖊️** — 어떤 파일의 어떤 코드를 어떤 관점에서 어떻게 변경했는지
+3. **Screenshot 📷** — 시각적으로 보이는 변경이 있다면 before/after 이미지
+4. **Test CheckList ☑** — 어떤 테스트를 했는지 + `yarn lint` / `yarn build` 통과 여부
+
+`main` 브랜치는 보호되어 있어 직접 push 가 불가능합니다. 모든 변경은 PR 을
+통해서만 들어오며, 머지는 레포 오너가 PR 리뷰 후 직접 수행합니다.
 
 ### Local setup
 

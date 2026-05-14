@@ -5,6 +5,18 @@
 > commercial service is **not permitted** — see [LICENSE](./LICENSE).
 > Issues and PRs are welcome; please read [CONTRIBUTING.md](./CONTRIBUTING.md) first.
 
+## Branch / PR policy
+
+- `main` 브랜치는 **보호** 되어 있습니다. 직접 push 는 차단되어 있으며 모든 변경은 PR 을 통해 들어옵니다.
+- **PR 머지는 레포 오너(@Kimsangmook) 만 수행** 합니다. 코드 리뷰 결과를 반영한 뒤 오너가 squash merge 합니다.
+- PR 본문 형식은 **모네플 study-service-web 의 규칙** 을 그대로 따릅니다.
+  - 섹션: `What is this PR? 🔎` / `Changes 🖊️` / `Screenshot 📷` / `Test CheckList ☑`
+  - 위 형식은 `.github/pull_request_template.md` 에 그대로 들어 있어서 PR 작성 시 자동 채워집니다.
+- 커밋 스타일: 짧은 imperative title (`feat: ...`, `fix: ...`, `docs: ...`).
+- 브랜치 이름: `feat/<slug>` / `fix/<slug>` / `docs/<slug>` / `chore/<slug>`.
+
+자세한 흐름과 PR 전 체크리스트는 [CONTRIBUTING.md](./CONTRIBUTING.md) 를 참고하세요.
+
 ## Environment variables
 
 Local dev 에서는 프로젝트 루트에 `.env.local` 을 만들어 채우고, Vercel 배포 시에는 Project Settings → Environment Variables 에 같은 키/값을 등록하세요.
