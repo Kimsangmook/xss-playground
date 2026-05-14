@@ -69,8 +69,8 @@ const AutoDownloadPage = () => {
       <ul>
         <li>
           최신 브라우저는 사용자 제스처 없이 너무 잦은 다운로드를 차단하기는
-          합니다만, 첫 다운로드는 보통 허용됩니다. 사용자가 알렌 페이지를 보다가
-          영문 모를 파일이 받아지면 그 자체가 피싱의 trigger 가 됩니다.
+          합니다만, 첫 다운로드는 보통 허용됩니다. 사용자가 신뢰하는 서비스
+          화면에서 영문 모를 파일이 받아지면 그 자체가 피싱의 trigger 가 됩니다.
         </li>
         <li>
           <code>sandbox=&quot;allow-scripts&quot;</code> 가 부착되면 a.click() 은

@@ -26,9 +26,9 @@ const PhishingFormPage = () => {
       <EmbedSnippet slug="phishing-form" />
 
       <div className="callout danger">
-        실제 공격 시 이 iframe 은 부모 페이지 안에서 마치 알렌의 모달/로그인 영역
-        처럼 보이도록 위치됩니다. 사용자는 도메인이 attacker.example 인 것을 알
-        수 없습니다. (아래 풀스크린 오버레이 시나리오와 결합되면 더 위험.)
+        실제 공격 시 이 iframe 은 부모 페이지 안에서 마치 서비스의 모달/로그인
+        영역처럼 보이도록 위치됩니다. 사용자는 도메인이 attacker.example 인 것을
+        알기 어렵습니다. (아래 풀스크린 오버레이 시나리오와 결합되면 더 위험.)
       </div>
 
       <h2>가짜 로그인 폼 (자기 origin 안에서 자유롭게 그려짐)</h2>
@@ -41,7 +41,7 @@ const PhishingFormPage = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@allenslibrary.com"
+            placeholder="you@example.com"
           />
         </div>
         <div style={{ marginBottom: 12 }}>
@@ -77,7 +77,7 @@ const PhishingFormPage = () => {
           합니다. <code>sandbox=&quot;&quot;</code> (빈 값) 이라야 JS 도 막힙니다.
         </li>
         <li>
-          가장 확실한 대응은 iframe 의 host 를 화이트리스트로 제한하는 것입니다.
+          가장 확실한 대응은 iframe 의 host 를 allowlist 로 제한하는 것입니다.
           유튜브/비메오 같은 신뢰 호스트만 통과시키면 이 시나리오 자체가
           성립하지 않습니다.
         </li>

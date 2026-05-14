@@ -3,9 +3,19 @@ import type { IDictionary } from "./types";
 export const ko: IDictionary = {
   site: {
     name: "XSS Playground",
-    tagline: "iframe / sanitize 공격 시나리오 모음",
+    tagline: "복사해서 테스트하는 XSS 시나리오 모음",
     description:
-      "DOMPurify 같은 HTML sanitize 가 iframe 임베드를 어디까지 허용하는지 검증하기 위한 PoC 시나리오 모음. 개발자가 본인 서비스 보안 테스트 시 활용할 수 있는 오픈 플레이그라운드입니다.",
+      "권한 있는 서비스에서 script 태그, 이벤트 핸들러, javascript: URL, DOM sink, iframe 임베드, postMessage 위험을 빠르게 점검할 수 있는 공개 보안 테스트 플레이그라운드입니다.",
+    keywords: [
+      "XSS 테스트",
+      "iframe 보안",
+      "웹 보안",
+      "postMessage 검증",
+      "CSP",
+      "sandbox",
+      "DOM XSS",
+      "보안 교육",
+    ],
   },
   nav: {
     home: "홈",
@@ -15,20 +25,70 @@ export const ko: IDictionary = {
   home: {
     aboutHeading: "About",
     aboutBody: [
-      "프론트엔드 개발자 김상묵입니다. 회사 서비스에 iframe sanitize 정책을 적용하다가, 화이트리스트 없는 iframe 허용이 실제로 어떤 공격면을 만드는지 직접 검증하고 싶어 이 사이트를 만들었습니다.",
-      "각 시나리오는 부모 사이트에서 임베드된 iframe 안에서 일어나는 실제 동작을 재현합니다. 본인이 권한을 가진 서비스의 sanitize 정책을 검증할 때, sandbox 키워드의 효과를 확인할 때, 또는 보안 교육 자료로 활용할 때 도움이 되길 바랍니다.",
-      "이 페이지는 XSS / iframe 보안을 공부하거나 본인 서비스를 테스트하는 모두에게 열려 있는 사이드 프로젝트입니다.",
+      "프론트엔드 개발자 김상묵입니다. 이 사이트는 특정 서비스 전용 PoC 가 아니라, 누구나 본인이 권한을 가진 웹 서비스에서 XSS 대응을 빠르게 확인할 수 있도록 만든 공개 플레이그라운드입니다.",
+      "각 시나리오는 script 태그, 이벤트 핸들러 속성, javascript: URL, DOM sink, 임베드된 iframe, 부모 페이지와의 메시지 통신처럼 실제 서비스에서 자주 놓치는 공격면을 작은 테스트 페이지로 재현합니다.",
+      "시나리오 카드나 상세 페이지에서 HTML payload 또는 iframe 코드를 복사해 본인 프로젝트에 붙여 넣고, 렌더링 차단 여부와 실제 브라우저 동작을 확인하세요.",
     ],
     contact: "문의",
+    intentHeading: "프로젝트 의도",
+    intentBody: [
+      "XSS 대응은 코드 한 줄이나 HTML 필터 이름만으로 끝나지 않습니다. 실제 브라우저에서 iframe, 메시지, 권한 요청, 자동 요청, 사용자 기만 UI 가 어디까지 동작하는지 직접 확인해야 합니다.",
+      "이 사이트는 공격 자동화 도구가 아니라, 개발자와 보안 담당자가 본인 서비스의 렌더링 정책을 재현 가능한 시나리오로 점검하기 위한 체크리스트입니다.",
+      "모든 스니펫은 복사해서 dev/staging 환경에 붙여 넣는 흐름을 기준으로 만들었습니다. HTML payload 가 실행되거나 iframe 시나리오가 동작하면 위험 신호이고, 차단되면 어떤 정책이 막았는지 기록하기 좋습니다.",
+    ],
+    threatsHeading: "XSS 위협 요약",
+    threatsIntro:
+      "Hacker101 CTF 의 XSS Playground 분류와 PortSwigger Web Security Academy 의 XSS 가이드를 기준으로, 이 프로젝트에서 테스트할 위험을 다음 축으로 정리했습니다.",
+    threats: [
+      {
+        title: "반사형 XSS",
+        body: "URL, 검색어, 오류 메시지처럼 현재 요청의 입력값이 즉시 응답 HTML 안에 안전하지 않게 반영될 때 발생합니다.",
+      },
+      {
+        title: "저장형 XSS",
+        body: "댓글, 프로필, 문서 본문 등 저장된 사용자 입력이 나중에 다른 사용자에게 실행 가능한 콘텐츠로 렌더링될 때 발생합니다.",
+      },
+      {
+        title: "DOM 기반 XSS",
+        body: "클라이언트 코드가 location, hash, postMessage 같은 신뢰할 수 없는 값을 읽어 innerHTML, eval, setTimeout 문자열 같은 sink 에 넣을 때 발생합니다.",
+      },
+      {
+        title: "필터 / CSP 우회",
+        body: "이벤트 핸들러, SVG/MathML, javascript: URL, 인코딩, 템플릿 문법처럼 약한 블랙리스트나 불완전한 CSP 를 우회하는 벡터를 확인해야 합니다.",
+      },
+      {
+        title: "계정 권한 악용",
+        body: "XSS 가 실행되면 사용자의 권한으로 요청을 보내거나 화면을 조작하고, 접근 가능한 데이터와 세션 상태를 악용할 수 있습니다.",
+      },
+      {
+        title: "피싱 / 정보 유출",
+        body: "iframe, 오버레이, 알림, 클립보드, postMessage 를 이용해 자격증명을 속여 입력받거나 관찰 가능한 정보를 외부로 보낼 수 있습니다.",
+      },
+    ],
+    referencesHeading: "참고 자료",
+    references: [
+      {
+        label: "Hacker101 CTF write-ups",
+        href: "https://github.com/8r0wn13/hacker101_ctf",
+      },
+      {
+        label: "PortSwigger XSS overview",
+        href: "https://portswigger.net/web-security/cross-site-scripting",
+      },
+      {
+        label: "PortSwigger XSS cheat sheet",
+        href: "https://portswigger.net/web-security/cross-site-scripting/cheat-sheet",
+      },
+    ],
     scenariosHeading: "시나리오",
     scenariosIntro:
-      "카테고리별로 정리된 공격 시나리오. 각 페이지에서 임베드 스니펫을 복사해 본인 서비스에서 sanitize 결과를 검증하세요.",
+      "카테고리별로 정리된 공격 시나리오입니다. 카드의 HTML payload 또는 임베드 코드를 바로 복사하거나 상세 페이지에서 더 자세히 테스트하세요.",
     howToUseHeading: "사용 방법",
     howToUseSteps: [
       "원하는 시나리오 페이지를 엽니다.",
-      "임베드 스니펫 카드에서 sandbox 프리셋을 고르고 iframe 코드를 복사합니다.",
+      "홈 카드 또는 상세 페이지에서 HTML payload 나 iframe 코드를 복사합니다.",
       "본인 서비스(에디터, 노트, 위키 등)에 그 스니펫을 붙여 넣고 저장합니다.",
-      "렌더링된 페이지에서 sanitize 결과와 실제 동작을 확인합니다.",
+      "렌더링 허용 여부, sandbox 정책, CSP, postMessage 검증, 실제 브라우저 동작을 확인합니다.",
     ],
     warningTitle: "주의",
     warningBody:
@@ -53,6 +113,31 @@ export const ko: IDictionary = {
     copied: "복사됨!",
   },
   scenarios: {
+    "script-tag-injection": {
+      title: "script 태그 삽입",
+      summary:
+        "사용자 입력이 HTML 문서로 그대로 파싱될 때 script 태그가 실행 가능한지 확인.",
+    },
+    "event-handler-attribute": {
+      title: "이벤트 핸들러 속성 삽입",
+      summary:
+        "img onerror, details ontoggle 같은 on* 속성이 살아남아 실행되는지 확인.",
+    },
+    "javascript-url": {
+      title: "javascript: URL 프로토콜",
+      summary:
+        "href, action 같은 URL 속성에 javascript: 프로토콜이 남아 실행되는지 확인.",
+    },
+    "svg-onload": {
+      title: "SVG / MathML onload payload",
+      summary:
+        "SVG, MathML namespace 와 이벤트 속성이 필터를 우회하는지 확인.",
+    },
+    "dom-innerhtml-sink": {
+      title: "DOM innerHTML sink",
+      summary:
+        "location, hash, postMessage 값이 innerHTML 같은 unsafe sink 로 들어가는지 확인.",
+    },
     "top-redirect": {
       title: "top.location 강제 리다이렉트",
       summary:
@@ -138,6 +223,9 @@ export const ko: IDictionary = {
     },
   },
   categories: {
+    html: "HTML 삽입",
+    dom: "DOM XSS",
+    protocol: "URL / 프로토콜",
     navigation: "내비게이션",
     communication: "통신",
     exfil: "탈취",

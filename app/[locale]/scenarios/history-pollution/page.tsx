@@ -52,8 +52,8 @@ const HistoryPollutionPage = () => {
       <ul>
         <li>
           iframe 의 pushState 는 자기 origin URL 만 변경하지만, 부모 탭의
-          뒤로가기 동작에 누적됩니다. 사용자가 알렌에서 다른 페이지로
-          돌아가려고 뒤로가기를 눌러도 iframe history 만 돌아가게 됩니다.
+          뒤로가기 동작에 누적됩니다. 사용자가 서비스의 이전 화면으로
+          돌아가려고 뒤로가기를 눌러도 iframe history 만 돌아가게 될 수 있습니다.
         </li>
         <li>
           공격 가치는 annoyance / 사용자가 사이트를 떠나지 못하게 가두는

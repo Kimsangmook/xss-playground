@@ -25,7 +25,7 @@ const NotificationPermissionPage = () => {
       push("권한 없음 → 알림 표시 불가");
       return;
     }
-    new Notification("알렌 보안 알림", {
+    new Notification("보안 알림", {
       body: "(이건 attacker.example 에서 보낸 알림입니다)",
       icon: "/favicon.ico",
     });
@@ -63,7 +63,7 @@ const NotificationPermissionPage = () => {
         </li>
         <li>
           iframe 에서 권한 프롬프트가 뜨려면 <code>allow=&quot;notifications&quot;</code>
-          가 필요한 브라우저도 있습니다. 알렌처럼 임의 호스트라면 절대 부여하면
+          가 필요한 브라우저도 있습니다. 임의 호스트 iframe 이라면 절대 부여하면
           안 됩니다.
         </li>
       </ul>

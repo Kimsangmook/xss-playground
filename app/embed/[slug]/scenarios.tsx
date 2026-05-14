@@ -269,7 +269,7 @@ const FullscreenOverlay = () => {
             fontFamily: "system-ui",
           }}
         >
-          <h2 style={{ marginTop: 0, color: "#111" }}>알렌의 서재 — 재로그인</h2>
+          <h2 style={{ marginTop: 0, color: "#111" }}>Example Workspace — 재로그인</h2>
           <p style={{ color: "#555" }}>(PoC 가짜 화면)</p>
           <input placeholder="email" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
           <input placeholder="password" type="password" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
@@ -575,14 +575,14 @@ const ChainedAttack = () => {
             padding: 24,
           }}
         >
-          <h2 style={{ marginTop: 0, color: "#111" }}>알렌의 서재 — 재로그인 필요</h2>
+          <h2 style={{ marginTop: 0, color: "#111" }}>Example Workspace — 재로그인 필요</h2>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               setStep("done");
               try {
                 window.top!.location.href =
-                  document.referrer || "https://www.allenslibrary.com";
+                  document.referrer || "https://example.com";
               } catch {}
             }}
           >

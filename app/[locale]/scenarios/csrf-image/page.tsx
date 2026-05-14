@@ -48,7 +48,7 @@ const CsrfImagePage = () => {
         </li>
         <li>
           sandbox 가 빈 값이어도 img 요청은 갑니다. 진짜 막으려면 CSP{" "}
-          <code>img-src</code> 또는 sanitize 단계에서 img 태그 src 호스트 검증이
+          <code>img-src</code> 또는 HTML 렌더링 단계에서 img 태그 src 호스트 검증이
           필요합니다.
         </li>
         <li>
@@ -57,8 +57,8 @@ const CsrfImagePage = () => {
           엔드포인트 핑 정도는 여전히 가능합니다.
         </li>
         <li>
-          참고: 알렌이 sanitize 단계에서 img 태그는 일반적으로 허용하므로,
-          이 공격면을 막으려면 host 화이트리스트 또는 CSP 가 필요합니다.
+          참고: 많은 에디터와 CMS 는 img 태그를 일반적으로 허용하므로, 이
+          공격면을 막으려면 host allowlist 또는 CSP 가 필요합니다.
         </li>
       </ul>
     </>

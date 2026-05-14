@@ -1,24 +1,26 @@
 import type { MetadataRoute } from "next";
-import { LOCALES } from "@/i18n/types";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/types";
 import { SCENARIOS } from "@/lib/scenarios";
 import { SITE_URL } from "@/lib/site";
+
+const languageAlternates = (path = "") =>
+  Object.fromEntries([
+    ...LOCALES.map((locale) => [locale, `${SITE_URL}/${locale}${path}`]),
+    ["x-default", `${SITE_URL}/${DEFAULT_LOCALE}${path}`],
+  ]);
 
 const sitemap = (): MetadataRoute.Sitemap => {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
   for (const locale of LOCALES) {
-    const altLanguages = Object.fromEntries(
-      LOCALES.map((l) => [l, `${SITE_URL}/${l}`])
-    );
-
     // 홈
     entries.push({
       url: `${SITE_URL}/${locale}`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
-      alternates: { languages: altLanguages },
+      alternates: { languages: languageAlternates() },
     });
 
     // embed-helper
@@ -28,9 +30,7 @@ const sitemap = (): MetadataRoute.Sitemap => {
       changeFrequency: "monthly",
       priority: 0.6,
       alternates: {
-        languages: Object.fromEntries(
-          LOCALES.map((l) => [l, `${SITE_URL}/${l}/embed-helper`])
-        ),
+        languages: languageAlternates("/embed-helper"),
       },
     });
 
@@ -42,9 +42,7 @@ const sitemap = (): MetadataRoute.Sitemap => {
         changeFrequency: "monthly",
         priority: 0.8,
         alternates: {
-          languages: Object.fromEntries(
-            LOCALES.map((l) => [l, `${SITE_URL}/${l}/scenarios/${s.slug}`])
-          ),
+          languages: languageAlternates(`/scenarios/${s.slug}`),
         },
       });
     }

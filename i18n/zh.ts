@@ -3,9 +3,19 @@ import type { IDictionary } from "./types";
 export const zh: IDictionary = {
   site: {
     name: "XSS Playground",
-    tagline: "iframe / sanitize 攻击场景集",
+    tagline: "复制即可测试的 XSS 场景集",
     description:
-      "用于验证 DOMPurify 等 HTML 净化器对 iframe 嵌入的实际允许范围的 PoC 集合。可用于验证自有服务的净化策略、确认 sandbox 关键字效果，或作为安全培训资料。",
+      "面向授权测试的公开安全测试平台，可检查 script 标签、事件处理器、javascript: URL、DOM sink、iframe 嵌入与 postMessage 风险。",
+    keywords: [
+      "XSS 测试",
+      "iframe 安全",
+      "Web 安全",
+      "postMessage 校验",
+      "CSP",
+      "sandbox",
+      "DOM XSS",
+      "安全培训",
+    ],
   },
   nav: {
     home: "首页",
@@ -15,20 +25,70 @@ export const zh: IDictionary = {
   home: {
     aboutHeading: "About",
     aboutBody: [
-      "我是前端开发者 Sangmook Kim。在为公司服务实施 iframe 净化策略时，想直接验证不设主机白名单时实际存在哪些攻击面，因此搭建了本站。",
-      "每个场景重现了嵌入在父站点中的 iframe 内部的真实行为。可用于验证自有服务的净化策略、确认各 sandbox 关键字的效果，或作为安全研习材料。",
-      "本站面向学习 XSS / iframe 安全、测试自有服务的所有人开放，是一个公开的副项目。",
+      "我是前端开发者 Sangmook Kim。本站不是某个产品专用的 PoC，而是供所有人验证自有或被授权服务的 XSS 防护的公开 playground。",
+      "每个场景都把真实浏览器风险拆成小型测试页面：script 标签、事件属性、javascript: URL、DOM sink、嵌入式 iframe、父页面消息通信、欺骗性 UI 和自动请求。",
+      "从场景卡片或详情页复制 HTML payload 或 iframe 代码，粘贴到自己的项目中，检查渲染结果与真实浏览器行为。",
     ],
     contact: "联系",
+    intentHeading: "项目意图",
+    intentBody: [
+      "XSS 防护不能只靠某个 HTML 过滤器名称或一行过滤规则完成。需要在真实浏览器中确认 iframe、消息、权限提示、自动请求和欺骗性 UI 到底能运行到什么程度。",
+      "本站不是攻击自动化工具，而是帮助开发者和安全团队在自有或授权服务中复现并检查渲染策略的清单。",
+      "所有代码片段都以复制到 dev / staging 环境为前提。若 HTML payload 执行或 iframe 场景可运行，就是需要排查的信号；若被阻止，则可以记录是哪条策略发挥了作用。",
+    ],
+    threatsHeading: "XSS 威胁地图",
+    threatsIntro:
+      "参考 Hacker101 CTF 的 XSS Playground 分类与 PortSwigger Web Security Academy 指南，本站将需要测试的风险整理如下。",
+    threats: [
+      {
+        title: "Reflected XSS",
+        body: "查询参数、搜索词、错误消息等当前请求中的数据未经正确输出编码就被立即反射到 HTML 中。",
+      },
+      {
+        title: "Stored XSS",
+        body: "评论、资料、文档正文等已保存的用户输入随后被其他用户以活动内容形式渲染。",
+      },
+      {
+        title: "DOM-based XSS",
+        body: "客户端代码读取 location、hash、postMessage 等不可信值，并写入 innerHTML 或字符串计时器等危险 sink。",
+      },
+      {
+        title: "Filter / CSP bypass",
+        body: "事件处理器、SVG/MathML、javascript: URL、编码与模板语法可能绕过薄弱黑名单或不完整 CSP。",
+      },
+      {
+        title: "Account abuse",
+        body: "脚本一旦执行，就可以以用户权限发起请求、操纵页面，并利用该用户可访问的数据。",
+      },
+      {
+        title: "Phishing / exfiltration",
+        body: "iframe、覆盖层、通知、剪贴板和 postMessage 可能诱导用户输入机密，或把可观察信息发送到外部。",
+      },
+    ],
+    referencesHeading: "参考资料",
+    references: [
+      {
+        label: "Hacker101 CTF write-ups",
+        href: "https://github.com/8r0wn13/hacker101_ctf",
+      },
+      {
+        label: "PortSwigger XSS overview",
+        href: "https://portswigger.net/web-security/cross-site-scripting",
+      },
+      {
+        label: "PortSwigger XSS cheat sheet",
+        href: "https://portswigger.net/web-security/cross-site-scripting/cheat-sheet",
+      },
+    ],
     scenariosHeading: "场景",
     scenariosIntro:
-      "按类别整理的攻击场景。在各页面复制 embed 代码片段并在自有服务上验证净化结果。",
+      "按类别整理的攻击场景。可直接从卡片复制 HTML payload 或 embed 代码，也可进入详情页深入测试。",
     howToUseHeading: "使用方法",
     howToUseSteps: [
       "打开目标场景页面。",
-      "在 embed 代码卡片中选择 sandbox 预设并复制 iframe 代码。",
+      "从首页卡片或详情页复制 HTML payload 或 iframe 代码。",
       "粘贴到自有服务（编辑器、笔记、wiki 等）并保存。",
-      "查看渲染结果与实际行为。",
+      "检查渲染、sandbox、CSP、postMessage 校验和实际浏览器行为。",
     ],
     warningTitle: "注意",
     warningBody:
@@ -54,6 +114,9 @@ export const zh: IDictionary = {
   },
   scenarios: {},
   categories: {
+    html: "HTML Injection",
+    dom: "DOM XSS",
+    protocol: "URL / Protocol",
     navigation: "Navigation",
     communication: "Communication",
     exfil: "Exfiltration",

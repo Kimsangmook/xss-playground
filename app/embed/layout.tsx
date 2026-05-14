@@ -4,7 +4,7 @@ import { BodyClassEffect } from "./BodyClassEffect";
 export const metadata: Metadata = {
   title: "XSS Playground / embed",
   description:
-    "Internal security PoC. Not intended for indexing or human navigation.",
+    "Embeddable XSS test scenario. Intended for authorized security testing.",
   robots: {
     index: false,
     follow: false,

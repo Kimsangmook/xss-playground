@@ -13,7 +13,7 @@ export const Sidebar = () => {
   return (
     <aside className="sidebar">
       <h1>iframe XSS Playground</h1>
-      <p className="subtitle">알렌 sanitize PoC 용 임베드 시나리오 모음</p>
+      <p className="subtitle">복사해서 테스트하는 임베드 XSS 시나리오</p>
 
       <Link href="/" className={isActive("/") ? "active" : ""}>
         홈

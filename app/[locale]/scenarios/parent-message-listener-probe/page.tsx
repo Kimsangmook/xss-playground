@@ -99,19 +99,19 @@ const ParentListenerProbePage = () => {
       <h2>해설</h2>
       <ul>
         <li>
-          알렌 부모 페이지에 어떤 message 리스너가 등록돼 있는지 검은상자
-          상태에서 fingerprinting 하는 페이지입니다. 알려진 라이브러리(iframe
+          부모 페이지에 어떤 message 리스너가 등록돼 있는지 검은상자 상태에서
+          fingerprinting 하는 페이지입니다. 알려진 라이브러리(iframe
           resizer, 유튜브 API, GTM 등) 의 페이로드 포맷을 흉내내서 응답 / 사이드
           이펙트(DOM 변화, 새 message 등) 를 관찰합니다.
         </li>
         <li>
-          진짜 위험은 알렌이 자체적으로 등록한 커스텀 메시지 핸들러가 있을 때
+          진짜 위험은 서비스가 자체적으로 등록한 커스텀 메시지 핸들러가 있을 때
           입니다. 예: <code>{`{ type: "AUTH_GRANT", token: ... }`}</code> 같은
           메시지로 인증 상태를 갈아끼우는 핸들러가 있다면 즉시 권한 우회.
         </li>
         <li>
-          PoC 단계에서는 알렌 dev 환경에 임베드해서 부모 message 리스너 / DOM
-          변화 / 콘솔 에러 를 같이 관찰하세요.
+          테스트 단계에서는 본인 서비스의 dev/staging 환경에 임베드해서 부모
+          message 리스너 / DOM 변화 / 콘솔 에러를 같이 관찰하세요.
         </li>
       </ul>
     </>

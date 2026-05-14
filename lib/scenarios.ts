@@ -2,6 +2,12 @@ export interface IScenario {
   slug: string;
   title: string;
   summary: string;
+  /** 시나리오가 검증하는 주요 표면 */
+  surface?: "iframe" | "html" | "dom";
+  /** iframe 이 아닌 HTML/DOM 시나리오에서 복사할 예시 payload */
+  payloads?: IPayloadExample[];
+  /** iframe 이 아닌 HTML/DOM 시나리오의 점검 포인트 */
+  checks?: string[];
   /** sandbox 미부착 상황에서 동작하는가 */
   noSandbox: "works" | "blocked" | "partial";
   /** sandbox="allow-scripts" 만 부착했을 때 */
@@ -17,10 +23,171 @@ export interface IScenario {
     | "annoyance"
     | "probe"
     | "exfil"
-    | "delayed";
+    | "delayed"
+    | "html"
+    | "dom"
+    | "protocol";
+}
+
+export interface IPayloadExample {
+  label: string;
+  value: string;
+  note?: string;
 }
 
 export const SCENARIOS: IScenario[] = [
+  {
+    slug: "script-tag-injection",
+    title: "script 태그 삽입",
+    summary:
+      "사용자 입력이 HTML 문서로 그대로 파싱될 때 <script> 태그가 실행 가능한지 확인한다. 출력 인코딩, 태그 제거, CSP script-src 의 기본 검증 시나리오.",
+    surface: "html",
+    payloads: [
+      {
+        label: "inline script alert",
+        value: '<script>alert("xss-playground")</script>',
+        note: "서버가 입력을 그대로 HTML 문서에 반영하는지 확인하는 가장 기본적인 payload.",
+      },
+      {
+        label: "script side effect",
+        value:
+          '<script>document.body.dataset.xssPlayground="script-fired"</script>',
+        note: "alert 없이 DOM 변경으로 실행 여부를 확인할 때 사용.",
+      },
+    ],
+    checks: [
+      "입력값이 텍스트로 이스케이프되는지, 실제 script 태그로 파싱되는지 확인",
+      "HTML 필터가 script 태그와 위험 속성을 제거하는지 확인",
+      "CSP script-src 가 inline script 실행을 막는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "html",
+  },
+  {
+    slug: "event-handler-attribute",
+    title: "이벤트 핸들러 속성 삽입",
+    summary:
+      "img onerror, details ontoggle 같은 이벤트 핸들러 속성이 HTML 렌더링 과정에서 살아남아 실행되는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "img onerror",
+        value: '<img src=x onerror="alert(\'xss-playground\')">',
+        note: "이미지 로드 실패 이벤트를 이용하는 대표적인 HTML attribute XSS.",
+      },
+      {
+        label: "details ontoggle",
+        value:
+          '<details open ontoggle="alert(\'xss-playground\')"><summary>open</summary></details>',
+        note: "script 태그를 막아도 이벤트 속성이 남으면 실행될 수 있다.",
+      },
+    ],
+    checks: [
+      "onerror, onclick, onload 등 on* 속성이 제거되는지 확인",
+      "태그 allowlist 는 있어도 속성 allowlist 가 느슨하지 않은지 확인",
+      "CSP 가 inline event handler 를 차단하는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "html",
+  },
+  {
+    slug: "javascript-url",
+    title: "javascript: URL 프로토콜",
+    summary:
+      "a href, form action 같은 URL 속성에 javascript: 프로토콜이 남아 클릭 또는 submit 시 실행되는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "anchor href javascript",
+        value:
+          '<a href="javascript:alert(\'xss-playground\')">click me</a>',
+        note: "사용자 클릭 후 실행되는 URL 프로토콜 기반 XSS.",
+      },
+      {
+        label: "form action javascript",
+        value:
+          '<form action="javascript:alert(\'xss-playground\')"><button>submit</button></form>',
+        note: "href 뿐 아니라 action 같은 URL 속성도 함께 검증.",
+      },
+    ],
+    checks: [
+      "href/action/src 같은 URL 속성에서 javascript: 가 제거되는지 확인",
+      "대소문자, 공백, entity encoding 을 정규화한 뒤 검증하는지 확인",
+      "사용자 클릭이 필요한 지연 실행 payload 도 차단되는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "protocol",
+  },
+  {
+    slug: "svg-onload",
+    title: "SVG / MathML onload payload",
+    summary:
+      "SVG, MathML 같은 비 HTML 네임스페이스 태그의 이벤트 속성과 중첩 HTML 이 필터를 우회하는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "svg onload",
+        value:
+          '<svg onload="alert(\'xss-playground\')" xmlns="http://www.w3.org/2000/svg"></svg>',
+        note: "script 태그 없이 onload 이벤트만으로 실행되는 대표적인 SVG payload.",
+      },
+      {
+        label: "math annotation-xml",
+        value:
+          '<math><annotation-xml encoding="text/html"><svg onload="alert(\'xss-playground\')"></svg></annotation-xml></math>',
+        note: "HTML parser 경계와 namespace 처리가 느슨한 필터를 확인할 때 사용.",
+      },
+    ],
+    checks: [
+      "svg/math 태그를 허용할 필요가 있는지 확인",
+      "namespace 안의 이벤트 속성과 중첩 HTML 이 제거되는지 확인",
+      "태그 이름만 보는 블랙리스트가 아닌 구조적 HTML 필터를 쓰는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "html",
+  },
+  {
+    slug: "dom-innerhtml-sink",
+    title: "DOM innerHTML sink",
+    summary:
+      "location, hash, postMessage 등에서 온 문자열을 innerHTML 같은 unsafe sink 에 넣을 때 DOM 기반 XSS 가 발생하는지 확인한다.",
+    surface: "dom",
+    payloads: [
+      {
+        label: "img onerror DOM sink",
+        value: '<img src=x onerror="alert(\'dom-xss\')">',
+        note: "innerHTML 에 들어갔을 때 이벤트 핸들러가 실행되는지 확인.",
+      },
+      {
+        label: "autofocus onfocus",
+        value:
+          '<input autofocus onfocus="alert(\'dom-xss\')" value="focus payload">',
+        note: "자동 focus 이벤트 기반 DOM XSS 확인.",
+      },
+    ],
+    checks: [
+      "untrusted source 가 innerHTML, outerHTML, insertAdjacentHTML 로 들어가는지 확인",
+      "textContent / DOM API 기반 렌더링으로 대체 가능한지 확인",
+      "클라이언트 라우터, hash, postMessage payload 를 sink 에 넣기 전 검증하는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "dom",
+  },
   {
     slug: "top-redirect",
     title: "top.location 강제 리다이렉트",
@@ -179,7 +346,7 @@ export const SCENARIOS: IScenario[] = [
     slug: "token-exfil",
     title: "부모 토큰 / 네트워크 탈취 시도",
     summary:
-      "알렌 부모 페이지에서 JWT 토큰이나 진행 중 네트워크 요청을 빼낼 수 있는지 여러 각도로 시도한다. SOP 가 무엇을 막아주고 무엇이 통과하는지 한 페이지에서 확인.",
+      "부모 페이지의 JWT, storage, 진행 중 네트워크 요청을 iframe 에서 빼낼 수 있는지 여러 각도로 시도한다. SOP 가 무엇을 막고 무엇이 통과하는지 확인한다.",
     noSandbox: "partial",
     scriptsOnly: "partial",
     fullSandbox: "blocked",
@@ -190,7 +357,7 @@ export const SCENARIOS: IScenario[] = [
     slug: "parent-message-listener-probe",
     title: "부모의 message 리스너 fingerprinting",
     summary:
-      "다양한 형태의 postMessage 페이로드를 부모에게 던지고, 부모에서 어떤 응답이 돌아오는지(또는 사이드 이펙트가 있는지) 관찰한다. 알렌 리스너 구조 탐색용.",
+      "다양한 형태의 postMessage 페이로드를 부모에게 던지고, 부모에서 어떤 응답이 돌아오는지 또는 사이드 이펙트가 있는지 관찰한다.",
     noSandbox: "works",
     scriptsOnly: "works",
     fullSandbox: "blocked",
@@ -212,7 +379,7 @@ export const SCENARIOS: IScenario[] = [
     slug: "chained-attack",
     title: "체인 공격 (피싱 + 풀스크린 + redirect)",
     summary:
-      "여러 시나리오를 묶은 실전 공격 흐름. iframe 임베드 후 (1) 풀스크린 가짜 알렌 UI 띄우기 → (2) 비밀번호 수집 → (3) 수집 완료 후 진짜 알렌으로 다시 보내 의심 회피.",
+      "여러 시나리오를 묶은 실전 공격 흐름. iframe 임베드 후 (1) 풀스크린 가짜 로그인 UI 띄우기 → (2) 비밀번호 수집 → (3) 원래 페이지로 redirect 해 의심 회피.",
     noSandbox: "works",
     scriptsOnly: "partial",
     fullSandbox: "blocked",
@@ -225,6 +392,9 @@ export const findScenario = (slug: string) =>
   SCENARIOS.find((s) => s.slug === slug);
 
 export const CATEGORY_LABEL: Record<IScenario["category"], string> = {
+  html: "HTML Injection",
+  dom: "DOM XSS",
+  protocol: "URL / Protocol",
   navigation: "Navigation",
   communication: "Communication",
   exfil: "Exfiltration",
@@ -235,6 +405,9 @@ export const CATEGORY_LABEL: Record<IScenario["category"], string> = {
 };
 
 export const ALL_CATEGORIES: IScenario["category"][] = [
+  "html",
+  "dom",
+  "protocol",
   "navigation",
   "communication",
   "exfil",

@@ -94,7 +94,7 @@ const TokenExfilPage = () => {
   };
 
   const fetchTokenFromOurOrigin = async () => {
-    push("자기 origin /api/dummy 호출 (테스트용 — 알렌 dev 에서는 자기 origin 이 아님)");
+    push("자기 origin /api/dummy 호출 (테스트용 — 부모 서비스 origin 과는 다름)");
     try {
       const r = await fetch("/api/dummy");
       push(`status=${r.status}`);
@@ -148,7 +148,7 @@ const TokenExfilPage = () => {
           자기 origin 안에서 키/클릭/입력 수집.
         </li>
         <li>
-          <strong>위험 변수:</strong> 부모(알렌)가 message 리스너에서 토큰을
+          <strong>위험 변수:</strong> 부모 서비스가 message 리스너에서 토큰을
           돌려주는 핸들러를 두고 있다면, 인가되지 않은 호스트의 iframe 에도
           토큰이 흘러갈 수 있음. <code>event.origin</code> 검증 필수.
         </li>

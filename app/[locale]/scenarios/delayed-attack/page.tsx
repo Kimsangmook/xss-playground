@@ -5,6 +5,7 @@ import { findScenario } from "@/lib/scenarios";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+import { SITE_URL } from "@/lib/site";
 
 type Action = "top-redirect" | "post-message" | "form-submit" | "open-popup";
 
@@ -21,6 +22,11 @@ const DelayedAttackPage = () => {
   const [delay, setDelay] = useState(5);
   const [action, setAction] = useState<Action>("top-redirect");
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [origin, setOrigin] = useState(SITE_URL);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     if (remaining === null) return;
@@ -142,12 +148,12 @@ const DelayedAttackPage = () => {
         실제 임베드 시에는 사용자 상호작용 없이 자동 실행되도록 URL 파라미터를
         넣어두면 됩니다. 예시:
       </p>
-      <pre>{`<iframe src="https://YOUR-VERCEL-URL/embed/delayed-attack?auto=top-redirect&delay=5"></iframe>`}</pre>
+      <pre>{`<iframe src="${origin}/embed/delayed-attack?auto=top-redirect&delay=5" width="600" height="420"></iframe>`}</pre>
 
       <h2>해설</h2>
       <ul>
         <li>
-          사용자가 알렌 노트를 보고 있는 동안 잠깐 무관한 콘텐츠처럼 보이게
+          사용자가 신뢰하는 서비스 화면을 보고 있는 동안 잠깐 무관한 콘텐츠처럼 보이게
           한 뒤 N초 뒤 발사하는 시나리오 재현. 즉시 발사는 사용자 의심을
           유발하지만 5~10초 지연은 자연스럽게 보임.
         </li>

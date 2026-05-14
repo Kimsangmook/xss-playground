@@ -1,14 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // 일부러 X-Frame-Options 와 CSP frame-ancestors 를 풀어둔다.
-  // 이 사이트의 페이지들이 알렌 같은 부모 페이지에서 iframe 으로 임베드 되어야 PoC 가 의미가 있기 때문.
+  // /embed/* 페이지는 사용자가 자기 서비스에 iframe 으로 붙여 넣어야 테스트가 가능하다.
+  // frame-ancestors 를 열어 임베드 가능한 테스트 페이로드로 유지한다.
   async headers() {
     return [
       {
-        source: "/scenarios/:path*",
+        source: "/embed/:path*",
         headers: [
-          { key: "X-Frame-Options", value: "ALLOWALL" },
           { key: "Content-Security-Policy", value: "frame-ancestors *;" },
         ],
       },

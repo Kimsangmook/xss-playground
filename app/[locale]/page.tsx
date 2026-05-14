@@ -1,41 +1,36 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SCENARIOS, ALL_CATEGORIES } from "@/lib/scenarios";
 import { getDictionary } from "@/i18n";
 import { LOCALES, type Locale } from "@/i18n/types";
-import { SITE_AUTHOR, SOCIAL, SITE_URL } from "@/lib/site";
+import { SITE_AUTHOR, SOCIAL } from "@/lib/site";
 import { AdSlot } from "@/app/AdSlot";
+import { QuickEmbedCopy } from "@/app/QuickEmbedCopy";
+import { QuickPayloadCopy } from "@/app/QuickPayloadCopy";
+import {
+  createHomeJsonLd,
+  createHomeSeoMetadata,
+} from "@/components/seo/Seo";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 interface IProps {
   params: { locale: string };
 }
+
+export const generateMetadata = ({ params }: IProps): Metadata => {
+  if (!LOCALES.includes(params.locale as Locale)) return {};
+  return createHomeSeoMetadata(params.locale as Locale);
+};
 
 const HomePage = ({ params }: IProps) => {
   if (!LOCALES.includes(params.locale as Locale)) notFound();
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: dict.site.name,
-    url: `${SITE_URL}/${locale}`,
-    description: dict.site.description,
-    inLanguage: locale,
-    author: {
-      "@type": "Person",
-      name: SITE_AUTHOR.name,
-      jobTitle: SITE_AUTHOR.role,
-      url: `https://github.com/${SITE_AUTHOR.github}`,
-    },
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={createHomeJsonLd(locale)} />
 
       <h1>{dict.site.name}</h1>
       <p className="summary">{dict.site.tagline}</p>
@@ -93,12 +88,38 @@ const HomePage = ({ params }: IProps) => {
         <strong>{dict.home.warningTitle}.</strong> {dict.home.warningBody}
       </div>
 
+      <h2>{dict.home.intentHeading}</h2>
+      <section className="intent-panel">
+        {dict.home.intentBody.map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
+      </section>
+
       <h2>{dict.home.howToUseHeading}</h2>
       <ol>
         {dict.home.howToUseSteps.map((s, i) => (
           <li key={i}>{s}</li>
         ))}
       </ol>
+
+      <h2>{dict.home.threatsHeading}</h2>
+      <p className="summary">{dict.home.threatsIntro}</p>
+      <div className="threat-grid">
+        {dict.home.threats.map((item) => (
+          <section key={item.title} className="threat-card">
+            <strong>{item.title}</strong>
+            <p>{item.body}</p>
+          </section>
+        ))}
+      </div>
+      <div className="reference-links">
+        <strong>{dict.home.referencesHeading}</strong>
+        {dict.home.references.map((source) => (
+          <a key={source.href} href={source.href} target="_blank" rel="noreferrer">
+            {source.label}
+          </a>
+        ))}
+      </div>
 
       <AdSlot slot="home-mid" />
 
@@ -123,6 +144,17 @@ const HomePage = ({ params }: IProps) => {
                   <p style={{ margin: "6px 0 0", color: "var(--text-dim)" }}>
                     {meta?.summary ?? s.summary}
                   </p>
+                  {(s.surface ?? "iframe") === "iframe" ? (
+                    <QuickEmbedCopy
+                      slug={s.slug}
+                      title={meta?.title ?? s.title}
+                    />
+                  ) : (
+                    <QuickPayloadCopy
+                      payload={s.payloads?.[0]?.value ?? ""}
+                      title={meta?.title ?? s.title}
+                    />
+                  )}
                 </div>
               );
             })}

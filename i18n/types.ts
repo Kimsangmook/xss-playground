@@ -15,6 +15,7 @@ export interface IDictionary {
     name: string;
     tagline: string;
     description: string;
+    keywords: string[];
   };
   nav: {
     home: string;
@@ -25,6 +26,13 @@ export interface IDictionary {
     aboutHeading: string;
     aboutBody: string[];
     contact: string;
+    intentHeading: string;
+    intentBody: string[];
+    threatsHeading: string;
+    threatsIntro: string;
+    threats: { title: string; body: string }[];
+    referencesHeading: string;
+    references: { label: string; href: string }[];
     scenariosHeading: string;
     scenariosIntro: string;
     howToUseHeading: string;

@@ -1,29 +1,25 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { findScenario, SCENARIOS } from "@/lib/scenarios";
-import { SCENARIO_EMBEDS } from "./scenarios";
+import { EmbedScenarioRouter } from "./EmbedScenarioRouter";
+import { createEmbedSeoMetadata } from "@/components/seo/Seo";
 
 export const generateStaticParams = () =>
-  SCENARIOS.map((s) => ({ slug: s.slug }));
+  SCENARIOS.filter((s) => (s.surface ?? "iframe") === "iframe").map((s) => ({
+    slug: s.slug,
+  }));
 
 interface IProps {
   params: { slug: string };
 }
 
+export const generateMetadata = ({ params }: IProps): Metadata =>
+  createEmbedSeoMetadata(params.slug);
+
 const EmbedSlugPage = ({ params }: IProps) => {
   const scenario = findScenario(params.slug);
   if (!scenario) notFound();
-  const Comp = SCENARIO_EMBEDS[params.slug];
-  if (!Comp) {
-    return (
-      <div style={{ padding: 16 }}>
-        <strong>{scenario!.title}</strong>
-        <p style={{ color: "var(--text-dim)" }}>
-          이 시나리오의 임베드 컴포넌트가 아직 작성되지 않았습니다.
-        </p>
-      </div>
-    );
-  }
-  return <Comp />;
+  return <EmbedScenarioRouter slug={params.slug} title={scenario.title} />;
 };
 
 export default EmbedSlugPage;

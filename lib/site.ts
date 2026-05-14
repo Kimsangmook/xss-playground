@@ -2,8 +2,11 @@
  * 사이트 전역 설정. 환경변수로 채워지는 값들과 빌드타임 고정값을 한 곳에서.
  */
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://xss-playground.vercel.app";
+const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
+
+export const SITE_URL = trimTrailingSlash(
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://xss-playground.com"
+);
 
 export const SITE_AUTHOR = {
   name: process.env.NEXT_PUBLIC_AUTHOR_NAME ?? "Sangmook Kim",

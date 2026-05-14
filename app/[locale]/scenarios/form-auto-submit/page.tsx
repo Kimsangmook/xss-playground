@@ -76,7 +76,7 @@ const FormAutoSubmitPage = () => {
         </li>
         <li>
           <code>sandbox</code> 에 <code>allow-forms</code> 가 없으면 submit 자체가
-          차단됩니다. 알렌처럼 신뢰 호스트만 화이트리스트로 받지 않는다면 이
+          차단됩니다. 신뢰 호스트만 allowlist 로 받지 않는다면 이
           키워드는 빼는 게 안전합니다.
         </li>
         <li>

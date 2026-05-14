@@ -30,12 +30,12 @@ const FullscreenOverlayPage = () => {
       <div className="callout">
         실제 공격에서는 iframe 자체를 부모 페이지의 CSS 로 화면 전체를 덮는
         position:fixed; top:0; width:100%; height:100% 으로 배치합니다. iframe
-        자기 origin 안에서는 그 안에 어떤 UI 든 자유롭게 그릴 수 있어서, 알렌과
-        똑같이 생긴 가짜 페이지로 사용자를 속일 수 있습니다.
+        자기 origin 안에서는 그 안에 어떤 UI 든 자유롭게 그릴 수 있어서, 실제
+        서비스와 똑같이 생긴 가짜 페이지로 사용자를 속일 수 있습니다.
       </div>
       <div className="actions">
         <button className="danger" onClick={() => setShowOverlay(true)}>
-          가짜 알렌 UI 오버레이 표시
+          가짜 서비스 UI 오버레이 표시
         </button>
         <button className="danger" onClick={tryRealFullscreen}>
           진짜 풀스크린 API
@@ -57,7 +57,7 @@ const FullscreenOverlayPage = () => {
           }}
         >
           <h1 style={{ fontSize: 28, marginTop: 0 }}>
-            알렌의 서재 — 본인 인증이 필요합니다
+            Example Workspace — 본인 인증이 필요합니다
           </h1>
           <p style={{ fontSize: 15, color: "#555" }}>
             서비스 정책 변경에 따라 다시 로그인해 주세요. (이건 가짜 화면입니다)
@@ -138,8 +138,8 @@ const FullscreenOverlayPage = () => {
       <ul>
         <li>
           iframe 자체 영역을 부모 CSS 가 어떻게 배치할지는 부모 책임입니다.
-          알렌이 임의 iframe 을 100% 너비/높이로 그리고 있다면 그 자체로 시각적
-          위장이 가능합니다.
+          서비스가 임의 iframe 을 100% 너비/높이로 그리고 있다면 그 자체로
+          시각적 위장이 가능합니다.
         </li>
         <li>
           진짜 풀스크린 API 는 사용자 제스처 필요. 하지만 z-index:99999 의 일반

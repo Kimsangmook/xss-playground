@@ -76,12 +76,12 @@ const PopupSpamPage = () => {
         </li>
         <li>
           <code>sandbox</code> 에 <code>allow-popups</code> 키워드가 없으면
-          차단됩니다. 알렌처럼 임의 호스트를 허용한다면 이 키워드는 빼는 게
+          차단됩니다. 임의 호스트 iframe 을 허용한다면 이 키워드는 빼는 게
           맞습니다.
         </li>
         <li>
           새 창이 부모와 같은 origin 이면 opener 를 통한 tabnabbing 도 가능합니다.
-          알렌 부모는 cross-origin 이라 직접 영향은 적지만,{" "}
+          cross-origin 부모는 직접 영향이 적지만,{" "}
           <code>opener.location</code> 변경은 cross-origin 이어도 허용되는 점을
           기억하세요.
         </li>

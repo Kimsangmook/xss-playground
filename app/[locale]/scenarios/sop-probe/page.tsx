@@ -103,9 +103,9 @@ const SopProbePage = () => {
           모두 sandbox 와 부모 측 검증에 의존합니다.
         </li>
         <li>
-          알렌의 진짜 위험 표면은 &quot;데이터 탈취&quot; 가 아니라 &quot;사용자
-          기만&quot; 쪽에 더 가깝습니다. 이 페이지를 한번 돌려보면 그 차이가
-          분명해집니다.
+          cross-origin iframe 의 위험 표면은 직접적인 부모 데이터 탈취보다
+          &quot;사용자 기만&quot;, &quot;메시지 핸들러 오용&quot;, &quot;자동 요청&quot; 쪽에
+          더 가까울 때가 많습니다. 이 페이지를 돌려보면 그 경계가 분명해집니다.
         </li>
       </ul>
     </>

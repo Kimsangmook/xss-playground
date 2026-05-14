@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LOCALES, type Locale } from "@/i18n/types";
 import { getDictionary } from "@/i18n";
-import { SITE_URL } from "@/lib/site";
+import { createLocaleBaseMetadata } from "@/components/seo/Seo";
 import { LocaleSidebar } from "./LocaleSidebar";
 
 export const generateStaticParams = () => LOCALES.map((locale) => ({ locale }));
@@ -18,31 +18,7 @@ export const generateMetadata = ({
   params: { locale: string };
 }): Metadata => {
   if (!LOCALES.includes(params.locale as Locale)) return {};
-  const dict = getDictionary(params.locale as Locale);
-  const path = `/${params.locale}`;
-  return {
-    title: { default: dict.site.name, template: `%s · ${dict.site.name}` },
-    description: dict.site.description,
-    alternates: {
-      canonical: `${SITE_URL}${path}`,
-      languages: Object.fromEntries(
-        LOCALES.map((l) => [l, `${SITE_URL}/${l}`])
-      ),
-    },
-    openGraph: {
-      title: dict.site.name,
-      description: dict.site.description,
-      url: `${SITE_URL}${path}`,
-      siteName: dict.site.name,
-      locale: params.locale,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: dict.site.name,
-      description: dict.site.description,
-    },
-  };
+  return createLocaleBaseMetadata(params.locale as Locale);
 };
 
 const LocaleLayout = ({ children, params }: ILayoutProps) => {

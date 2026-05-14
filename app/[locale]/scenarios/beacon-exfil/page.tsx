@@ -105,12 +105,12 @@ const BeaconExfilPage = () => {
         </li>
         <li>
           <code>document.referrer</code> 로 부모 페이지 URL 의 origin / path 까지
-          확인 가능합니다 (Referrer-Policy 에 따라 다름). 알렌 페이지에서 어느
-          노트에 임베드됐는지 추적 가능.
+          확인 가능합니다 (Referrer-Policy 에 따라 다름). 어떤 문서, 게시글,
+          대시보드에 임베드됐는지 추적할 수 있습니다.
         </li>
         <li>
           이 공격은 진짜 데이터 탈취에 가장 가깝습니다. 대응은 sandbox 빈 값으로
-          JS 자체를 막거나 호스트 화이트리스트로 신뢰 도메인만 허용하는 것.
+          JS 자체를 막거나 호스트 allowlist 로 신뢰 도메인만 허용하는 것.
         </li>
       </ul>
     </>

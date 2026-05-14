@@ -83,6 +83,24 @@ input:focus {
   border-color: var(--accent);
 }
 
+textarea.payload-editor {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    monospace;
+  font-size: 12.5px;
+}
+textarea.payload-editor:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .layout {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -263,6 +281,10 @@ html.embed .embed-badge {
     padding: 16px 18px 40px;
     max-width: 100%;
   }
+  .quick-copy,
+  .threat-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .main h1 {
@@ -317,6 +339,76 @@ html.embed .embed-badge {
   gap: 8px;
   flex-wrap: wrap;
   margin: 12px 0;
+}
+
+.quick-copy {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 8px;
+  margin-top: 12px;
+}
+.quick-copy pre {
+  margin: 0;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.threat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+.threat-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--bg-elev);
+}
+.threat-card p {
+  color: var(--text-dim);
+  margin: 6px 0 0;
+}
+.intent-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  background: var(--bg-elev);
+  margin: 12px 0;
+}
+.intent-panel p {
+  margin: 0;
+  color: var(--text-dim);
+}
+.intent-panel p + p {
+  margin-top: 10px;
+}
+.reference-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 14px 0 4px;
+  font-size: 13px;
+}
+.reference-links strong {
+  color: var(--text-dim);
+}
+
+.payload-frame,
+.payload-preview {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+}
+.payload-preview {
+  padding: 16px;
+  overflow: auto;
 }
 
 .log {

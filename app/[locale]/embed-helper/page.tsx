@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { SCENARIOS } from "@/lib/scenarios";
 
+const EMBEDDABLE_SCENARIOS = SCENARIOS.filter(
+  (scenario) => (scenario.surface ?? "iframe") === "iframe"
+);
+
 const SANDBOX_PRESETS = [
   { label: "sandbox 없음", value: null },
   { label: 'sandbox=""', value: "" },
@@ -22,7 +26,7 @@ const SANDBOX_PRESETS = [
 ];
 
 const EmbedHelperPage = () => {
-  const [scenarioSlug, setScenarioSlug] = useState(SCENARIOS[0].slug);
+  const [scenarioSlug, setScenarioSlug] = useState(EMBEDDABLE_SCENARIOS[0].slug);
   const [sandboxIdx, setSandboxIdx] = useState<number>(0);
   const [messages, setMessages] = useState<string[]>([]);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -46,15 +50,16 @@ const EmbedHelperPage = () => {
     <>
       <h1>부모 페이지 임베드 헬퍼</h1>
       <p className="summary">
-        이 페이지가 알렌 같은 부모 페이지 역할을 합니다. 시나리오와 sandbox
-        조합을 바꿔가며 실제 어떤 차이가 나는지 한 페이지에서 비교할 수 있습니다.
+        이 페이지가 테스트 대상 서비스의 부모 페이지 역할을 합니다. 시나리오와
+        sandbox 조합을 바꿔가며 실제 어떤 차이가 나는지 한 페이지에서 비교할 수
+        있습니다.
       </p>
 
       <div className="callout">
-        실제 알렌 환경의 sanitize 결과를 검증하려면, 이 페이지가 아니라 알렌
-        마이노트 / 커뮤니티 / cpx 노트 에디터에 시나리오 페이지를 직접 임베드
-        해야 합니다. 이 헬퍼는 sandbox 옵션 자체의 효과를 빠르게 비교하는 용도
-        입니다.
+        실제 서비스의 대응을 검증하려면 이 헬퍼가 아니라 해당 서비스의 에디터,
+        위키, CMS, 댓글 영역처럼 HTML 이 렌더링되는 위치에 시나리오 iframe 을
+        직접 붙여 넣으세요. 이 헬퍼는 sandbox 옵션 자체의 효과를 빠르게 비교하는
+        용도입니다.
       </div>
 
       <h2>설정</h2>
@@ -73,7 +78,7 @@ const EmbedHelperPage = () => {
               width: "100%",
             }}
           >
-            {SCENARIOS.map((s) => (
+            {EMBEDDABLE_SCENARIOS.map((s) => (
               <option key={s.slug} value={s.slug}>
                 {s.title}
               </option>

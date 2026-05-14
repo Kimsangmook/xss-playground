@@ -72,8 +72,8 @@ const PostMessagePage = () => {
           합니다.
         </li>
         <li>
-          알렌 같은 부모가 <code>iframe-resizer</code>, 결제 위젯, 유튜브 IFrame
-          API 등을 위해 message 리스너를 두고 있다면, 그 리스너의 메시지 포맷을
+          부모 페이지가 <code>iframe-resizer</code>, 결제 위젯, 유튜브 IFrame API
+          등을 위해 message 리스너를 두고 있다면, 그 리스너의 메시지 포맷을
           흉내내서 보내는 게 흔한 공격 패턴입니다.
         </li>
         <li>
