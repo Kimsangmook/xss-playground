@@ -39,6 +39,9 @@ export interface IDictionary {
     howToUseSteps: string[];
     warningTitle: string;
     warningBody: string;
+    contributingHeading: string;
+    contributingBody: string[];
+    contributingLinks: { label: string; href: string }[];
   };
   scenarioPage: {
     sandboxMatrix: string;

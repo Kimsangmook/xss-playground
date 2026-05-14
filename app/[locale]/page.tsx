@@ -163,6 +163,25 @@ const HomePage = ({ params }: IProps) => {
       })}
 
       <AdSlot slot="home-bottom" />
+
+      <h2>{dict.home.contributingHeading}</h2>
+      <section className="contributing-panel">
+        {dict.home.contributingBody.map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
+        <div className="contributing-links">
+          {dict.home.contributingLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </section>
     </>
   );
 };

@@ -397,6 +397,40 @@ html.embed .embed-badge {
   color: var(--text-dim);
 }
 
+.contributing-panel {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin: 12px 0 8px;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.contributing-panel p {
+  margin: 0;
+}
+.contributing-panel p + p {
+  margin-top: 8px;
+}
+.contributing-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  font-size: 12.5px;
+}
+.contributing-links a {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+}
+.contributing-links a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
 .payload-frame,
 .payload-preview {
   width: 100%;

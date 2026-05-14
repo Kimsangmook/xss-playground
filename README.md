@@ -1,5 +1,10 @@
 # XSS Playground
 
+> **Source-available**, not open-source. The code is public for review and
+> contributions, but forking to operate a separate deployment, mirror, or
+> commercial service is **not permitted** — see [LICENSE](./LICENSE).
+> Issues and PRs are welcome; please read [CONTRIBUTING.md](./CONTRIBUTING.md) first.
+
 ## Environment variables
 
 Local dev 에서는 프로젝트 루트에 `.env.local` 을 만들어 채우고, Vercel 배포 시에는 Project Settings → Environment Variables 에 같은 키/값을 등록하세요.

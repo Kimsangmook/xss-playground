@@ -93,6 +93,30 @@ export const ja: IDictionary = {
     warningTitle: "注意",
     warningBody:
       "自身が権限を持つサービスに対してのみテストしてください。第三者サービスに対する試行は不正アクセス禁止法等に抵触する可能性があります。",
+    contributingHeading: "コントリビュート (Issues / PR)",
+    contributingBody: [
+      "本プロジェクトは source-available ライセンスで運用しています。ソースは公開していますが、フォークして別のデプロイを運用したり、再配布・商用利用することは許可していません。",
+      "アイデア、バグ報告、翻訳改善、新シナリオ提案は歓迎します。まず Issue を立てて方針を合意し、採用された変更は collaborator として直接ブランチを push する PR フローを推奨します。",
+      "ライセンスとコントリビューションポリシーの全文は LICENSE と CONTRIBUTING.md を参照してください。",
+    ],
+    contributingLinks: [
+      {
+        label: "Issue を立てる",
+        href: "https://github.com/Kimsangmook/xss-playground/issues/new/choose",
+      },
+      {
+        label: "Pull Request 一覧",
+        href: "https://github.com/Kimsangmook/xss-playground/pulls",
+      },
+      {
+        label: "CONTRIBUTING.md",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/CONTRIBUTING.md",
+      },
+      {
+        label: "LICENSE",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/LICENSE",
+      },
+    ],
   },
   scenarioPage: {
     sandboxMatrix: "sandbox ポリシー別の挙動",

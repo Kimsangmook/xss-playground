@@ -93,6 +93,30 @@ export const en: IDictionary = {
     warningTitle: "Caution",
     warningBody:
       "Only test services you own or have explicit permission to test. Probing third-party services may violate computer-misuse / unauthorized-access laws in your jurisdiction.",
+    contributingHeading: "Contributing (Issues / PRs)",
+    contributingBody: [
+      "This project is source-available, not open-source. The code is public for review and contributions, but forking the project to run a separate deployment, mirror, or commercial service is not permitted.",
+      "Ideas, bug reports, translation fixes, and new scenarios are welcome. Open an Issue first; if the change is accepted in principle you can be added as a collaborator and push a branch directly to this repository instead of a long-lived fork.",
+      "Full policy lives in LICENSE and CONTRIBUTING.md.",
+    ],
+    contributingLinks: [
+      {
+        label: "Open an Issue",
+        href: "https://github.com/Kimsangmook/xss-playground/issues/new/choose",
+      },
+      {
+        label: "Pull Requests",
+        href: "https://github.com/Kimsangmook/xss-playground/pulls",
+      },
+      {
+        label: "CONTRIBUTING.md",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/CONTRIBUTING.md",
+      },
+      {
+        label: "LICENSE",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/LICENSE",
+      },
+    ],
   },
   scenarioPage: {
     sandboxMatrix: "Behavior by sandbox policy",

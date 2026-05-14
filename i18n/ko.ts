@@ -93,6 +93,30 @@ export const ko: IDictionary = {
     warningTitle: "주의",
     warningBody:
       "본인이 권한을 가진 서비스에 대해서만 테스트하세요. 타인의 서비스를 대상으로 시도하면 부정접근 또는 정보통신망법 위반에 해당할 수 있습니다.",
+    contributingHeading: "기여하기 (Issues / PR)",
+    contributingBody: [
+      "이 프로젝트는 source-available 라이선스로 운영합니다. 코드는 공개되어 있지만, fork 후 별도 배포·재배포·상업적 이용은 허용되지 않습니다.",
+      "아이디어·버그·번역 개선·새 시나리오 제안은 환영합니다. Issue 로 먼저 논의한 뒤, 승인된 변경은 collaborator 로 추가받아 본 레포에 직접 브랜치를 올려 PR 을 보내는 흐름을 권장합니다.",
+      "라이선스와 contribution 정책 전문은 LICENSE 와 CONTRIBUTING.md 를 참고해 주세요.",
+    ],
+    contributingLinks: [
+      {
+        label: "Issue 등록",
+        href: "https://github.com/Kimsangmook/xss-playground/issues/new/choose",
+      },
+      {
+        label: "Pull Request 보기",
+        href: "https://github.com/Kimsangmook/xss-playground/pulls",
+      },
+      {
+        label: "CONTRIBUTING.md",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/CONTRIBUTING.md",
+      },
+      {
+        label: "LICENSE",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/LICENSE",
+      },
+    ],
   },
   scenarioPage: {
     sandboxMatrix: "sandbox 정책별 동작",

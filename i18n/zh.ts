@@ -93,6 +93,30 @@ export const zh: IDictionary = {
     warningTitle: "注意",
     warningBody:
       "请仅对您有权测试的服务进行测试。对第三方服务的试探可能违反相关计算机网络法规。",
+    contributingHeading: "贡献 (Issues / PR)",
+    contributingBody: [
+      "本项目采用 source-available 许可证。源代码公开供查看与贡献，但不允许 fork 后另行部署、镜像或用于商业服务。",
+      "欢迎提交想法、缺陷报告、翻译改进与新场景建议。请先在 Issue 中讨论方案；获得认可后可被加为 collaborator，直接在本仓库中创建分支并提交 PR，避免长期维护 fork。",
+      "完整政策见 LICENSE 与 CONTRIBUTING.md。",
+    ],
+    contributingLinks: [
+      {
+        label: "提交 Issue",
+        href: "https://github.com/Kimsangmook/xss-playground/issues/new/choose",
+      },
+      {
+        label: "Pull Requests",
+        href: "https://github.com/Kimsangmook/xss-playground/pulls",
+      },
+      {
+        label: "CONTRIBUTING.md",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/CONTRIBUTING.md",
+      },
+      {
+        label: "LICENSE",
+        href: "https://github.com/Kimsangmook/xss-playground/blob/main/LICENSE",
+      },
+    ],
   },
   scenarioPage: {
     sandboxMatrix: "按 sandbox 策略的行为",

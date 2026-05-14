@@ -1,0 +1,39 @@
+XSS Playground — Source-Available License
+Copyright (c) 2025 Sangmook Kim. All rights reserved.
+
+The source code in this repository is made publicly visible for the
+purpose of educational reference and for accepting contributions on the
+canonical repository hosted at:
+
+    https://github.com/Kimsangmook/xss-playground
+
+This is NOT an open-source license. The following actions require prior
+written permission from the copyright holder:
+
+  1. Forking, copying, or redistributing the source code (in whole or in
+     part) for the purpose of hosting a separate deployment.
+  2. Operating a derivative or competing site under the same or a
+     similar name.
+  3. Using the source code, or derivatives thereof, in any commercial
+     product or service.
+  4. Removing, modifying, or obscuring this license notice or the
+     attribution to the original author.
+
+The following actions are explicitly permitted:
+
+  a. Reading the source code for personal study.
+  b. Submitting Issues and Pull Requests on the canonical repository.
+  c. Running the project locally for the sole purpose of reviewing or
+     developing a contribution that will be submitted as a Pull Request.
+
+By submitting a Pull Request, you grant the copyright holder an
+unrestricted, perpetual, irrevocable license to incorporate your
+contribution into this project under this same license.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
