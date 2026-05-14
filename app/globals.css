@@ -1,0 +1,250 @@
+:root {
+  --bg: #0d1117;
+  --bg-elev: #161b22;
+  --bg-elev-2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --accent: #4493f8;
+  --danger: #f85149;
+  --warn: #d29922;
+  --ok: #3fb950;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+code,
+pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+pre {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 12.5px;
+}
+
+button {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:hover {
+  border-color: var(--accent);
+}
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+button.danger:hover {
+  background: rgba(248, 81, 73, 0.1);
+}
+
+input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 100%;
+}
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar h1 {
+  font-size: 14px;
+  margin: 0 0 4px 8px;
+  letter-spacing: 0.2px;
+}
+.sidebar .subtitle {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  margin: 0 0 18px 8px;
+}
+
+.sidebar .group-label {
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+  padding: 14px 8px 6px;
+}
+
+.sidebar a {
+  display: block;
+  color: var(--text);
+  padding: 7px 8px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.sidebar a:hover {
+  background: var(--bg-elev-2);
+  text-decoration: none;
+}
+.sidebar a.active {
+  background: rgba(68, 147, 248, 0.15);
+  color: var(--accent);
+}
+
+.main {
+  padding: 32px 40px 80px;
+  max-width: 920px;
+}
+
+.main h1 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+.main h2 {
+  font-size: 16px;
+  margin: 28px 0 10px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.summary {
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  margin-right: 6px;
+}
+.badge.works {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.badge.blocked {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+.badge.partial {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 12px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.log {
+  background: #000;
+  color: #c9d1d9;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  min-height: 120px;
+  max-height: 320px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 6px 12px;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.kv .k {
+  color: var(--text-dim);
+}
+
+.callout {
+  border-left: 3px solid var(--warn);
+  background: rgba(210, 153, 34, 0.08);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.callout.danger {
+  border-color: var(--danger);
+  background: rgba(248, 81, 73, 0.08);
+}
+
+table.matrix {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  margin: 12px 0;
+}
+table.matrix th,
+table.matrix td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+}
+table.matrix th {
+  background: var(--bg-elev-2);
+  font-weight: 600;
+}
