@@ -1,4 +1,22 @@
-# Xss Playground
+# XSS Playground
+
+## Environment variables
+
+Local dev 에서는 프로젝트 루트에 `.env.local` 을 만들어 채우고, Vercel 배포 시에는 Project Settings → Environment Variables 에 같은 키/값을 등록하세요.
+
+| Key | 용도 |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | 배포 도메인. https:// 포함, 끝에 / 없이. |
+| `NEXT_PUBLIC_AUTHOR_NAME` | 홈페이지 about 섹션 + JSON-LD 의 author 이름 |
+| `NEXT_PUBLIC_AUTHOR_EMAIL` | (옵션) about 섹션의 contact 링크 |
+| `NEXT_PUBLIC_AUTHOR_GITHUB` | GitHub username (about 섹션 + JSON-LD) |
+| `NEXT_PUBLIC_GA_ID` | (옵션) Google Analytics 4 Measurement ID (예: `G-XXXXXXXXXX`) |
+| `NEXT_PUBLIC_ADSENSE_ID` | (옵션) AdSense Publisher ID (예: `ca-pub-...`) |
+| `NEXT_PUBLIC_GSC_VERIFICATION` | (옵션) Search Console HTML 태그 인증 값 |
+
+값이 비어 있으면 해당 기능(GA, AdSense, GSC 메타)은 자동으로 비활성화됩니다.
+
+---
 
 알렌 sanitize 정책(`DOMPurify` + iframe 허용, 화이트리스트 제거) 의 실제 보안 영향을 검증하기 위한 PoC 사이트입니다. 부모 페이지(알렌 마이노트, 커뮤니티, cpx 노트 등)에서 `<iframe src="https://...">` 으로 임베드되어 동작하는 다양한 공격 시나리오를 담고 있습니다.
 
