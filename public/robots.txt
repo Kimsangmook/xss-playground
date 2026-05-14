@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /embed/
+Sitemap: https://xss-playground.vercel.app/sitemap.xml
