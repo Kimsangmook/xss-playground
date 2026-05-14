@@ -133,6 +133,21 @@ export const en: IDictionary = {
     actions: "Run",
     explanation: "Explanation",
     embedSnippet: "Embed snippet",
+    embedSnippetDescription:
+      "This snippet uses the dedicated embed page. Paste it into your own service and check rendering or blocking behavior.",
+    embeddedBadge: "EMBEDDED",
+    htmlSurfaceTitle: "HTML payload check",
+    domSurfaceTitle: "DOM sink check",
+    surfaceDescription:
+      "This scenario tests how user input is rendered into HTML / DOM, not iframe sandbox behavior.",
+    sandboxPresetLabels: [
+      "No sandbox (default behavior)",
+      'sandbox="" (strictest)',
+      'sandbox="allow-scripts"',
+      'sandbox="allow-scripts allow-same-origin"',
+      'sandbox="allow-scripts allow-top-navigation"',
+      'sandbox="allow-scripts allow-forms allow-popups"',
+    ],
     copySnippet: "Copy snippet",
     copied: "Copied!",
   },

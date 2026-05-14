@@ -133,6 +133,21 @@ export const ja: IDictionary = {
     actions: "実行",
     explanation: "解説",
     embedSnippet: "Embed スニペット",
+    embedSnippetDescription:
+      "このスニペットは埋め込み専用ページを使用します。自サービスに貼り付けてレンダリング/ブロックの挙動を確認してください。",
+    embeddedBadge: "EMBEDDED",
+    htmlSurfaceTitle: "HTML payload テスト",
+    domSurfaceTitle: "DOM sink テスト",
+    surfaceDescription:
+      "このシナリオは iframe sandbox ではなく、ユーザー入力が HTML/DOM にどう描画されるかを検証します。",
+    sandboxPresetLabels: [
+      "sandbox なし (基本動作)",
+      'sandbox="" (最も厳格)',
+      'sandbox="allow-scripts"',
+      'sandbox="allow-scripts allow-same-origin"',
+      'sandbox="allow-scripts allow-top-navigation"',
+      'sandbox="allow-scripts allow-forms allow-popups"',
+    ],
     copySnippet: "コピー",
     copied: "コピー済み",
   },

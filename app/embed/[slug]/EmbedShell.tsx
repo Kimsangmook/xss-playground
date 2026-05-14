@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getDictionary } from "@/i18n";
+import { useEmbedContext } from "./EmbedContext";
 
 export interface IEmbedAction {
   label: string;
@@ -10,11 +12,8 @@ export interface IEmbedAction {
 
 interface IEmbedShellProps {
   title: string;
-  /** 액션 버튼 목록 */
   actions: IEmbedAction[];
-  /** URL 의 ?auto=1 일 때 자동으로 호출할 액션 인덱스 (기본 0) */
   autoIndex?: number;
-  /** 추가 UI (폼, 비디오 등) */
   children?: React.ReactNode;
 }
 
@@ -28,20 +27,34 @@ const useSearchParams = () => {
   return params;
 };
 
+const TEXT = {
+  ko: { clear: "지우기", empty: "// 로그 없음", autoScheduled: "자동 실행 예약" },
+  en: { clear: "clear", empty: "// no logs", autoScheduled: "auto-fire scheduled" },
+  ja: { clear: "クリア", empty: "// ログなし", autoScheduled: "自動実行を予約" },
+  zh: { clear: "清除", empty: "// 无日志", autoScheduled: "已安排自动执行" },
+} as const;
+
 export const EmbedShell = ({
   title,
   actions,
   autoIndex = 0,
   children,
 }: IEmbedShellProps) => {
+  const { slug, locale } = useEmbedContext();
+  const dict = getDictionary(locale);
+  const localizedTitle =
+    (slug && dict.scenarios[slug]?.title) ?? title;
+  const t = TEXT[locale];
+  const badge = dict.scenarioPage.embeddedBadge;
+
   const [lines, setLines] = useState<string[]>([]);
   const [remaining, setRemaining] = useState<number | null>(null);
   const logRef = useRef<HTMLPreElement>(null);
   const params = useSearchParams();
 
   const push = (msg: string) => {
-    const t = new Date().toISOString().slice(11, 19);
-    setLines((p) => [...p, `[${t}] ${msg}`]);
+    const ts = new Date().toISOString().slice(11, 19);
+    setLines((p) => [...p, `[${ts}] ${msg}`]);
   };
   const clear = () => setLines([]);
 
@@ -49,14 +62,13 @@ export const EmbedShell = ({
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [lines]);
 
-  // ?auto=1 자동 실행, ?delay=N 지연
   useEffect(() => {
     const auto = params.get("auto");
     if (!auto) return;
     const idx = /^\d+$/.test(auto) ? Number(auto) : autoIndex;
     const delay = Number(params.get("delay") ?? 0);
 
-    push(`auto=${auto} delay=${delay}s — 자동 실행 예약`);
+    push(`auto=${auto} delay=${delay}s — ${t.autoScheduled}`);
     if (delay <= 0) {
       void actions[idx]?.run(push);
       return;
@@ -80,8 +92,8 @@ export const EmbedShell = ({
   return (
     <div className="embed-page">
       <div className="embed-header">
-        <strong>{title}</strong>
-        <span className="embed-badge">EMBEDDED</span>
+        <strong>{localizedTitle}</strong>
+        <span className="embed-badge">{badge}</span>
         {remaining !== null && (
           <span className="embed-countdown">{remaining}s</span>
         )}
@@ -97,13 +109,13 @@ export const EmbedShell = ({
             {a.label}
           </button>
         ))}
-        <button onClick={clear}>clear</button>
+        <button onClick={clear}>{t.clear}</button>
       </div>
 
       {children && <div className="embed-extra">{children}</div>}
 
       <pre ref={logRef} className="log embed-log">
-        {lines.length === 0 ? "// 로그 없음" : lines.join("\n")}
+        {lines.length === 0 ? t.empty : lines.join("\n")}
       </pre>
     </div>
   );

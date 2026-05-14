@@ -1,31 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LOCALES, DEFAULT_LOCALE } from "@/i18n/types";
+import { LOCALES, DEFAULT_LOCALE, type Locale } from "@/i18n/types";
 
 const LOCALE_RE = new RegExp(`^/(${LOCALES.join("|")})(/|$)`);
 
-const detectLocale = (req: NextRequest) => {
+const detectLocaleFromAcceptLanguage = (req: NextRequest): Locale => {
   const accept = req.headers.get("accept-language") ?? "";
-  // 단순 prefix 매칭: "ko-KR,en;q=0.9" → ko 가 먼저
   for (const part of accept.split(",")) {
     const tag = part.split(";")[0].trim().toLowerCase().slice(0, 2);
-    if (LOCALES.includes(tag as (typeof LOCALES)[number])) {
-      return tag as (typeof LOCALES)[number];
-    }
+    if (LOCALES.includes(tag as Locale)) return tag as Locale;
   }
   return DEFAULT_LOCALE;
+};
+
+const extractLocaleFromPath = (pathname: string): Locale | null => {
+  const m = pathname.match(/^\/([a-z]{2})(?:\/|$)/i);
+  if (!m) return null;
+  const candidate = m[1].toLowerCase() as Locale;
+  return LOCALES.includes(candidate) ? candidate : null;
 };
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 이미 locale prefix 있음
-  if (LOCALE_RE.test(pathname)) return;
+  // /embed/* 는 locale 무관 (iframe 전용). 그대로 통과시키되 헤더만 기본값으로.
+  if (pathname.startsWith("/embed")) {
+    const reqHeaders = new Headers(req.headers);
+    reqHeaders.set("x-pathname", pathname);
+    reqHeaders.set("x-locale", DEFAULT_LOCALE);
+    return NextResponse.next({ request: { headers: reqHeaders } });
+  }
 
-  // /embed/* 는 locale 무관 (iframe 전용)
-  if (pathname.startsWith("/embed")) return;
+  // locale prefix 가 이미 있는 경우 → 헤더만 주입해서 통과
+  if (LOCALE_RE.test(pathname)) {
+    const locale = extractLocaleFromPath(pathname) ?? DEFAULT_LOCALE;
+    const reqHeaders = new Headers(req.headers);
+    reqHeaders.set("x-pathname", pathname);
+    reqHeaders.set("x-locale", locale);
+    return NextResponse.next({ request: { headers: reqHeaders } });
+  }
 
-  // 정적 자원, API 등 제외 (matcher 에서 1차 필터링 됨)
-  const locale = detectLocale(req);
+  // locale prefix 가 없으면 redirect
+  const locale = detectLocaleFromAcceptLanguage(req);
   const url = req.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
   return NextResponse.redirect(url);
@@ -33,7 +48,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // _next, api, 정적 파일(.*\..*), embed 는 제외
-    "/((?!_next|api|favicon\\.ico|robots\\.txt|sitemap\\.xml|ads\\.txt|embed|.*\\..*).*)",
+    "/((?!_next|api|favicon\\.ico|robots\\.txt|sitemap\\.xml|ads\\.txt|.*\\..*).*)",
   ],
 };

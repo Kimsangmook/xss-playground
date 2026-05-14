@@ -1,6 +1,7 @@
 "use client";
 
 import { SCENARIO_EMBEDS } from "./scenarios";
+import { EmbedContextProvider } from "./EmbedContext";
 
 interface IEmbedScenarioRouterProps {
   slug: string;
@@ -18,11 +19,15 @@ export const EmbedScenarioRouter = ({
       <div style={{ padding: 16 }}>
         <strong>{title}</strong>
         <p style={{ color: "var(--text-dim)" }}>
-          이 시나리오의 임베드 컴포넌트가 아직 작성되지 않았습니다.
+          Scenario embed not implemented yet.
         </p>
       </div>
     );
   }
 
-  return <Comp />;
+  return (
+    <EmbedContextProvider slug={slug}>
+      <Comp />
+    </EmbedContextProvider>
+  );
 };
