@@ -1,4 +1,7 @@
-import { createScenarioLayout, createScenarioMetadata } from "../ScenarioSeoLayout";
+import {
+  createScenarioLayout,
+  createScenarioMetadata,
+} from "../ScenarioSeoLayout";
 
 export const generateMetadata = createScenarioMetadata("svg-onload");
 

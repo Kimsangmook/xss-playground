@@ -1,82 +1,108 @@
+"use client";
+
+import { useParams } from "next/navigation";
 import { IScenario } from "@/lib/scenarios";
+import { getDictionary } from "@/i18n";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  type Locale,
+  type IDictionary,
+} from "@/i18n/types";
 
 interface IScenarioHeaderProps {
   scenario: IScenario;
 }
 
-const BadgeMap: Record<IScenario["noSandbox"], string> = {
-  works: "동작함",
-  blocked: "차단됨",
-  partial: "부분 동작",
+const pickLocale = (raw: unknown): Locale => {
+  if (typeof raw === "string" && LOCALES.includes(raw as Locale)) {
+    return raw as Locale;
+  }
+  return DEFAULT_LOCALE;
+};
+
+const badgeLabel = (
+  v: IScenario["noSandbox"],
+  d: IDictionary["scenarioPage"]
+) => {
+  switch (v) {
+    case "works":
+      return d.works;
+    case "blocked":
+      return d.blocked;
+    case "partial":
+      return d.partial;
+  }
 };
 
 export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
+  const params = useParams<{ locale?: string }>();
+  const locale = pickLocale(params?.locale);
+  const dict = getDictionary(locale);
+  const sp = dict.scenarioPage;
+  const meta = dict.scenarios[scenario.slug];
   const surface = scenario.surface ?? "iframe";
 
   return (
     <>
       <h1>
-        {scenario.title}
-        <span className="embed-badge">EMBEDDED</span>
+        {meta?.title ?? scenario.title}
+        <span className="embed-badge">{sp.embeddedBadge}</span>
       </h1>
-      <p className="summary">{scenario.summary}</p>
+      <p className="summary">{meta?.summary ?? scenario.summary}</p>
 
       {surface === "iframe" ? (
         <div className="card" data-only-standalone>
-          <strong>sandbox 정책별 동작</strong>
+          <strong>{sp.sandboxMatrix}</strong>
           <table className="matrix">
             <thead>
               <tr>
-                <th>정책</th>
-                <th>예상 결과</th>
+                <th>{sp.policy}</th>
+                <th>{sp.expectedResult}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>sandbox 미부착</td>
+                <td>{sp.noSandbox}</td>
                 <td>
                   <span className={`badge ${scenario.noSandbox}`}>
-                    {BadgeMap[scenario.noSandbox]}
+                    {badgeLabel(scenario.noSandbox, sp)}
                   </span>
                 </td>
               </tr>
               <tr>
                 <td>
-                  <code>sandbox=&quot;allow-scripts&quot;</code>
+                  <code>{sp.scriptsOnly}</code>
                 </td>
                 <td>
                   <span className={`badge ${scenario.scriptsOnly}`}>
-                    {BadgeMap[scenario.scriptsOnly]}
+                    {badgeLabel(scenario.scriptsOnly, sp)}
                   </span>
                 </td>
               </tr>
               <tr>
                 <td>
-                  <code>sandbox=&quot;&quot;</code> (가장 엄격)
+                  <code>{sp.fullSandbox}</code>
                 </td>
                 <td>
                   <span className={`badge ${scenario.fullSandbox}`}>
-                    {BadgeMap[scenario.fullSandbox]}
+                    {badgeLabel(scenario.fullSandbox, sp)}
                   </span>
                 </td>
               </tr>
             </tbody>
           </table>
           {scenario.sopBlocks && (
-            <div className="callout">
-              이 시나리오는 sandbox 와 별개로{" "}
-              <strong>Same-Origin Policy 가 직접 차단</strong>합니다.
-            </div>
+            <div className="callout">{sp.sopBlocks}</div>
           )}
         </div>
       ) : (
         <div className="card" data-only-standalone>
           <strong>
-            {surface === "dom" ? "DOM sink 테스트" : "HTML payload 테스트"}
+            {surface === "dom" ? sp.domSurfaceTitle : sp.htmlSurfaceTitle}
           </strong>
           <p style={{ color: "var(--text-dim)", margin: "6px 0 0" }}>
-            이 시나리오는 iframe sandbox 가 아니라 사용자 입력이 HTML/DOM 으로
-            렌더링되는 지점을 검증합니다.
+            {sp.surfaceDescription}
           </p>
           {scenario.checks && (
             <ul style={{ marginBottom: 0 }}>

@@ -57,6 +57,12 @@ export interface IDictionary {
     actions: string;
     explanation: string;
     embedSnippet: string;
+    embedSnippetDescription: string;
+    embeddedBadge: string;
+    htmlSurfaceTitle: string;
+    domSurfaceTitle: string;
+    surfaceDescription: string;
+    sandboxPresetLabels: [string, string, string, string, string, string];
     copySnippet: string;
     copied: string;
   };

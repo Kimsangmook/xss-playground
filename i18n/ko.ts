@@ -133,6 +133,21 @@ export const ko: IDictionary = {
     actions: "실행",
     explanation: "해설",
     embedSnippet: "임베드 스니펫",
+    embedSnippetDescription:
+      "이 코드는 임베드 전용 페이지를 사용합니다. 본인 서비스에 그대로 붙여 넣고 렌더링/차단 여부를 확인하세요.",
+    embeddedBadge: "EMBEDDED",
+    htmlSurfaceTitle: "HTML payload 테스트",
+    domSurfaceTitle: "DOM sink 테스트",
+    surfaceDescription:
+      "이 시나리오는 iframe sandbox 가 아니라 사용자 입력이 HTML/DOM 으로 렌더링되는 지점을 검증합니다.",
+    sandboxPresetLabels: [
+      "sandbox 없음 (기본 동작)",
+      'sandbox="" (가장 엄격)',
+      'sandbox="allow-scripts"',
+      'sandbox="allow-scripts allow-same-origin"',
+      'sandbox="allow-scripts allow-top-navigation"',
+      'sandbox="allow-scripts allow-forms allow-popups"',
+    ],
     copySnippet: "스니펫 복사",
     copied: "복사됨!",
   },

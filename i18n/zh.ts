@@ -133,6 +133,21 @@ export const zh: IDictionary = {
     actions: "执行",
     explanation: "说明",
     embedSnippet: "Embed 代码",
+    embedSnippetDescription:
+      "此代码使用专用嵌入页面。粘贴到您的服务后检查渲染或拦截行为。",
+    embeddedBadge: "EMBEDDED",
+    htmlSurfaceTitle: "HTML payload 测试",
+    domSurfaceTitle: "DOM sink 测试",
+    surfaceDescription:
+      "该场景测试用户输入在 HTML/DOM 中的渲染方式，而非 iframe sandbox 行为。",
+    sandboxPresetLabels: [
+      "无 sandbox (默认行为)",
+      'sandbox="" (最严)',
+      'sandbox="allow-scripts"',
+      'sandbox="allow-scripts allow-same-origin"',
+      'sandbox="allow-scripts allow-top-navigation"',
+      'sandbox="allow-scripts allow-forms allow-popups"',
+    ],
     copySnippet: "复制",
     copied: "已复制",
   },
