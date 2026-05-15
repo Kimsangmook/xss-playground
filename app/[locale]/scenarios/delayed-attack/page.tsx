@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { findScenario } from "@/lib/scenarios";
+import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
 import { SITE_URL } from "@/lib/site";
+import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
 import { I18N } from "./i18n";
 import { fmt, usePageI18n } from "../usePageI18n";
 
 type Action = "top-redirect" | "post-message" | "form-submit" | "open-popup";
 
+const pickLocale = (raw: unknown): Locale =>
+  typeof raw === "string" && LOCALES.includes(raw as Locale)
+    ? (raw as Locale)
+    : DEFAULT_LOCALE;
+
 const DelayedAttackPage = () => {
   const scenario = findScenario("delayed-attack")!;
+  const params = useParams<{ locale?: string }>();
+  const locale = pickLocale(params?.locale);
   const { lines, push, clear } = useLog();
   const [delay, setDelay] = useState(5);
   const [action, setAction] = useState<Action>("top-redirect");
@@ -57,7 +67,11 @@ const DelayedAttackPage = () => {
     switch (action) {
       case "top-redirect": {
         try {
-          window.top!.location.href = "https://example.com/?delayed=1";
+          window.top!.location.href = buildRedirectTarget(
+            window.location.origin,
+            locale,
+            "delayed-attack",
+          );
         } catch (e) {
           push(fmt(t.log?.blocked, { message: (e as Error).message }));
         }
@@ -66,7 +80,7 @@ const DelayedAttackPage = () => {
       case "post-message": {
         window.parent.postMessage(
           { type: "DELAYED_ATTACK", fired: Date.now() },
-          "*"
+          "*",
         );
         push(t.log?.postMessage ?? "");
         break;
@@ -138,7 +152,11 @@ const DelayedAttackPage = () => {
         </div>
       </div>
       <div className="actions">
-        <button className="danger" onClick={start} disabled={remaining !== null}>
+        <button
+          className="danger"
+          onClick={start}
+          disabled={remaining !== null}
+        >
           {remaining === null
             ? t.buttons?.start
             : fmt(t.buttons?.remaining, { n: remaining })}
@@ -152,9 +170,7 @@ const DelayedAttackPage = () => {
       <Log lines={lines} />
 
       <h2>{t.text?.autoHeading}</h2>
-      <p className="summary">
-        {t.text?.autoBody}
-      </p>
+      <p className="summary">{t.text?.autoBody}</p>
       <pre>{`<iframe src="${origin}/embed/delayed-attack?auto=top-redirect&delay=5" width="600" height="420"></iframe>`}</pre>
 
       <h2>{t.explanationHeading}</h2>

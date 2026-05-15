@@ -1,5 +1,5 @@
-import type { Locale } from "@/i18n/types";
 import type { IScenarioPageI18n } from "../types";
+import type { Locale } from "@/i18n/types";
 
 interface IPageText extends IScenarioPageI18n {
   actionsHeading: string;
@@ -35,14 +35,14 @@ const ko: IPageText = {
   explanationHeading: "해설",
   buttons: {
     self: "window.open(self)",
-    external: "window.open(external)",
+    external: "window.open(test target)",
     flood: "여러 개 동시 열기",
     tabnab: "opener tabnabbing 설명",
     clearLog: "로그 초기화",
   },
   log: {
     trySelf: "window.open(self) 시도",
-    tryExternal: "window.open('https://example.com') 시도",
+    tryExternal: "window.open('/redirected?from=popup-spam') 시도",
     returnWindow: "반환: Window 객체",
     returnBlocked: "반환: null (팝업 차단됨)",
     openerLinked:
@@ -72,14 +72,14 @@ const en: IPageText = {
   explanationHeading: "Explanation",
   buttons: {
     self: "window.open(self)",
-    external: "window.open(external)",
+    external: "window.open(test target)",
     flood: "Open several at once",
     tabnab: "opener tabnabbing notes",
     clearLog: "Clear log",
   },
   log: {
     trySelf: "try window.open(self)",
-    tryExternal: "try window.open('https://example.com')",
+    tryExternal: "try window.open('/redirected?from=popup-spam')",
     returnWindow: "returned: Window object",
     returnBlocked: "returned: null (popup blocked)",
     openerLinked:
@@ -109,14 +109,14 @@ const ja: IPageText = {
   explanationHeading: "解説",
   buttons: {
     self: "window.open(self)",
-    external: "window.open(external)",
+    external: "window.open(test target)",
     flood: "複数を同時に開く",
     tabnab: "opener tabnabbing の説明",
     clearLog: "ログをクリア",
   },
   log: {
     trySelf: "window.open(self) を試行",
-    tryExternal: "window.open('https://example.com') を試行",
+    tryExternal: "window.open('/redirected?from=popup-spam') を試行",
     returnWindow: "戻り値: Window object",
     returnBlocked: "戻り値: null (popup blocked)",
     openerLinked:
@@ -146,14 +146,14 @@ const zh: IPageText = {
   explanationHeading: "说明",
   buttons: {
     self: "window.open(self)",
-    external: "window.open(external)",
+    external: "window.open(test target)",
     flood: "同时打开多个",
     tabnab: "opener tabnabbing 说明",
     clearLog: "清空日志",
   },
   log: {
     trySelf: "尝试 window.open(self)",
-    tryExternal: "尝试 window.open('https://example.com')",
+    tryExternal: "尝试 window.open('/redirected?from=popup-spam')",
     returnWindow: "返回: Window 对象",
     returnBlocked: "返回: null（popup 被阻止）",
     openerLinked:
@@ -162,8 +162,7 @@ const zh: IPageText = {
     floodItem: "[{n}] {result}",
     tabnab1:
       "攻击场景：打开新标签页后，如果没有 noopener，可修改 opener.location（tabnabbing）",
-    tabnab2:
-      "（真实 tabnabbing 发生在新标签页上下文，本页面无法直接演示。）",
+    tabnab2: "（真实 tabnabbing 发生在新标签页上下文，本页面无法直接演示。）",
     popupBlocked: "popup 被阻止",
     blocked: "已阻止: {message}",
   },

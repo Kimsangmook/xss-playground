@@ -1,14 +1,24 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { findScenario } from "@/lib/scenarios";
+import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
 import { I18N } from "./i18n";
 import { fmt, usePageI18n } from "../usePageI18n";
 
+const pickLocale = (raw: unknown): Locale =>
+  typeof raw === "string" && LOCALES.includes(raw as Locale)
+    ? (raw as Locale)
+    : DEFAULT_LOCALE;
+
 const PopupSpamPage = () => {
   const scenario = findScenario("popup-spam")!;
+  const params = useParams<{ locale?: string }>();
+  const locale = pickLocale(params?.locale);
   const { lines, push, clear } = useLog();
   const t = usePageI18n(I18N);
 
@@ -20,7 +30,12 @@ const PopupSpamPage = () => {
 
   const openExternal = () => {
     push(t.log.tryExternal);
-    const w = window.open("https://example.com", "_blank");
+    const w = window.open(
+      buildRedirectTarget(window.location.origin, locale, "popup-spam", {
+        surface: "popup",
+      }),
+      "_blank",
+    );
     push(w ? t.log.returnWindow : t.log.returnBlocked);
     if (w) {
       push(t.log.openerLinked);
@@ -31,7 +46,9 @@ const PopupSpamPage = () => {
     push(t.log.floodIntro);
     for (let i = 0; i < 3; i++) {
       const w = window.open("about:blank", "_blank");
-      push(fmt(t.log.floodItem, { n: i + 1, result: w ? "opened" : "blocked" }));
+      push(
+        fmt(t.log.floodItem, { n: i + 1, result: w ? "opened" : "blocked" }),
+      );
     }
   };
 

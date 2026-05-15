@@ -4,26 +4,30 @@ import { Log, useLog } from "@/app/Log";
 
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
+import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { findScenario } from "@/lib/scenarios";
 import { useScenarioBody } from "../useScenarioBody";
 import { useState } from "react";
-
-const TARGET = "https://example.com/?attacker-was-here";
 
 const TopRedirectPage = () => {
   const scenario = findScenario("top-redirect")!;
   const { lines, push, clear } = useLog();
   const [autoFireSec, setAutoFireSec] = useState(5);
-  const { actions, log, explanation, scenarioPage } =
+  const { locale, actions, log, explanation, scenarioPage } =
     useScenarioBody("top-redirect");
+  const target = buildRedirectTarget(
+    typeof window === "undefined" ? "" : window.location.origin,
+    locale,
+    "top-redirect",
+  );
 
   const tryTopLocation = () => {
     push(
       log("checkTop", { value: window.top === window.self ? "true" : "false" }),
     );
-    push(log("tryTopLog", { target: TARGET }));
+    push(log("tryTopLog", { target }));
     try {
-      window.top!.location.href = TARGET;
+      window.top!.location.href = target;
       push(log("successNav"));
     } catch (e) {
       push(log("blocked", { message: (e as Error).message }));
@@ -31,9 +35,9 @@ const TopRedirectPage = () => {
   };
 
   const tryTopLocationAssign = () => {
-    push(log("tryAssignLog", { target: TARGET }));
+    push(log("tryAssignLog", { target }));
     try {
-      window.top!.location.assign(TARGET);
+      window.top!.location.assign(target);
       push(log("successPlain"));
     } catch (e) {
       push(log("blocked", { message: (e as Error).message }));
@@ -41,9 +45,9 @@ const TopRedirectPage = () => {
   };
 
   const tryAnchorTargetTop = () => {
-    push(log("tryAnchorLog", { target: TARGET }));
+    push(log("tryAnchorLog", { target }));
     const a = document.createElement("a");
-    a.href = TARGET;
+    a.href = target;
     a.target = "_top";
     a.rel = "noopener";
     document.body.appendChild(a);
@@ -56,7 +60,7 @@ const TopRedirectPage = () => {
     push(log("tryMetaLog"));
     const meta = document.createElement("meta");
     meta.setAttribute("http-equiv", "refresh");
-    meta.setAttribute("content", `0;url=${TARGET}`);
+    meta.setAttribute("content", `0;url=${target}`);
     document.head.appendChild(meta);
     push(log("metaInserted"));
   };

@@ -4,6 +4,7 @@ import { Log, useLog } from "@/app/Log";
 
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
+import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { findScenario } from "@/lib/scenarios";
 import { useScenarioBody } from "../useScenarioBody";
 import { useState } from "react";
@@ -16,7 +17,7 @@ const ChainedAttackPage = () => {
   const [step, setStep] = useState<Step>("idle");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { actions, log, text, explanation, scenarioPage } =
+  const { locale, actions, log, text, explanation, scenarioPage } =
     useScenarioBody("chained-attack");
 
   const start = () => {
@@ -32,7 +33,11 @@ const ChainedAttackPage = () => {
     setTimeout(() => {
       push(log("step3"));
       try {
-        window.top!.location.href = document.referrer || "https://example.com";
+        window.top!.location.href = buildRedirectTarget(
+          window.location.origin,
+          locale,
+          "chained-attack",
+        );
       } catch (err) {
         push(log("redirectBlocked", { message: (err as Error).message }));
       }
