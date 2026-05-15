@@ -1,31 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { SCENARIOS } from "@/lib/scenarios";
+import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
+import { I18N } from "./i18n";
 
 const EMBEDDABLE_SCENARIOS = SCENARIOS.filter(
   (scenario) => (scenario.surface ?? "iframe") === "iframe"
 );
 
-const SANDBOX_PRESETS = [
-  { label: "sandbox 없음", value: null },
-  { label: 'sandbox=""', value: "" },
-  { label: 'sandbox="allow-scripts"', value: "allow-scripts" },
-  {
-    label: 'sandbox="allow-scripts allow-same-origin"',
-    value: "allow-scripts allow-same-origin",
-  },
-  {
-    label: 'sandbox="allow-scripts allow-top-navigation"',
-    value: "allow-scripts allow-top-navigation",
-  },
-  {
-    label: 'sandbox="allow-scripts allow-forms allow-popups"',
-    value: "allow-scripts allow-forms allow-popups",
-  },
-];
+const SANDBOX_VALUES = [
+  null,
+  "",
+  "allow-scripts",
+  "allow-scripts allow-same-origin",
+  "allow-scripts allow-top-navigation",
+  "allow-scripts allow-forms allow-popups",
+] as const;
+
+const pickLocale = (raw: unknown): Locale =>
+  typeof raw === "string" && LOCALES.includes(raw as Locale)
+    ? (raw as Locale)
+    : DEFAULT_LOCALE;
 
 const EmbedHelperPage = () => {
+  const params = useParams<{ locale?: string }>();
+  const locale = pickLocale(params?.locale);
+  const t = I18N[locale];
   const [scenarioSlug, setScenarioSlug] = useState(EMBEDDABLE_SCENARIOS[0].slug);
   const [sandboxIdx, setSandboxIdx] = useState<number>(0);
   const [messages, setMessages] = useState<string[]>([]);
@@ -40,7 +43,7 @@ const EmbedHelperPage = () => {
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  const sandbox = SANDBOX_PRESETS[sandboxIdx]?.value ?? null;
+  const sandbox = SANDBOX_VALUES[sandboxIdx] ?? null;
   const src = `/embed/${scenarioSlug}`;
 
   const sandboxProps =
@@ -48,23 +51,14 @@ const EmbedHelperPage = () => {
 
   return (
     <>
-      <h1>부모 페이지 임베드 헬퍼</h1>
-      <p className="summary">
-        이 페이지가 테스트 대상 서비스의 부모 페이지 역할을 합니다. 시나리오와
-        sandbox 조합을 바꿔가며 실제 어떤 차이가 나는지 한 페이지에서 비교할 수
-        있습니다.
-      </p>
+      <h1>{t.title}</h1>
+      <p className="summary">{t.summary}</p>
 
-      <div className="callout">
-        실제 서비스의 대응을 검증하려면 이 헬퍼가 아니라 해당 서비스의 에디터,
-        위키, CMS, 댓글 영역처럼 HTML 이 렌더링되는 위치에 시나리오 iframe 을
-        직접 붙여 넣으세요. 이 헬퍼는 sandbox 옵션 자체의 효과를 빠르게 비교하는
-        용도입니다.
-      </div>
+      <div className="callout">{t.warning}</div>
 
-      <h2>설정</h2>
+      <h2>{t.settingsHeading}</h2>
       <div className="kv">
-        <div className="k">시나리오</div>
+        <div className="k">{t.scenarioLabel}</div>
         <div>
           <select
             value={scenarioSlug}
@@ -80,15 +74,15 @@ const EmbedHelperPage = () => {
           >
             {EMBEDDABLE_SCENARIOS.map((s) => (
               <option key={s.slug} value={s.slug}>
-                {s.title}
+                {getScenarioI18n(locale, s.slug)?.title ?? s.title}
               </option>
             ))}
           </select>
         </div>
-        <div className="k">sandbox</div>
+        <div className="k">{t.sandboxLabel}</div>
         <div>
           <div className="actions" style={{ margin: 0 }}>
-            {SANDBOX_PRESETS.map((p, i) => (
+            {t.sandboxPresets.map((label, i) => (
               <button
                 key={i}
                 onClick={() => setSandboxIdx(i)}
@@ -98,14 +92,14 @@ const EmbedHelperPage = () => {
                     : undefined
                 }
               >
-                {p.label}
+                {label}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      <h2>iframe</h2>
+      <h2>{t.iframeHeading}</h2>
       <iframe
         ref={iframeRef}
         key={`${scenarioSlug}-${sandboxIdx}`}
@@ -116,10 +110,10 @@ const EmbedHelperPage = () => {
         {...sandboxProps}
       />
 
-      <h2>부모 message 리스너 로그</h2>
-      <button onClick={() => setMessages([])}>로그 초기화</button>
+      <h2>{t.messageLogHeading}</h2>
+      <button onClick={() => setMessages([])}>{t.clearLog}</button>
       <pre style={{ marginTop: 10 }}>
-        {messages.length === 0 ? "// 메시지 없음" : messages.join("\n")}
+        {messages.length === 0 ? t.emptyLog : messages.join("\n")}
       </pre>
     </>
   );

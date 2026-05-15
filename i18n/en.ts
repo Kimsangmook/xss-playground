@@ -181,16 +181,95 @@ export const en: IDictionary = {
       title: "top.location forced redirect",
       summary:
         "Replace the entire parent window from inside an iframe. The classic test for sandbox allow-top-navigation.",
+      body: {
+        actionLabels: {
+          tryTop: "window.top.location = url",
+          tryAssign: "window.top.location.assign()",
+          tryAnchor: "<a target=_top> fake click",
+          tryMetaRefresh: "meta refresh (same-origin only)",
+          scheduleAuto: "Auto-fire in {n}s (phishing scenario)",
+          clearLog: "Clear log",
+        },
+        logMessages: {
+          checkTop: "window.top === window.self ? {value}",
+          tryTopLog: 'try: window.top.location = "{target}"',
+          successNav: "call succeeded (page navigating shortly)",
+          tryAssignLog: 'try: window.top.location.assign("{target}")',
+          successPlain: "call succeeded",
+          blocked: "blocked: {message}",
+          tryAnchorLog: 'try: <a target="_top" href="{target}"> fake click',
+          anchorCalled: "click dispatched (navigation if allowed)",
+          tryMetaLog:
+            'try: insert meta http-equiv="refresh" (same-origin only)',
+          metaInserted: "meta refresh inserted",
+          autoScheduled: "auto-redirect scheduled in {n}s",
+        },
+        explanation: [
+          "Changing <code>window.top.location</code> is allowed by default even cross-origin. SOP does not protect this surface.",
+          'To block it, do not grant <code>allow-top-navigation</code> in sandbox. Even <code>sandbox="allow-scripts"</code> is enough to block.',
+          "The attack value is high: right after the user clicks something inside a trusted service, the whole tab can be replaced by a phishing site.",
+        ],
+      },
     },
     "post-message": {
       title: "postMessage spoofing",
       summary:
         "Send forged messages to the parent via parent.postMessage. If the parent skips event.origin validation, it can trust attacker-crafted payloads.",
+      body: {
+        actionLabels: {
+          presetString: "plain string",
+          presetAuth: "auth-style object",
+          presetRouter: "router-style object",
+          presetResize: "iframe-resize style object",
+          presetScript: "script string (eval-trap probe)",
+          clearLog: "Clear log",
+        },
+        logMessages: {
+          sending: 'parent.postMessage({data}, "{target}")',
+          sent: "sent",
+          sendFailed: "send failed: {message}",
+        },
+        text: {
+          targetOriginLabel: "target origin",
+          targetPlaceholder: '"*" or a specific origin',
+        },
+        explanation: [
+          "postMessage is the intended cross-origin channel. SOP does not block it. <strong>Parent must validate event.origin</strong> rigorously.",
+          "If the parent runs <code>iframe-resizer</code>, a payment widget, the YouTube IFrame API, etc., mimicking their message format is a common attack pattern.",
+          'Defense: validate <code>event.origin</code> + message type/schema on the parent. In sandbox, only <code>sandbox=""</code> (empty) actually blocks postMessage.',
+        ],
+      },
     },
     "phishing-form": {
       title: "Fake login form (phishing)",
       summary:
         "Show a form that looks identical to the parent site's login UI and exfiltrate the credentials.",
+      body: {
+        actionLabels: {
+          submit: "Sign in",
+          clearLog: "Clear log",
+        },
+        logMessages: {
+          captured: "captured credentials: email={email} password={password}",
+          notice:
+            "A real attack would send these via fetch / sendBeacon to an attacker server. (This PoC does not transmit anything.)",
+        },
+        text: {
+          callout:
+            "In a real attack this iframe would be placed inside the parent page to look like the service's own modal or login area. The user has no easy way to tell the domain is attacker.example. (Combined with the fullscreen overlay scenario, even more dangerous.)",
+          formHeading:
+            "Fake login form (free to draw anything inside its own origin)",
+          emailLabel: "Email",
+          passwordLabel: "Password",
+          logsHeading: "Captured log",
+          emailPlaceholder: "you@example.com",
+        },
+        explanation: [
+          "The form inside the iframe is just a page on its own origin, so it can render any UI and POST values to its own server. SOP is irrelevant here.",
+          'Even <code>sandbox="allow-scripts"</code> blocks form submit, but JS can still collect the values and fetch them out. Only <code>sandbox=""</code> truly blocks JS.',
+          "The strongest mitigation is a host allowlist on iframe src. If only trusted hosts (YouTube/Vimeo) are allowed, this scenario does not even start.",
+        ],
+      },
     },
     "auto-download": {
       title: "Auto-download trigger",
@@ -219,6 +298,33 @@ export const en: IDictionary = {
       title: "Fullscreen overlay impersonation",
       summary:
         "Cover the parent page with a fake but pixel-perfect UI rendered inside the iframe.",
+      body: {
+        actionLabels: {
+          showOverlay: "Show fake service overlay",
+          tryRealFs: "Real fullscreen API",
+          clearLog: "Clear log",
+          login: "Sign in",
+          closePoc: "(close PoC)",
+        },
+        logMessages: {
+          tryFs: "try document.documentElement.requestFullscreen()",
+          fsEntered: "entered fullscreen",
+          blocked: "blocked: {message}",
+        },
+        text: {
+          callout:
+            "In a real attack the iframe itself is positioned as position:fixed; inset:0; via the parent's CSS. Because the iframe is its own origin, it can draw any UI inside, fooling users into believing they are on the real service.",
+          overlayTitle: "Example Workspace — re-authentication required",
+          overlayBody:
+            "Please sign in again due to a security policy change. (This is a fake screen.)",
+          emailLabel: "Email",
+          passwordLabel: "Password",
+        },
+        explanation: [
+          "How the iframe is laid out is the parent page's responsibility. If the service stretches arbitrary iframes to 100% width/height, visual impersonation is already possible.",
+          "The real fullscreen API requires a user gesture, but a plain DOM overlay with z-index:99999 works immediately with no gesture.",
+        ],
+      },
     },
     "history-pollution": {
       title: "history.pushState pollution",
@@ -263,6 +369,36 @@ export const en: IDictionary = {
       title: "Chained attack (phishing + fullscreen + redirect)",
       summary:
         "Fullscreen fake UI → credential capture → top redirect to the real site to cover tracks.",
+      body: {
+        actionLabels: {
+          start: "Start chained attack",
+          reset: "Reset",
+          login: "Sign in",
+        },
+        logMessages: {
+          step1: "[1/3] show fullscreen fake service UI",
+          step2:
+            "[2/3] captured credentials: email={email} password={password}",
+          step2Notice:
+            "A real attack would exfiltrate via fetch/sendBeacon to an attacker server",
+          step3: "[3/3] top-redirect to the real page to evade suspicion",
+          redirectBlocked: "redirect blocked: {message}",
+        },
+        text: {
+          overlayTitle: "Example Workspace",
+          overlayBody:
+            "Please sign in again due to a security policy change. (Fake PoC screen.)",
+          emailLabel: "Email",
+          passwordLabel: "Password",
+        },
+        explanation: [
+          "Right after the iframe loads, a fullscreen overlay impersonates the service UI — the user still believes they are on the trusted site.",
+          "The user enters credentials → values flow to the iframe's own origin → attacker server receives them.",
+          'Immediately after capture, a top redirect to the real site happens; from the user perspective it looks like "I signed in once" and nothing more.',
+          "Every step relies only on cross-origin-allowed APIs. None of the steps require SOP to be broken.",
+          "Blocking step 1 alone breaks the chain — a host allowlist or a strict sandbox preventing arbitrary iframe embeds is the most effective single defense.",
+        ],
+      },
     },
   },
   categories: {

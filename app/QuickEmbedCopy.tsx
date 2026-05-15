@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { SITE_URL } from "@/lib/site";
-import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 
 interface IQuickEmbedCopyProps {
   slug: string;
@@ -30,8 +30,7 @@ const TEXT: Record<Locale, { copy: string; copied: string }> = {
 export const QuickEmbedCopy = ({ slug, title }: IQuickEmbedCopyProps) => {
   const params = useParams<{ locale?: string }>();
   const locale = pickLocale(params?.locale);
-  const dict = getDictionary(locale);
-  const localizedTitle = dict.scenarios[slug]?.title ?? title;
+  const localizedTitle = getScenarioI18n(locale, slug)?.title ?? title;
   const t = TEXT[locale];
 
   const [origin, setOrigin] = useState(SITE_URL);

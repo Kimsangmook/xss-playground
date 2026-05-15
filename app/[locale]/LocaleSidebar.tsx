@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SCENARIOS, ALL_CATEGORIES } from "@/lib/scenarios";
 import type { IDictionary, Locale } from "@/i18n/types";
 import { LOCALE_LABEL, LOCALES } from "@/i18n/types";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 
 interface IProps {
   locale: Locale;
@@ -41,7 +42,7 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
             <div className="group-label">{dict.categories[cat] ?? cat}</div>
             {items.map((s) => {
               const href = `${linkBase}/scenarios/${s.slug}`;
-              const title = dict.scenarios[s.slug]?.title ?? s.title;
+              const title = getScenarioI18n(locale, s.slug)?.title ?? s.title;
               return (
                 <Link
                   key={s.slug}

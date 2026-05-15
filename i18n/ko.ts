@@ -181,16 +181,93 @@ export const ko: IDictionary = {
       title: "top.location 강제 리다이렉트",
       summary:
         "iframe 안에서 부모 창 전체를 다른 URL로 보내버린다. sandbox allow-top-navigation 유무로 차이를 확인할 수 있는 대표 시나리오.",
+      body: {
+        actionLabels: {
+          tryTop: "window.top.location = url",
+          tryAssign: "window.top.location.assign()",
+          tryAnchor: "<a target=_top> 가짜 클릭",
+          tryMetaRefresh: "meta refresh (자기 origin)",
+          scheduleAuto: "{n}초 뒤 자동 발사 (피싱 시나리오)",
+          clearLog: "로그 초기화",
+        },
+        logMessages: {
+          checkTop: "window.top === window.self ? {value}",
+          tryTopLog: '시도: window.top.location = "{target}"',
+          successNav: "호출 성공 (페이지가 곧 이동합니다)",
+          tryAssignLog: '시도: window.top.location.assign("{target}")',
+          successPlain: "호출 성공",
+          blocked: "차단됨: {message}",
+          tryAnchorLog: '시도: <a target="_top" href="{target}"> 가짜 클릭',
+          anchorCalled: "호출 완료 (성공했다면 페이지 이동)",
+          tryMetaLog: '시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)',
+          metaInserted: "meta refresh 삽입 완료",
+          autoScheduled: "{n}초 뒤 자동 리다이렉트 예약",
+        },
+        explanation: [
+          "<code>window.top.location</code> 변경은 cross-origin 이어도 기본 허용됩니다. SOP 가 막아주지 않는 영역입니다.",
+          '차단하려면 sandbox 에 <code>allow-top-navigation</code> 을 주지 않으면 됩니다. <code>sandbox="allow-scripts"</code> 만 줘도 차단됩니다.',
+          "실제 공격 가치는 매우 큽니다. 사용자가 신뢰하는 서비스 안에서 무언가 클릭한 직후 페이지가 통째로 피싱 사이트로 갈아치워지는 시나리오가 만들어집니다.",
+        ],
+      },
     },
     "post-message": {
       title: "postMessage 스푸핑",
       summary:
         "parent.postMessage 로 부모 페이지에 메시지를 보낸다. 부모가 event.origin 검증을 안 하면 위조된 메시지를 신뢰할 수 있다.",
+      body: {
+        actionLabels: {
+          presetString: "단순 string",
+          presetAuth: "auth 류 객체",
+          presetRouter: "router 류 객체",
+          presetResize: "iframe-resize 류 객체",
+          presetScript: "스크립트 문자열 (eval-trap 탐색용)",
+          clearLog: "로그 초기화",
+        },
+        logMessages: {
+          sending: 'parent.postMessage({data}, "{target}")',
+          sent: "전송 완료",
+          sendFailed: "전송 실패: {message}",
+        },
+        text: {
+          targetOriginLabel: "target origin",
+          targetPlaceholder: '"*" 또는 정확한 origin',
+        },
+        explanation: [
+          "postMessage 는 cross-origin 통신용으로 의도된 API 입니다. SOP 가 막아 주지 않습니다. <strong>부모 쪽에서 origin 검증</strong>을 제대로 해야 합니다.",
+          "부모 페이지가 <code>iframe-resizer</code>, 결제 위젯, 유튜브 IFrame API 등을 위해 message 리스너를 두고 있다면, 그 리스너의 메시지 포맷을 흉내내서 보내는 게 흔한 공격 패턴입니다.",
+          '차단 방법: 부모 쪽 <code>event.origin</code> 정확히 검증 + 메시지 타입 / 스키마 검증. sandbox 에서는 <code>sandbox=""</code> (빈 값) 여야 postMessage 까지 막힙니다.',
+        ],
+      },
     },
     "phishing-form": {
       title: "가짜 로그인 폼 (피싱)",
       summary:
         "iframe 안에 부모 사이트와 똑같이 생긴 로그인 폼을 보여주고 입력값을 외부로 빼낸다.",
+      body: {
+        actionLabels: {
+          submit: "로그인",
+          clearLog: "로그 초기화",
+        },
+        logMessages: {
+          captured: "수집된 자격증명: email={email} password={password}",
+          notice:
+            "실제 공격에서는 이 값을 fetch / sendBeacon 으로 attacker 서버에 전송. (이 PoC 에서는 전송하지 않음)",
+        },
+        text: {
+          callout:
+            "실제 공격 시 이 iframe 은 부모 페이지 안에서 마치 서비스의 모달/로그인 영역처럼 보이도록 위치됩니다. 사용자는 도메인이 attacker.example 인 것을 알기 어렵습니다. (아래 풀스크린 오버레이 시나리오와 결합되면 더 위험.)",
+          formHeading: "가짜 로그인 폼 (자기 origin 안에서 자유롭게 그려짐)",
+          emailLabel: "이메일",
+          passwordLabel: "비밀번호",
+          logsHeading: "수집 로그",
+          emailPlaceholder: "you@example.com",
+        },
+        explanation: [
+          "iframe 안의 폼은 자기 origin 의 페이지이므로 어떤 UI 도 자유롭게 그릴 수 있고, 입력값을 자기 서버로 보낼 수 있습니다. SOP 와 무관합니다.",
+          '<code>sandbox="allow-scripts"</code> 만 줘도 form submit 자체는 막을 수 있지만, JS 로 값을 수집해 fetch 로 보내는 건 여전히 가능합니다. <code>sandbox=""</code> (빈 값) 이라야 JS 도 막힙니다.',
+          "가장 확실한 대응은 iframe 의 host 를 allowlist 로 제한하는 것입니다. 유튜브/비메오 같은 신뢰 호스트만 통과시키면 이 시나리오 자체가 성립하지 않습니다.",
+        ],
+      },
     },
     "auto-download": {
       title: "자동 다운로드 트리거",
@@ -217,6 +294,32 @@ export const ko: IDictionary = {
     "fullscreen-overlay": {
       title: "풀스크린 오버레이 위장",
       summary: "iframe 안에 풀스크린 가짜 UI 를 띄워 사용자 기만.",
+      body: {
+        actionLabels: {
+          showOverlay: "가짜 서비스 UI 오버레이 표시",
+          tryRealFs: "진짜 풀스크린 API",
+          clearLog: "로그 초기화",
+          login: "로그인",
+          closePoc: "(PoC 닫기)",
+        },
+        logMessages: {
+          tryFs: "document.documentElement.requestFullscreen() 시도",
+          fsEntered: "진입 성공",
+          blocked: "차단: {message}",
+        },
+        text: {
+          callout:
+            "실제 공격에서는 iframe 자체를 부모 페이지의 CSS 로 화면 전체를 덮는 position:fixed; top:0; width:100%; height:100% 으로 배치합니다. iframe 자기 origin 안에서는 그 안에 어떤 UI 든 자유롭게 그릴 수 있어서, 실제 서비스와 똑같이 생긴 가짜 페이지로 사용자를 속일 수 있습니다.",
+          overlayTitle: "Example Workspace — 본인 인증이 필요합니다",
+          overlayBody: "서비스 정책 변경에 따라 다시 로그인해 주세요. (이건 가짜 화면입니다)",
+          emailLabel: "이메일",
+          passwordLabel: "비밀번호",
+        },
+        explanation: [
+          "iframe 자체 영역을 부모 CSS 가 어떻게 배치할지는 부모 책임입니다. 서비스가 임의 iframe 을 100% 너비/높이로 그리고 있다면 그 자체로 시각적 위장이 가능합니다.",
+          "진짜 풀스크린 API 는 사용자 제스처 필요. 하지만 z-index:99999 의 일반 DOM 오버레이는 사용자 제스처 없이도 즉시 가능합니다.",
+        ],
+      },
     },
     "history-pollution": {
       title: "history.pushState 오염",
@@ -259,6 +362,34 @@ export const ko: IDictionary = {
       title: "체인 공격 (피싱 + 풀스크린 + redirect)",
       summary:
         "풀스크린 가짜 UI → 자격증명 캡처 → 진짜 사이트로 redirect 의심 회피.",
+      body: {
+        actionLabels: {
+          start: "체인 공격 시작",
+          reset: "리셋",
+          login: "로그인",
+        },
+        logMessages: {
+          step1: "[1/3] 풀스크린 가짜 서비스 UI 표시",
+          step2: "[2/3] 자격증명 캡쳐: email={email} password={password}",
+          step2Notice: "실제 공격에서는 fetch/sendBeacon 으로 attacker 서버에 전송",
+          step3: "[3/3] 의심 회피용으로 원래 페이지로 top redirect",
+          redirectBlocked: "redirect 차단: {message}",
+        },
+        text: {
+          overlayTitle: "Example Workspace",
+          overlayBody:
+            "보안 정책 변경에 따라 다시 로그인이 필요합니다. (PoC 가짜 화면)",
+          emailLabel: "이메일",
+          passwordLabel: "비밀번호",
+        },
+        explanation: [
+          "iframe 임베드 후 즉시 풀스크린 오버레이로 서비스 UI 위장 (사용자는 여전히 신뢰하는 사이트라고 인지).",
+          "자격증명 입력 → 자기 origin 으로 전송 → attacker 서버 도착.",
+          '전송 직후 top redirect 로 원래 페이지로 보내서 의심 회피. 사용자 입장에서는 "로그인 한 번 했네" 정도로 끝남.',
+          "각 단계가 모두 cross-origin iframe 에서 합법적으로 동작하는 API 들로만 구성됨. SOP 가 막아주지 않는 영역만 사용.",
+          "1단계만 막아도 체인이 끊김 → host allowlist 또는 sandbox 의 적절한 조합으로 1단계(임의 호스트 iframe 임베드)를 막는 게 가장 효과적.",
+        ],
+      },
     },
   },
   categories: {

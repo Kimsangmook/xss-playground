@@ -5,55 +5,58 @@ import { findScenario } from "@/lib/scenarios";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+import { I18N } from "./i18n";
+import { fmt, usePageI18n } from "../usePageI18n";
 
 const AutoplayMediaPage = () => {
   const scenario = findScenario("autoplay-media")!;
   const { lines, push, clear } = useLog();
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const t = usePageI18n(I18N);
 
   const tryAutoplayVideo = async () => {
     if (!videoRef.current) return;
-    push("video.play() 시도 (muted)");
+    push(t.log?.tryMuted ?? "");
     videoRef.current.muted = true;
     try {
       await videoRef.current.play();
-      push("재생 시작 (muted 라 보통 통과)");
+      push(t.log?.mutedStarted ?? "");
     } catch (e) {
-      push(`실패: ${(e as Error).message}`);
+      push(fmt(t.log?.failed, { message: (e as Error).message }));
     }
   };
 
   const tryAutoplayWithSound = async () => {
     if (!videoRef.current) return;
-    push("video.play() 시도 (muted=false)");
+    push(t.log?.trySound ?? "");
     videoRef.current.muted = false;
     try {
       await videoRef.current.play();
-      push("재생 시작 (사용자 제스처 없으면 보통 NotAllowedError)");
+      push(t.log?.soundStarted ?? "");
     } catch (e) {
-      push(`차단됨: ${(e as Error).message}`);
+      push(fmt(t.log?.blocked, { message: (e as Error).message }));
     }
   };
 
   const tryAudio = async () => {
     if (!audioRef.current) return;
-    push("audio.play() 시도");
+    push(t.log?.tryAudio ?? "");
     try {
       await audioRef.current.play();
-      push("재생 시작");
+      push(t.log?.audioStarted ?? "");
     } catch (e) {
-      push(`차단됨: ${(e as Error).message}`);
+      push(fmt(t.log?.blocked, { message: (e as Error).message }));
     }
   };
 
   const tryFullscreen = async () => {
-    push("document.documentElement.requestFullscreen() 시도");
+    push(t.log?.tryFullscreen ?? "");
     try {
       await document.documentElement.requestFullscreen();
-      push("풀스크린 진입 성공");
+      push(t.log?.fullscreenStarted ?? "");
     } catch (e) {
-      push(`차단됨: ${(e as Error).message} (사용자 제스처 필요)`);
+      push(fmt(t.log?.fullscreenBlocked, { message: (e as Error).message }));
     }
   };
 
@@ -62,7 +65,7 @@ const AutoplayMediaPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="autoplay-media" />
 
-      <h2>실행</h2>
+      <h2>{t.actionsHeading}</h2>
       <video
         ref={videoRef}
         src="https://www.w3schools.com/html/mov_bbb.mp4"
@@ -76,35 +79,25 @@ const AutoplayMediaPage = () => {
         controls
       />
       <div className="actions">
-        <button onClick={tryAutoplayVideo}>video 자동재생 (muted)</button>
+        <button onClick={tryAutoplayVideo}>{t.buttons?.mutedVideo}</button>
         <button className="danger" onClick={tryAutoplayWithSound}>
-          video 자동재생 (소리)
+          {t.buttons?.soundVideo}
         </button>
         <button className="danger" onClick={tryAudio}>
-          audio 자동재생
+          {t.buttons?.audio}
         </button>
         <button className="danger" onClick={tryFullscreen}>
-          풀스크린 강제
+          {t.buttons?.fullscreen}
         </button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={clear}>{t.buttons?.clearLog}</button>
       </div>
       <Log lines={lines} />
 
-      <h2>해설</h2>
+      <h2>{t.explanationHeading}</h2>
       <ul>
-        <li>
-          최신 브라우저는 muted 자동재생만 기본 허용합니다. 소리 있는 자동재생은
-          사용자 제스처(클릭/탭) 가 필요합니다.
-        </li>
-        <li>
-          풀스크린도 사용자 제스처가 필요합니다. iframe 이라면 추가로{" "}
-          <code>allow=&quot;fullscreen&quot;</code> 또는{" "}
-          <code>sandbox</code> 가 없어야 동작합니다.
-        </li>
-        <li>
-          공격 가치는 낮지만, 풀스크린 + 가짜 로그인 폼 조합은 사용자를 깊게
-          속일 수 있는 패턴입니다.
-        </li>
+        {t.explanation?.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

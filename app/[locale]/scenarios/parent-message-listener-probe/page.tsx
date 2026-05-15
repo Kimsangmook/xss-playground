@@ -5,6 +5,8 @@ import { findScenario } from "@/lib/scenarios";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+import { I18N } from "./i18n";
+import { fmt, usePageI18n } from "../usePageI18n";
 
 const PAYLOADS: Array<{ label: string; data: unknown }> = [
   { label: "string ping", data: "ping" },
@@ -44,12 +46,16 @@ const ParentListenerProbePage = () => {
   const { lines, push, clear } = useLog();
   const [target, setTarget] = useState("*");
   const [replies, setReplies] = useState<string[]>([]);
+  const t = usePageI18n(I18N);
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       setReplies((prev) => [
         ...prev,
-        `[from parent] origin=${e.origin} data=${JSON.stringify(e.data).slice(0, 200)}`,
+        fmt(t.log?.received, {
+          origin: e.origin,
+          data: JSON.stringify(e.data).slice(0, 200),
+        }),
       ]);
     };
     window.addEventListener("message", handler);
@@ -57,12 +63,12 @@ const ParentListenerProbePage = () => {
   }, []);
 
   const fire = (data: unknown, label: string) => {
-    push(`fire: ${label}`);
+    push(fmt(t.log?.sending, { label }));
     window.parent.postMessage(data, target as string);
   };
 
   const fireAll = () => {
-    push("전체 페이로드 순차 발사");
+    push(fmt(t.log?.sentAll, { count: PAYLOADS.length }));
     PAYLOADS.forEach((p, i) =>
       setTimeout(() => fire(p.data, p.label), i * 250)
     );
@@ -73,9 +79,9 @@ const ParentListenerProbePage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="parent-message-listener-probe" />
 
-      <h2>실행</h2>
+      <h2>{t.actionsHeading}</h2>
       <div className="kv">
-        <div className="k">target origin</div>
+        <div className="k">{t.text?.targetOriginLabel}</div>
         <div>
           <input value={target} onChange={(e) => setTarget(e.target.value)} />
         </div>
@@ -87,32 +93,20 @@ const ParentListenerProbePage = () => {
           </button>
         ))}
         <button className="danger" onClick={fireAll}>
-          전체 순차 발사
+          {t.buttons?.fireAll}
         </button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={clear}>{t.buttons?.clearLog}</button>
       </div>
       <Log lines={lines} />
 
-      <h2>부모로부터 받은 응답</h2>
-      <pre>{replies.length === 0 ? "// 응답 없음" : replies.join("\n")}</pre>
+      <h2>{t.text?.repliesHeading}</h2>
+      <pre>{replies.length === 0 ? t.text?.noReplies : replies.join("\n")}</pre>
 
-      <h2>해설</h2>
+      <h2>{t.explanationHeading}</h2>
       <ul>
-        <li>
-          부모 페이지에 어떤 message 리스너가 등록돼 있는지 검은상자 상태에서
-          fingerprinting 하는 페이지입니다. 알려진 라이브러리(iframe
-          resizer, 유튜브 API, GTM 등) 의 페이로드 포맷을 흉내내서 응답 / 사이드
-          이펙트(DOM 변화, 새 message 등) 를 관찰합니다.
-        </li>
-        <li>
-          진짜 위험은 서비스가 자체적으로 등록한 커스텀 메시지 핸들러가 있을 때
-          입니다. 예: <code>{`{ type: "AUTH_GRANT", token: ... }`}</code> 같은
-          메시지로 인증 상태를 갈아끼우는 핸들러가 있다면 즉시 권한 우회.
-        </li>
-        <li>
-          테스트 단계에서는 본인 서비스의 dev/staging 환경에 임베드해서 부모
-          message 리스너 / DOM 변화 / 콘솔 에러를 같이 관찰하세요.
-        </li>
+        {t.explanation?.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

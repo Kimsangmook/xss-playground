@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getDictionary } from "@/i18n";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import { useEmbedContext } from "./EmbedContext";
 
 export interface IEmbedAction {
@@ -42,8 +43,7 @@ export const EmbedShell = ({
 }: IEmbedShellProps) => {
   const { slug, locale } = useEmbedContext();
   const dict = getDictionary(locale);
-  const localizedTitle =
-    (slug && dict.scenarios[slug]?.title) ?? title;
+  const localizedTitle = (slug && getScenarioI18n(locale, slug)?.title) ?? title;
   const t = TEXT[locale];
   const badge = dict.scenarioPage.embeddedBadge;
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import { findScenario } from "@/lib/scenarios";
 import { SITE_AUTHOR, SITE_URL } from "@/lib/site";
 
@@ -184,7 +185,7 @@ export const createEmbedHelperSeoMetadata = (locale: Locale) => {
 export const createScenarioSeoMetadata = (locale: Locale, slug: string) => {
   const dict = getDictionary(locale);
   const scenario = findScenario(slug);
-  const meta = dict.scenarios[slug] ?? scenario;
+  const meta = getScenarioI18n(locale, slug) ?? scenario;
 
   if (!scenario || !meta) return createHomeSeoMetadata(locale);
 
@@ -205,14 +206,15 @@ export const createScenarioSeoMetadata = (locale: Locale, slug: string) => {
 
 export const createEmbedSeoMetadata = (slug: string): Metadata => {
   const scenario = findScenario(slug);
-  const title = scenario
-    ? `${scenario.title} embed | XSS Playground`
+  const meta = getScenarioI18n(DEFAULT_LOCALE, slug) ?? scenario;
+  const title = meta
+    ? `${meta.title} embed | XSS Playground`
     : "Embed scenario | XSS Playground";
 
   return {
     title: { absolute: title },
     description:
-      scenario?.summary ??
+      meta?.summary ??
       "Embeddable XSS Playground scenario for authorized security testing.",
     robots: getRobots("noindex, nofollow"),
   };
@@ -240,7 +242,7 @@ export const createHomeJsonLd = (locale: Locale) => {
 export const createScenarioJsonLd = (locale: Locale, slug: string) => {
   const dict = getDictionary(locale);
   const scenario = findScenario(slug);
-  const meta = scenario ? dict.scenarios[slug] ?? scenario : null;
+  const meta = scenario ? getScenarioI18n(locale, slug) ?? scenario : null;
   const url = getLocalizedUrl(locale, `/scenarios/${slug}`);
 
   return {
