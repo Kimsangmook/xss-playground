@@ -517,3 +517,34 @@ table.matrix th {
   background: var(--bg-elev-2);
   font-weight: 600;
 }
+
+body.simulation-route {
+  overflow: hidden;
+  background: #020503;
+}
+
+body.simulation-route .sidebar {
+  display: none;
+}
+
+body.simulation-route.simulation-sidebar-open .sidebar {
+  display: block;
+  position: fixed;
+  z-index: 320;
+  left: 0;
+  top: 0;
+  width: 260px;
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.45);
+}
+
+body.simulation-route .layout {
+  display: block;
+  min-height: 100vh;
+}
+
+body.simulation-route .main {
+  max-width: none;
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+}
