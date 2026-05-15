@@ -5,21 +5,29 @@ import type { IScenarioPageI18n } from "./types";
 import { I18N as autoDownload } from "./auto-download/i18n";
 import { I18N as autoplayMedia } from "./autoplay-media/i18n";
 import { I18N as beaconExfil } from "./beacon-exfil/i18n";
+import { I18N as blindXssWorkflow } from "./blind-xss-workflow/i18n";
 import { I18N as chainedAttack } from "./chained-attack/i18n";
 import { I18N as clipboardHijack } from "./clipboard-hijack/i18n";
+import { I18N as cssContextInjection } from "./css-context-injection/i18n";
 import { I18N as csrfImage } from "./csrf-image/i18n";
+import { I18N as dataUrlWrapper } from "./data-url-wrapper/i18n";
 import { I18N as delayedAttack } from "./delayed-attack/i18n";
 import { I18N as domInnerhtmlSink } from "./dom-innerhtml-sink/i18n";
+import { I18N as encodedProtocolBypass } from "./encoded-protocol-bypass/i18n";
 import { I18N as eventHandlerAttribute } from "./event-handler-attribute/i18n";
+import { I18N as fileUploadPreviewXss } from "./file-upload-preview-xss/i18n";
 import { I18N as formAutoSubmit } from "./form-auto-submit/i18n";
 import { I18N as fullscreenOverlay } from "./fullscreen-overlay/i18n";
 import { I18N as historyPollution } from "./history-pollution/i18n";
 import { I18N as javascriptUrl } from "./javascript-url/i18n";
+import { I18N as jsContextBreakout } from "./js-context-breakout/i18n";
+import { I18N as markdownLinkXss } from "./markdown-link-xss/i18n";
 import { I18N as notificationPermission } from "./notification-permission/i18n";
 import { I18N as parentMessageListenerProbe } from "./parent-message-listener-probe/i18n";
 import { I18N as phishingForm } from "./phishing-form/i18n";
 import { I18N as popupSpam } from "./popup-spam/i18n";
 import { I18N as postMessage } from "./post-message/i18n";
+import { I18N as profileRenderingXss } from "./profile-rendering-xss/i18n";
 import { I18N as scriptTagInjection } from "./script-tag-injection/i18n";
 import { I18N as sopProbe } from "./sop-probe/i18n";
 import { I18N as svgOnload } from "./svg-onload/i18n";
@@ -35,6 +43,14 @@ export const SCENARIO_I18N: Record<
   "javascript-url": javascriptUrl,
   "svg-onload": svgOnload,
   "dom-innerhtml-sink": domInnerhtmlSink,
+  "js-context-breakout": jsContextBreakout,
+  "css-context-injection": cssContextInjection,
+  "encoded-protocol-bypass": encodedProtocolBypass,
+  "data-url-wrapper": dataUrlWrapper,
+  "markdown-link-xss": markdownLinkXss,
+  "file-upload-preview-xss": fileUploadPreviewXss,
+  "profile-rendering-xss": profileRenderingXss,
+  "blind-xss-workflow": blindXssWorkflow,
   "top-redirect": topRedirect,
   "post-message": postMessage,
   "phishing-form": phishingForm,
@@ -82,4 +98,3 @@ export const getScenarioI18n = (
     explanation: source?.explanation,
   };
 };
-
