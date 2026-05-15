@@ -20,6 +20,8 @@ export const zh: IDictionary = {
   nav: {
     home: "首页",
     embedHelper: "Embed Helper",
+    learn: "学习笔记",
+    forum: "论坛",
     github: "GitHub",
   },
   home: {
@@ -79,6 +81,10 @@ export const zh: IDictionary = {
         label: "PortSwigger XSS cheat sheet",
         href: "https://portswigger.net/web-security/cross-site-scripting/cheat-sheet",
       },
+      {
+        label: "PayloadsAllTheThings XSS",
+        href: "https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md",
+      },
     ],
     scenariosHeading: "场景",
     scenariosIntro:
@@ -125,8 +131,7 @@ export const zh: IDictionary = {
     noSandbox: "无 sandbox",
     scriptsOnly: 'sandbox="allow-scripts"',
     fullSandbox: 'sandbox="" (最严)',
-    sopBlocks:
-      "此场景由 Same-Origin Policy 直接阻止，与 sandbox 无关。",
+    sopBlocks: "此场景由 Same-Origin Policy 直接阻止，与 sandbox 无关。",
     works: "通过",
     blocked: "阻止",
     partial: "部分",
@@ -156,6 +161,9 @@ export const zh: IDictionary = {
     html: "HTML Injection",
     dom: "DOM XSS",
     protocol: "URL / Protocol",
+    context: "Context Breakout",
+    file: "File Upload",
+    content: "User Content",
     navigation: "Navigation",
     communication: "Communication",
     exfil: "Exfiltration",

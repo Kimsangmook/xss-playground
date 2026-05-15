@@ -20,6 +20,8 @@ export const ja: IDictionary = {
   nav: {
     home: "ホーム",
     embedHelper: "Embed Helper",
+    learn: "学習ノート",
+    forum: "フォーラム",
     github: "GitHub",
   },
   home: {
@@ -78,6 +80,10 @@ export const ja: IDictionary = {
       {
         label: "PortSwigger XSS cheat sheet",
         href: "https://portswigger.net/web-security/cross-site-scripting/cheat-sheet",
+      },
+      {
+        label: "PayloadsAllTheThings XSS",
+        href: "https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md",
       },
     ],
     scenariosHeading: "シナリオ",
@@ -157,6 +163,9 @@ export const ja: IDictionary = {
     html: "HTML Injection",
     dom: "DOM XSS",
     protocol: "URL / Protocol",
+    context: "Context Breakout",
+    file: "File Upload",
+    content: "User Content",
     navigation: "Navigation",
     communication: "Communication",
     exfil: "Exfiltration",

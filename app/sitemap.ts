@@ -1,5 +1,6 @@
-import type { MetadataRoute } from "next";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/types";
+
+import type { MetadataRoute } from "next";
 import { SCENARIOS } from "@/lib/scenarios";
 import { SITE_URL } from "@/lib/site";
 
@@ -33,6 +34,21 @@ const sitemap = (): MetadataRoute.Sitemap => {
         languages: languageAlternates("/embed-helper"),
       },
     });
+
+    for (const page of [
+      { path: "/learn", priority: 0.8 },
+      { path: "/forum", priority: 0.5 },
+    ]) {
+      entries.push({
+        url: `${SITE_URL}/${locale}${page.path}`,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: page.priority,
+        alternates: {
+          languages: languageAlternates(page.path),
+        },
+      });
+    }
 
     // 시나리오 페이지들
     for (const s of SCENARIOS) {
