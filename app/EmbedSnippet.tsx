@@ -6,6 +6,7 @@ import { findScenario } from "@/lib/scenarios";
 import { SITE_URL } from "@/lib/site";
 import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 
 interface IEmbedSnippetProps {
   slug: string;
@@ -37,7 +38,7 @@ export const EmbedSnippet = ({ slug }: IEmbedSnippetProps) => {
   const [sandboxIdx, setSandboxIdx] = useState(0);
   const [copied, setCopied] = useState(false);
   const scenario = findScenario(slug);
-  const title = dict.scenarios[slug]?.title ?? scenario?.title ?? slug;
+  const title = getScenarioI18n(locale, slug)?.title ?? scenario?.title ?? slug;
 
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);

@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { IScenario } from "@/lib/scenarios";
 import { getDictionary } from "@/i18n";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -40,8 +41,9 @@ export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
   const locale = pickLocale(params?.locale);
   const dict = getDictionary(locale);
   const sp = dict.scenarioPage;
-  const meta = dict.scenarios[scenario.slug];
+  const meta = getScenarioI18n(locale, scenario.slug);
   const surface = scenario.surface ?? "iframe";
+  const checks = meta?.checks ?? scenario.checks;
 
   return (
     <>
@@ -104,9 +106,9 @@ export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
           <p style={{ color: "var(--text-dim)", margin: "6px 0 0" }}>
             {sp.surfaceDescription}
           </p>
-          {scenario.checks && (
+          {checks && (
             <ul style={{ marginBottom: 0 }}>
-              {scenario.checks.map((check) => (
+              {checks.map((check) => (
                 <li key={check}>{check}</li>
               ))}
             </ul>

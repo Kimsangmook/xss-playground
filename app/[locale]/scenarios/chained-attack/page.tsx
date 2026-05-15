@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { findScenario } from "@/lib/scenarios";
-import { ScenarioHeader } from "@/app/ScenarioHeader";
-import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+
+import { EmbedSnippet } from "@/app/EmbedSnippet";
+import { ScenarioHeader } from "@/app/ScenarioHeader";
+import { findScenario } from "@/lib/scenarios";
+import { useScenarioBody } from "../useScenarioBody";
+import { useState } from "react";
 
 type Step = "idle" | "overlay" | "captured" | "redirected";
 
@@ -14,24 +16,25 @@ const ChainedAttackPage = () => {
   const [step, setStep] = useState<Step>("idle");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { actions, log, text, explanation, scenarioPage } =
+    useScenarioBody("chained-attack");
 
   const start = () => {
-    push("[1/3] 풀스크린 가짜 서비스 UI 표시");
+    push(log("step1"));
     setStep("overlay");
   };
 
   const capture = (e: React.FormEvent) => {
     e.preventDefault();
-    push(`[2/3] 자격증명 캡쳐: email=${email} password=${"*".repeat(password.length)}`);
-    push("실제 공격에서는 fetch/sendBeacon 으로 attacker 서버에 전송");
+    push(log("step2", { email, password: "*".repeat(password.length) }));
+    push(log("step2Notice"));
     setStep("captured");
     setTimeout(() => {
-      push("[3/3] 의심 회피용으로 원래 페이지로 top redirect");
+      push(log("step3"));
       try {
-        window.top!.location.href =
-          document.referrer || "https://example.com";
+        window.top!.location.href = document.referrer || "https://example.com";
       } catch (err) {
-        push(`redirect 차단: ${(err as Error).message}`);
+        push(log("redirectBlocked", { message: (err as Error).message }));
       }
       setStep("redirected");
     }, 1500);
@@ -42,10 +45,10 @@ const ChainedAttackPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="chained-attack" />
 
-      <h2>실행</h2>
+      <h2>{scenarioPage.actions}</h2>
       <div className="actions">
         <button className="danger" onClick={start} disabled={step !== "idle"}>
-          체인 공격 시작
+          {actions("start")}
         </button>
         <button
           onClick={() => {
@@ -55,7 +58,7 @@ const ChainedAttackPage = () => {
             clear();
           }}
         >
-          리셋
+          {actions("reset")}
         </button>
       </div>
       <Log lines={lines} />
@@ -73,11 +76,9 @@ const ChainedAttackPage = () => {
           }}
         >
           <h1 style={{ fontSize: 28, marginTop: 0, color: "#111" }}>
-            Example Workspace
+            {text("overlayTitle")}
           </h1>
-          <p style={{ fontSize: 14, color: "#555" }}>
-            보안 정책 변경에 따라 다시 로그인이 필요합니다. (PoC 가짜 화면)
-          </p>
+          <p style={{ fontSize: 14, color: "#555" }}>{text("overlayBody")}</p>
           <form
             onSubmit={capture}
             style={{
@@ -88,7 +89,9 @@ const ChainedAttackPage = () => {
               borderRadius: 8,
             }}
           >
-            <label style={{ fontSize: 12, color: "#555" }}>이메일</label>
+            <label style={{ fontSize: 12, color: "#555" }}>
+              {text("emailLabel")}
+            </label>
             <input
               type="email"
               required
@@ -105,7 +108,9 @@ const ChainedAttackPage = () => {
                 color: "#111",
               }}
             />
-            <label style={{ fontSize: 12, color: "#555" }}>비밀번호</label>
+            <label style={{ fontSize: 12, color: "#555" }}>
+              {text("passwordLabel")}
+            </label>
             <input
               type="password"
               required
@@ -134,33 +139,17 @@ const ChainedAttackPage = () => {
                 cursor: "pointer",
               }}
             >
-              로그인
+              {actions("login")}
             </button>
           </form>
         </div>
       )}
 
-      <h2>해설</h2>
-      <ol>
-        <li>
-          iframe 임베드 후 즉시 풀스크린 오버레이로 서비스 UI 위장 (사용자는
-          여전히 신뢰하는 사이트라고 인지).
-        </li>
-        <li>자격증명 입력 → 자기 origin 으로 전송 → attacker 서버 도착.</li>
-        <li>
-          전송 직후 top redirect 로 원래 페이지로 보내서 의심 회피. 사용자
-          입장에서는 &quot;로그인 한 번 했네&quot; 정도로 끝남.
-        </li>
-      </ol>
+      <h2>{scenarioPage.explanation}</h2>
       <ul>
-        <li>
-          각 단계가 모두 cross-origin iframe 에서 합법적으로 동작하는 API 들로만
-          구성됨. SOP 가 막아주지 않는 영역만 사용.
-        </li>
-        <li>
-          1단계만 막아도 체인이 끊김 → host allowlist 또는 sandbox 의 적절한
-          조합으로 1단계(임의 호스트 iframe 임베드)를 막는 게 가장 효과적.
-        </li>
+        {explanation.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { findScenario } from "@/lib/scenarios";
-import { ScenarioHeader } from "@/app/ScenarioHeader";
-import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+
+import { EmbedSnippet } from "@/app/EmbedSnippet";
+import { ScenarioHeader } from "@/app/ScenarioHeader";
+import { findScenario } from "@/lib/scenarios";
+import { useScenarioBody } from "../useScenarioBody";
+import { useState } from "react";
 
 const TARGET = "https://example.com/?attacker-was-here";
 
@@ -12,31 +14,34 @@ const TopRedirectPage = () => {
   const scenario = findScenario("top-redirect")!;
   const { lines, push, clear } = useLog();
   const [autoFireSec, setAutoFireSec] = useState(5);
+  const { actions, log, explanation, scenarioPage } =
+    useScenarioBody("top-redirect");
 
   const tryTopLocation = () => {
-    push(`window.top === window.self ? ${window.top === window.self}`);
-    push(`시도: window.top.location = "${TARGET}"`);
+    push(
+      log("checkTop", { value: window.top === window.self ? "true" : "false" }),
+    );
+    push(log("tryTopLog", { target: TARGET }));
     try {
-      // 이게 진짜 공격이라면 사용자는 알아채기 전에 페이지가 통째로 바뀐다.
       window.top!.location.href = TARGET;
-      push("호출 성공 (페이지가 곧 이동합니다)");
+      push(log("successNav"));
     } catch (e) {
-      push(`차단됨: ${(e as Error).message}`);
+      push(log("blocked", { message: (e as Error).message }));
     }
   };
 
   const tryTopLocationAssign = () => {
-    push(`시도: window.top.location.assign("${TARGET}")`);
+    push(log("tryAssignLog", { target: TARGET }));
     try {
       window.top!.location.assign(TARGET);
-      push("호출 성공");
+      push(log("successPlain"));
     } catch (e) {
-      push(`차단됨: ${(e as Error).message}`);
+      push(log("blocked", { message: (e as Error).message }));
     }
   };
 
   const tryAnchorTargetTop = () => {
-    push(`시도: <a target="_top" href="${TARGET}"> 가짜 클릭`);
+    push(log("tryAnchorLog", { target: TARGET }));
     const a = document.createElement("a");
     a.href = TARGET;
     a.target = "_top";
@@ -44,20 +49,20 @@ const TopRedirectPage = () => {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    push("호출 완료 (성공했다면 페이지 이동)");
+    push(log("anchorCalled"));
   };
 
   const tryMetaRefresh = () => {
-    push(`시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)`);
+    push(log("tryMetaLog"));
     const meta = document.createElement("meta");
     meta.setAttribute("http-equiv", "refresh");
     meta.setAttribute("content", `0;url=${TARGET}`);
     document.head.appendChild(meta);
-    push("meta refresh 삽입 완료");
+    push(log("metaInserted"));
   };
 
   const scheduleAuto = () => {
-    push(`${autoFireSec}초 뒤 자동 리다이렉트 예약`);
+    push(log("autoScheduled", { n: autoFireSec }));
     setTimeout(() => {
       tryTopLocation();
     }, autoFireSec * 1000);
@@ -68,40 +73,30 @@ const TopRedirectPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="top-redirect" />
 
-      <h2>실행</h2>
+      <h2>{scenarioPage.actions}</h2>
       <div className="actions">
         <button className="danger" onClick={tryTopLocation}>
-          window.top.location = url
+          {actions("tryTop")}
         </button>
         <button className="danger" onClick={tryTopLocationAssign}>
-          window.top.location.assign()
+          {actions("tryAssign")}
         </button>
         <button className="danger" onClick={tryAnchorTargetTop}>
-          {"<a target=_top> 가짜 클릭"}
+          {actions("tryAnchor")}
         </button>
-        <button onClick={tryMetaRefresh}>meta refresh (자기 origin)</button>
+        <button onClick={tryMetaRefresh}>{actions("tryMetaRefresh")}</button>
         <button onClick={scheduleAuto}>
-          {autoFireSec}초 뒤 자동 발사 (피싱 시나리오)
+          {actions("scheduleAuto").replace("{n}", String(autoFireSec))}
         </button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={clear}>{actions("clearLog")}</button>
       </div>
       <Log lines={lines} />
 
-      <h2>해설</h2>
+      <h2>{scenarioPage.explanation}</h2>
       <ul>
-        <li>
-          <code>window.top.location</code> 변경은 cross-origin 이어도 기본 허용
-          됩니다. SOP 가 막아주지 않는 영역입니다.
-        </li>
-        <li>
-          차단하려면 sandbox 에 <code>allow-top-navigation</code> 을 주지 않으면
-          됩니다. <code>sandbox=&quot;allow-scripts&quot;</code> 만 줘도 차단됩니다.
-        </li>
-        <li>
-          실제 공격 가치는 매우 큽니다. 사용자가 신뢰하는 서비스 안에서 무언가
-          클릭한 직후 페이지가 통째로 피싱 사이트로 갈아치워지는 시나리오가
-          만들어집니다.
-        </li>
+        {explanation.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

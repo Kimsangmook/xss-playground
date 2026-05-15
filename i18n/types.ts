@@ -66,6 +66,28 @@ export interface IDictionary {
     copySnippet: string;
     copied: string;
   };
-  scenarios: Record<string, { title: string; summary: string }>;
+  scenarios: Record<
+    string,
+    {
+      title: string;
+      summary: string;
+      body?: IScenarioBody;
+    }
+  >;
   categories: Record<string, string>;
+}
+
+/**
+ * 각 시나리오 페이지가 사용하는 본문 데이터.
+ * 페이지 코드와 키가 1:1 매칭됩니다. 4개 언어 dict 가 같은 키 구조를 유지해야 합니다.
+ */
+export interface IScenarioBody {
+  /** "실행" 섹션 아래 버튼 라벨 */
+  actionLabels?: Record<string, string>;
+  /** push() 호출 시 출력할 로그 메시지 */
+  logMessages?: Record<string, string>;
+  /** "해설" 섹션의 bullet list */
+  explanation?: string[];
+  /** 기타 inline 텍스트 (placeholder, callout 등) */
+  text?: Record<string, string>;
 }

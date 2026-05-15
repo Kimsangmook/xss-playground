@@ -6,15 +6,10 @@ import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
 import { SITE_URL } from "@/lib/site";
+import { I18N } from "./i18n";
+import { fmt, usePageI18n } from "../usePageI18n";
 
 type Action = "top-redirect" | "post-message" | "form-submit" | "open-popup";
-
-const ACTIONS: { key: Action; label: string }[] = [
-  { key: "top-redirect", label: "top.location 리다이렉트" },
-  { key: "post-message", label: "parent.postMessage" },
-  { key: "form-submit", label: "외부 form submit" },
-  { key: "open-popup", label: "window.open" },
-];
 
 const DelayedAttackPage = () => {
   const scenario = findScenario("delayed-attack")!;
@@ -23,6 +18,13 @@ const DelayedAttackPage = () => {
   const [action, setAction] = useState<Action>("top-redirect");
   const [remaining, setRemaining] = useState<number | null>(null);
   const [origin, setOrigin] = useState(SITE_URL);
+  const t = usePageI18n(I18N);
+  const actions: { key: Action; label: string }[] = [
+    { key: "top-redirect", label: t.text?.actionTopRedirect ?? "top-redirect" },
+    { key: "post-message", label: t.text?.actionPostMessage ?? "post-message" },
+    { key: "form-submit", label: t.text?.actionFormSubmit ?? "form-submit" },
+    { key: "open-popup", label: t.text?.actionOpenPopup ?? "open-popup" },
+  ];
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -41,23 +43,23 @@ const DelayedAttackPage = () => {
   }, [remaining]);
 
   const start = () => {
-    push(`${delay}초 카운트다운 시작 — 액션 = ${action}`);
+    push(fmt(t.log?.countdown, { delay, action }));
     setRemaining(delay);
   };
 
   const cancel = () => {
     setRemaining(null);
-    push("취소됨");
+    push(t.log?.cancelled ?? "");
   };
 
   const fire = () => {
-    push(`발사: ${action}`);
+    push(fmt(t.log?.firing, { action }));
     switch (action) {
       case "top-redirect": {
         try {
           window.top!.location.href = "https://example.com/?delayed=1";
         } catch (e) {
-          push(`차단: ${(e as Error).message}`);
+          push(fmt(t.log?.blocked, { message: (e as Error).message }));
         }
         break;
       }
@@ -66,7 +68,7 @@ const DelayedAttackPage = () => {
           { type: "DELAYED_ATTACK", fired: Date.now() },
           "*"
         );
-        push("parent.postMessage 발사");
+        push(t.log?.postMessage ?? "");
         break;
       }
       case "form-submit": {
@@ -81,12 +83,16 @@ const DelayedAttackPage = () => {
         document.body.appendChild(f);
         f.submit();
         f.remove();
-        push("form submit");
+        push(t.log?.formSubmitted ?? "");
         break;
       }
       case "open-popup": {
         const w = window.open("about:blank", "_blank");
-        push(`window.open ${w ? "성공" : "차단"}`);
+        push(
+          fmt(t.log?.popupResult, {
+            result: w ? t.log?.opened : t.log?.blockedPlain,
+          }),
+        );
         break;
       }
     }
@@ -97,9 +103,9 @@ const DelayedAttackPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="delayed-attack" />
 
-      <h2>실행</h2>
+      <h2>{t.actionsHeading}</h2>
       <div className="kv">
-        <div className="k">액션</div>
+        <div className="k">{t.text?.actionLabel}</div>
         <div>
           <select
             value={action}
@@ -113,14 +119,14 @@ const DelayedAttackPage = () => {
               width: "100%",
             }}
           >
-            {ACTIONS.map((a) => (
+            {actions.map((a) => (
               <option key={a.key} value={a.key}>
                 {a.label}
               </option>
             ))}
           </select>
         </div>
-        <div className="k">지연(초)</div>
+        <div className="k">{t.text?.delayLabel}</div>
         <div>
           <input
             type="number"
@@ -133,34 +139,29 @@ const DelayedAttackPage = () => {
       </div>
       <div className="actions">
         <button className="danger" onClick={start} disabled={remaining !== null}>
-          {remaining === null ? "카운트다운 시작" : `${remaining}초 남음`}
+          {remaining === null
+            ? t.buttons?.start
+            : fmt(t.buttons?.remaining, { n: remaining })}
         </button>
         <button onClick={cancel} disabled={remaining === null}>
-          취소
+          {t.buttons?.cancel}
         </button>
-        <button onClick={fire}>즉시 발사</button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={fire}>{t.buttons?.fireNow}</button>
+        <button onClick={clear}>{t.buttons?.clearLog}</button>
       </div>
       <Log lines={lines} />
 
-      <h2>임베드 페이지 자동 발사</h2>
+      <h2>{t.text?.autoHeading}</h2>
       <p className="summary">
-        실제 임베드 시에는 사용자 상호작용 없이 자동 실행되도록 URL 파라미터를
-        넣어두면 됩니다. 예시:
+        {t.text?.autoBody}
       </p>
       <pre>{`<iframe src="${origin}/embed/delayed-attack?auto=top-redirect&delay=5" width="600" height="420"></iframe>`}</pre>
 
-      <h2>해설</h2>
+      <h2>{t.explanationHeading}</h2>
       <ul>
-        <li>
-          사용자가 신뢰하는 서비스 화면을 보고 있는 동안 잠깐 무관한 콘텐츠처럼 보이게
-          한 뒤 N초 뒤 발사하는 시나리오 재현. 즉시 발사는 사용자 의심을
-          유발하지만 5~10초 지연은 자연스럽게 보임.
-        </li>
-        <li>
-          모든 액션이 sandbox 정책의 해당 키워드(allow-top-navigation, forms,
-          popups 등) 가 없으면 차단됨.
-        </li>
+        {t.explanation?.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );

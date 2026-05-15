@@ -1,23 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { findScenario } from "@/lib/scenarios";
-import { ScenarioHeader } from "@/app/ScenarioHeader";
-import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
+
+import { EmbedSnippet } from "@/app/EmbedSnippet";
+import { ScenarioHeader } from "@/app/ScenarioHeader";
+import { findScenario } from "@/lib/scenarios";
+import { useScenarioBody } from "../useScenarioBody";
+import { useState } from "react";
 
 const FullscreenOverlayPage = () => {
   const scenario = findScenario("fullscreen-overlay")!;
   const { lines, push, clear } = useLog();
   const [showOverlay, setShowOverlay] = useState(false);
+  const { actions, log, text, explanation, scenarioPage } =
+    useScenarioBody("fullscreen-overlay");
 
   const tryRealFullscreen = async () => {
-    push("document.documentElement.requestFullscreen() 시도");
+    push(log("tryFs"));
     try {
       await document.documentElement.requestFullscreen();
-      push("진입 성공");
+      push(log("fsEntered"));
     } catch (e) {
-      push(`차단: ${(e as Error).message}`);
+      push(log("blocked", { message: (e as Error).message }));
     }
   };
 
@@ -26,21 +30,16 @@ const FullscreenOverlayPage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="fullscreen-overlay" />
 
-      <h2>실행</h2>
-      <div className="callout">
-        실제 공격에서는 iframe 자체를 부모 페이지의 CSS 로 화면 전체를 덮는
-        position:fixed; top:0; width:100%; height:100% 으로 배치합니다. iframe
-        자기 origin 안에서는 그 안에 어떤 UI 든 자유롭게 그릴 수 있어서, 실제
-        서비스와 똑같이 생긴 가짜 페이지로 사용자를 속일 수 있습니다.
-      </div>
+      <h2>{scenarioPage.actions}</h2>
+      <div className="callout">{text("callout")}</div>
       <div className="actions">
         <button className="danger" onClick={() => setShowOverlay(true)}>
-          가짜 서비스 UI 오버레이 표시
+          {actions("showOverlay")}
         </button>
         <button className="danger" onClick={tryRealFullscreen}>
-          진짜 풀스크린 API
+          {actions("tryRealFs")}
         </button>
-        <button onClick={clear}>로그 초기화</button>
+        <button onClick={clear}>{actions("clearLog")}</button>
       </div>
       <Log lines={lines} />
 
@@ -56,12 +55,8 @@ const FullscreenOverlayPage = () => {
             fontFamily: "system-ui",
           }}
         >
-          <h1 style={{ fontSize: 28, marginTop: 0 }}>
-            Example Workspace — 본인 인증이 필요합니다
-          </h1>
-          <p style={{ fontSize: 15, color: "#555" }}>
-            서비스 정책 변경에 따라 다시 로그인해 주세요. (이건 가짜 화면입니다)
-          </p>
+          <h1 style={{ fontSize: 28, marginTop: 0 }}>{text("overlayTitle")}</h1>
+          <p style={{ fontSize: 15, color: "#555" }}>{text("overlayBody")}</p>
           <div
             style={{
               maxWidth: 360,
@@ -72,7 +67,9 @@ const FullscreenOverlayPage = () => {
             }}
           >
             <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, color: "#555" }}>이메일</label>
+              <label style={{ fontSize: 12, color: "#555" }}>
+                {text("emailLabel")}
+              </label>
               <input
                 style={{
                   display: "block",
@@ -87,7 +84,9 @@ const FullscreenOverlayPage = () => {
               />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, color: "#555" }}>비밀번호</label>
+              <label style={{ fontSize: 12, color: "#555" }}>
+                {text("passwordLabel")}
+              </label>
               <input
                 type="password"
                 style={{
@@ -114,7 +113,7 @@ const FullscreenOverlayPage = () => {
               }}
               onClick={() => setShowOverlay(false)}
             >
-              로그인
+              {actions("login")}
             </button>
             <button
               style={{
@@ -128,23 +127,17 @@ const FullscreenOverlayPage = () => {
               }}
               onClick={() => setShowOverlay(false)}
             >
-              (PoC 닫기)
+              {actions("closePoc")}
             </button>
           </div>
         </div>
       )}
 
-      <h2>해설</h2>
+      <h2>{scenarioPage.explanation}</h2>
       <ul>
-        <li>
-          iframe 자체 영역을 부모 CSS 가 어떻게 배치할지는 부모 책임입니다.
-          서비스가 임의 iframe 을 100% 너비/높이로 그리고 있다면 그 자체로
-          시각적 위장이 가능합니다.
-        </li>
-        <li>
-          진짜 풀스크린 API 는 사용자 제스처 필요. 하지만 z-index:99999 의 일반
-          DOM 오버레이는 사용자 제스처 없이도 즉시 가능합니다.
-        </li>
+        {explanation.map((html, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: html }} />
+        ))}
       </ul>
     </>
   );
