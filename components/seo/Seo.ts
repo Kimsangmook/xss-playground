@@ -37,6 +37,20 @@ const getRobots = (robots: TRobots): Metadata["robots"] => ({
   },
 });
 
+const getAbsoluteMetadataTitle = (metadata: Metadata, fallback: string) => {
+  const title = metadata.title;
+  if (typeof title === "string") return title;
+  if (
+    title &&
+    typeof title === "object" &&
+    "absolute" in title &&
+    typeof title.absolute === "string"
+  ) {
+    return title.absolute;
+  }
+  return fallback;
+};
+
 const getTitle = ({
   locale,
   title,
@@ -102,7 +116,7 @@ export const createSeoMetadata = ({
       siteName: dict.site.name,
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map(
-        (l) => OG_LOCALE[l]
+        (l) => OG_LOCALE[l],
       ),
       type: "website",
       images: [{ url: imageUrl }],
@@ -136,7 +150,7 @@ export const createLocaleBaseMetadata = (locale: Locale): Metadata => {
       siteName: dict.site.name,
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map(
-        (l) => OG_LOCALE[l]
+        (l) => OG_LOCALE[l],
       ),
       type: "website",
       images: [{ url: getImageUrl() }],
@@ -179,6 +193,89 @@ export const createEmbedHelperSeoMetadata = (locale: Locale) => {
     title: titleByLocale[locale],
     description: descriptionByLocale[locale],
     keywords: [...dict.site.keywords, "iframe helper", "sandbox test"],
+  });
+};
+
+export const createLearnSeoMetadata = (locale: Locale) => {
+  const dict = getDictionary(locale);
+  const titleByLocale: Record<Locale, string> = {
+    ko: "XSS 학습 노트와 방어 체크리스트",
+    en: "XSS Learning Notes and Defense Checklist",
+    ja: "XSS 学習ノートと防御チェックリスト",
+    zh: "XSS 学习笔记与防护清单",
+  };
+  const descriptionByLocale: Record<Locale, string> = {
+    ko: "PayloadsAllTheThings, OWASP, MDN 자료를 바탕으로 XSS 공격 표면과 방어 정책을 실무 체크리스트로 정리한 학습 페이지입니다.",
+    en: "A practical XSS learning page that summarizes attack surfaces and defense policies from PayloadsAllTheThings, OWASP, and MDN.",
+    ja: "PayloadsAllTheThings、OWASP、MDN を参考に XSS の攻撃面と防御ポリシーを実務チェックリストとして整理した学習ページです。",
+    zh: "基于 PayloadsAllTheThings、OWASP 与 MDN 整理 XSS 攻击面和防护策略的实践学习页。",
+  };
+
+  return createSeoMetadata({
+    locale,
+    path: "/learn",
+    title: titleByLocale[locale],
+    description: descriptionByLocale[locale],
+    keywords: [
+      ...dict.site.keywords,
+      "XSS checklist",
+      "PayloadsAllTheThings",
+      "OWASP XSS Prevention",
+      "DOM XSS prevention",
+    ],
+  });
+};
+
+export const createForumSeoMetadata = (locale: Locale) => {
+  const dict = getDictionary(locale);
+  const titleByLocale: Record<Locale, string> = {
+    ko: "XSS 방어 포럼",
+    en: "XSS Defense Forum",
+    ja: "XSS 防御フォーラム",
+    zh: "XSS 防护论坛",
+  };
+  const descriptionByLocale: Record<Locale, string> = {
+    ko: "GitHub Issues 를 포럼처럼 사용해 XSS 대응 경험, DOMPurify 정책, iframe embed allowlist, 프로필 렌더링 이슈를 논의합니다.",
+    en: "Use GitHub Issues as a forum for XSS defense stories, DOMPurify policy, iframe embed allowlists, and profile-rendering risks.",
+    ja: "GitHub Issues をフォーラムとして使い、XSS 防御経験、DOMPurify policy、iframe embed allowlist、profile rendering risk を議論します。",
+    zh: "使用 GitHub Issues 作为论坛，讨论 XSS 防护经验、DOMPurify 策略、iframe embed allowlist 与资料渲染风险。",
+  };
+
+  return createSeoMetadata({
+    locale,
+    path: "/forum",
+    title: titleByLocale[locale],
+    description: descriptionByLocale[locale],
+    keywords: [
+      ...dict.site.keywords,
+      "XSS forum",
+      "DOMPurify",
+      "iframe allowlist",
+      "security discussion",
+    ],
+  });
+};
+
+export const createRedirectedSeoMetadata = (locale: Locale) => {
+  const titleByLocale: Record<Locale, string> = {
+    ko: "리다이렉트 테스트 도착 페이지",
+    en: "Redirect Test Target",
+    ja: "Redirect Test Target",
+    zh: "Redirect Test Target",
+  };
+  const descriptionByLocale: Record<Locale, string> = {
+    ko: "XSS Playground 의 top.location, delayed attack, chained attack 테스트가 외부 example.com 대신 도착하는 내부 페이지입니다.",
+    en: "The internal target page used by XSS Playground top.location, delayed attack, and chained attack tests instead of external example.com.",
+    ja: "XSS Playground の top.location、delayed attack、chained attack が外部 example.com の代わりに到達する内部ページです。",
+    zh: "XSS Playground 的 top.location、delayed attack、chained attack 测试会到达此内部页面，而非外部 example.com。",
+  };
+
+  return createSeoMetadata({
+    locale,
+    path: "/redirected",
+    title: titleByLocale[locale],
+    description: descriptionByLocale[locale],
+    robots: "noindex, nofollow",
   });
 };
 
@@ -242,7 +339,7 @@ export const createHomeJsonLd = (locale: Locale) => {
 export const createScenarioJsonLd = (locale: Locale, slug: string) => {
   const dict = getDictionary(locale);
   const scenario = findScenario(slug);
-  const meta = scenario ? getScenarioI18n(locale, slug) ?? scenario : null;
+  const meta = scenario ? (getScenarioI18n(locale, slug) ?? scenario) : null;
   const url = getLocalizedUrl(locale, `/scenarios/${slug}`);
 
   return {
@@ -274,6 +371,42 @@ export const createEmbedHelperJsonLd = (locale: Locale) => {
     name: "Parent Embed Helper",
     url: getLocalizedUrl(locale, "/embed-helper"),
     description: dict.site.description,
+    inLanguage: locale,
+    isPartOf: {
+      "@type": "WebSite",
+      name: dict.site.name,
+      url: getLocalizedUrl(locale),
+    },
+  };
+};
+
+export const createLearnJsonLd = (locale: Locale) => {
+  const dict = getDictionary(locale);
+  const metadata = createLearnSeoMetadata(locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    name: getAbsoluteMetadataTitle(metadata, "XSS Learning Notes"),
+    url: getLocalizedUrl(locale, "/learn"),
+    description: metadata.description,
+    inLanguage: locale,
+    isPartOf: {
+      "@type": "WebSite",
+      name: dict.site.name,
+      url: getLocalizedUrl(locale),
+    },
+  };
+};
+
+export const createForumJsonLd = (locale: Locale) => {
+  const dict = getDictionary(locale);
+  const metadata = createForumSeoMetadata(locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "DiscussionForumPosting",
+    name: getAbsoluteMetadataTitle(metadata, "XSS Defense Forum"),
+    url: getLocalizedUrl(locale, "/forum"),
+    description: metadata.description,
     inLanguage: locale,
     isPartOf: {
       "@type": "WebSite",

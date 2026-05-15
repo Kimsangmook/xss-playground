@@ -20,6 +20,8 @@ export interface IDictionary {
   nav: {
     home: string;
     embedHelper: string;
+    learn: string;
+    forum: string;
     github: string;
   };
   home: {

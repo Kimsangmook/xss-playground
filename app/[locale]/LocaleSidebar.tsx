@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { SCENARIOS, ALL_CATEGORIES } from "@/lib/scenarios";
+import { ALL_CATEGORIES, SCENARIOS } from "@/lib/scenarios";
 import type { IDictionary, Locale } from "@/i18n/types";
-import { LOCALE_LABEL, LOCALES } from "@/i18n/types";
+import { LOCALES, LOCALE_LABEL } from "@/i18n/types";
+
+import Link from "next/link";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
+import { usePathname } from "next/navigation";
 
 interface IProps {
   locale: Locale;
@@ -33,6 +34,18 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
       >
         {dict.nav.embedHelper}
       </Link>
+      <Link
+        href={`${linkBase}/learn`}
+        className={isActive(`${linkBase}/learn`) ? "active" : ""}
+      >
+        {dict.nav.learn}
+      </Link>
+      <Link
+        href={`${linkBase}/forum`}
+        className={isActive(`${linkBase}/forum`) ? "active" : ""}
+      >
+        {dict.nav.forum}
+      </Link>
 
       {ALL_CATEGORIES.map((cat) => {
         const items = SCENARIOS.filter((s) => s.category === cat);
@@ -58,7 +71,14 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
       })}
 
       <div className="group-label">Language</div>
-      <div style={{ display: "flex", gap: 6, padding: "2px 8px", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          padding: "2px 8px",
+          flexWrap: "wrap",
+        }}
+      >
         {LOCALES.map((l) => {
           const swapped = pathname.replace(/^\/[a-z]{2}/, `/${l}`);
           return (

@@ -20,6 +20,8 @@ export const ko: IDictionary = {
   nav: {
     home: "홈",
     embedHelper: "임베드 헬퍼",
+    learn: "학습 노트",
+    forum: "포럼",
     github: "GitHub",
   },
   home: {
@@ -78,6 +80,10 @@ export const ko: IDictionary = {
       {
         label: "PortSwigger XSS cheat sheet",
         href: "https://portswigger.net/web-security/cross-site-scripting/cheat-sheet",
+      },
+      {
+        label: "PayloadsAllTheThings XSS",
+        href: "https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md",
       },
     ],
     scenariosHeading: "시나리오",
@@ -169,8 +175,7 @@ export const ko: IDictionary = {
     },
     "svg-onload": {
       title: "SVG / MathML onload payload",
-      summary:
-        "SVG, MathML namespace 와 이벤트 속성이 필터를 우회하는지 확인.",
+      summary: "SVG, MathML namespace 와 이벤트 속성이 필터를 우회하는지 확인.",
     },
     "dom-innerhtml-sink": {
       title: "DOM innerHTML sink",
@@ -199,7 +204,8 @@ export const ko: IDictionary = {
           blocked: "차단됨: {message}",
           tryAnchorLog: '시도: <a target="_top" href="{target}"> 가짜 클릭',
           anchorCalled: "호출 완료 (성공했다면 페이지 이동)",
-          tryMetaLog: '시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)',
+          tryMetaLog:
+            '시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)',
           metaInserted: "meta refresh 삽입 완료",
           autoScheduled: "{n}초 뒤 자동 리다이렉트 예약",
         },
@@ -311,7 +317,8 @@ export const ko: IDictionary = {
           callout:
             "실제 공격에서는 iframe 자체를 부모 페이지의 CSS 로 화면 전체를 덮는 position:fixed; top:0; width:100%; height:100% 으로 배치합니다. iframe 자기 origin 안에서는 그 안에 어떤 UI 든 자유롭게 그릴 수 있어서, 실제 서비스와 똑같이 생긴 가짜 페이지로 사용자를 속일 수 있습니다.",
           overlayTitle: "Example Workspace — 본인 인증이 필요합니다",
-          overlayBody: "서비스 정책 변경에 따라 다시 로그인해 주세요. (이건 가짜 화면입니다)",
+          overlayBody:
+            "서비스 정책 변경에 따라 다시 로그인해 주세요. (이건 가짜 화면입니다)",
           emailLabel: "이메일",
           passwordLabel: "비밀번호",
         },
@@ -336,8 +343,7 @@ export const ko: IDictionary = {
     },
     "beacon-exfil": {
       title: "navigator.sendBeacon / fetch exfiltration",
-      summary:
-        "iframe 자기 origin 안에서 수집한 정보를 attacker 서버로 송신.",
+      summary: "iframe 자기 origin 안에서 수집한 정보를 attacker 서버로 송신.",
     },
     "csrf-image": {
       title: "img 태그 GET 요청 CSRF",
@@ -350,8 +356,7 @@ export const ko: IDictionary = {
     },
     "parent-message-listener-probe": {
       title: "부모 message 리스너 fingerprinting",
-      summary:
-        "다양한 페이로드를 부모에게 던지고 응답 / 사이드 이펙트 관찰.",
+      summary: "다양한 페이로드를 부모에게 던지고 응답 / 사이드 이펙트 관찰.",
     },
     "delayed-attack": {
       title: "지연 / 자동 실행 페이로드",
@@ -371,7 +376,8 @@ export const ko: IDictionary = {
         logMessages: {
           step1: "[1/3] 풀스크린 가짜 서비스 UI 표시",
           step2: "[2/3] 자격증명 캡쳐: email={email} password={password}",
-          step2Notice: "실제 공격에서는 fetch/sendBeacon 으로 attacker 서버에 전송",
+          step2Notice:
+            "실제 공격에서는 fetch/sendBeacon 으로 attacker 서버에 전송",
           step3: "[3/3] 의심 회피용으로 원래 페이지로 top redirect",
           redirectBlocked: "redirect 차단: {message}",
         },
@@ -396,6 +402,9 @@ export const ko: IDictionary = {
     html: "HTML 삽입",
     dom: "DOM XSS",
     protocol: "URL / 프로토콜",
+    context: "컨텍스트 탈출",
+    file: "파일 업로드",
+    content: "사용자 콘텐츠",
     navigation: "내비게이션",
     communication: "통신",
     exfil: "탈취",

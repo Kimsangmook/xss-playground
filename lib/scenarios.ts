@@ -26,7 +26,10 @@ export interface IScenario {
     | "delayed"
     | "html"
     | "dom"
-    | "protocol";
+    | "protocol"
+    | "context"
+    | "file"
+    | "content";
 }
 
 export interface IPayloadExample {
@@ -75,13 +78,13 @@ export const SCENARIOS: IScenario[] = [
     payloads: [
       {
         label: "img onerror",
-        value: '<img src=x onerror="alert(\'xss-playground\')">',
+        value: "<img src=x onerror=\"alert('xss-playground')\">",
         note: "이미지 로드 실패 이벤트를 이용하는 대표적인 HTML attribute XSS.",
       },
       {
         label: "details ontoggle",
         value:
-          '<details open ontoggle="alert(\'xss-playground\')"><summary>open</summary></details>',
+          "<details open ontoggle=\"alert('xss-playground')\"><summary>open</summary></details>",
         note: "script 태그를 막아도 이벤트 속성이 남으면 실행될 수 있다.",
       },
     ],
@@ -105,14 +108,13 @@ export const SCENARIOS: IScenario[] = [
     payloads: [
       {
         label: "anchor href javascript",
-        value:
-          '<a href="javascript:alert(\'xss-playground\')">click me</a>',
+        value: "<a href=\"javascript:alert('xss-playground')\">click me</a>",
         note: "사용자 클릭 후 실행되는 URL 프로토콜 기반 XSS.",
       },
       {
         label: "form action javascript",
         value:
-          '<form action="javascript:alert(\'xss-playground\')"><button>submit</button></form>',
+          "<form action=\"javascript:alert('xss-playground')\"><button>submit</button></form>",
         note: "href 뿐 아니라 action 같은 URL 속성도 함께 검증.",
       },
     ],
@@ -167,7 +169,7 @@ export const SCENARIOS: IScenario[] = [
     payloads: [
       {
         label: "img onerror DOM sink",
-        value: '<img src=x onerror="alert(\'dom-xss\')">',
+        value: "<img src=x onerror=\"alert('dom-xss')\">",
         note: "innerHTML 에 들어갔을 때 이벤트 핸들러가 실행되는지 확인.",
       },
       {
@@ -187,6 +189,250 @@ export const SCENARIOS: IScenario[] = [
     fullSandbox: "blocked",
     sopBlocks: false,
     category: "dom",
+  },
+  {
+    slug: "js-context-breakout",
+    title: "JavaScript 문자열 컨텍스트 탈출",
+    summary:
+      "사용자 입력이 script 블록 안의 문자열, JSON 초기 상태, inline 이벤트 코드에 들어갈 때 따옴표와 script 종료 토큰으로 컨텍스트를 탈출하는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "quoted string breakout",
+        value: '";alert("xss-playground");//',
+        note: "값이 JavaScript 문자열 리터럴 안에 삽입되는 경우를 검증한다.",
+      },
+      {
+        label: "script close breakout",
+        value:
+          "</script><img src=x onerror=\"alert('xss-playground')\"><script>",
+        note: "</script> 종료 토큰이 JSON/script 초기 상태를 깨는지 확인한다.",
+      },
+    ],
+    checks: [
+      "사용자 입력을 script 블록에 직접 넣지 않는지 확인",
+      "JSON.stringify / 안전한 JSON 직렬화가 </script> 같은 종료 토큰까지 처리하는지 확인",
+      "HTML 인코딩만으로 JavaScript 문자열 컨텍스트를 보호하려 하지 않는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "context",
+  },
+  {
+    slug: "css-context-injection",
+    title: "CSS / style 컨텍스트 삽입",
+    summary:
+      "사용자 입력이 style 태그, style 속성, CSS URL 토큰으로 들어갈 때 parser 탈출이나 위험 URL 이 남는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "style tag breakout",
+        value:
+          "</style><img src=x onerror=\"alert('css-context-xss')\"><style>",
+        note: "사용자 값이 style 태그 내부에 들어가는 경우 태그 탈출 여부를 확인한다.",
+      },
+      {
+        label: "style url token",
+        value:
+          "<div style=\"background-image:url(javascript:alert('css-url-xss'))\">css url probe</div>",
+        note: "현대 브라우저에서 대부분 차단되지만, sanitizer 가 CSS URL 스킴을 정규화하는지 확인할 수 있다.",
+      },
+    ],
+    checks: [
+      "사용자 입력을 style 태그 내부에 직접 삽입하지 않는지 확인",
+      "style 속성을 허용한다면 CSS 프로퍼티와 url() 스킴을 allowlist 로 제한하는지 확인",
+      "HTML sanitizer 가 CSS parser 경계까지 안전하게 처리하는지 확인",
+    ],
+    noSandbox: "partial",
+    scriptsOnly: "partial",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "context",
+  },
+  {
+    slug: "encoded-protocol-bypass",
+    title: "인코딩된 javascript: 프로토콜 우회",
+    summary:
+      "HTML entity, 제어문자, 대소문자 변형으로 javascript: URL 검증을 우회할 수 있는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "HTML entity protocol",
+        value:
+          "<a href=\"jav&#x61;script:alert('xss-playground')\">encoded protocol</a>",
+        note: "속성값을 디코딩한 뒤 프로토콜을 검증하는지 확인한다.",
+      },
+      {
+        label: "newline protocol",
+        value:
+          "<a href=\"java&#x0A;script:alert('xss-playground')\">newline protocol</a>",
+        note: "공백/제어문자 정규화 없이 문자열 prefix 만 검사하는 필터를 찾기 위한 payload.",
+      },
+    ],
+    checks: [
+      "URL 속성 검증 전에 entity decoding 과 제어문자 제거가 수행되는지 확인",
+      "프로토콜 allowlist(http, https, mailto 등) 기반으로 검증하는지 확인",
+      "렌더러와 sanitizer 가 서로 다른 정규화 규칙을 쓰지 않는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "protocol",
+  },
+  {
+    slug: "data-url-wrapper",
+    title: "data: URL wrapper",
+    summary:
+      "iframe, object, embed, link preview 같은 wrapper URL 속성에서 data:text/html 이 허용되어 별도 HTML 문서가 실행되는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "iframe data document",
+        value:
+          "<iframe src=\"data:text/html,<script>parent.postMessage({type:'DATA_URL_XSS'},'*')</script>\"></iframe>",
+        note: "data: URL 로 생성된 하위 문서가 script 를 실행하고 부모와 통신할 수 있는지 확인한다.",
+      },
+      {
+        label: "object data document",
+        value:
+          "<object data=\"data:text/html,<script>alert('data-url-xss')</script>\"></object>",
+        note: "iframe 외 wrapper 태그에서도 data: URL 이 살아남는지 확인한다.",
+      },
+    ],
+    checks: [
+      "src/data/href 같은 URL 속성에서 data: 스킴을 기본 차단하는지 확인",
+      "허용이 필요하다면 MIME type 을 이미지 등으로 좁히는지 확인",
+      "wrapper 태그가 sandbox 없이 HTML 문서를 만들 수 있는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "protocol",
+  },
+  {
+    slug: "markdown-link-xss",
+    title: "Markdown 링크 XSS",
+    summary:
+      "Markdown/MDX/에디터 렌더러가 링크 URL, raw HTML, 이미지 URL 을 안전하게 정규화하고 sanitize 하는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "markdown source",
+        value: "[click me](javascript:alert('markdown-xss'))",
+        note: "Markdown 소스를 저장하는 에디터에 붙여 넣고 렌더러 결과의 href 를 확인한다.",
+      },
+      {
+        label: "rendered anchor",
+        value:
+          "<a href=\"javascript:alert('markdown-xss')\">markdown-rendered link</a>",
+        note: "Markdown 렌더러가 만든 최종 HTML 을 sanitizer 가 다시 검증하는지 확인한다.",
+      },
+    ],
+    checks: [
+      "Markdown 렌더링 후 최종 HTML 을 다시 sanitize 하는지 확인",
+      "링크 URL 은 프로토콜 allowlist 로 검증하는지 확인",
+      "raw HTML 허용 옵션이 켜져 있는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "content",
+  },
+  {
+    slug: "file-upload-preview-xss",
+    title: "파일 업로드 미리보기 XSS",
+    summary:
+      "SVG, XML, HTML 파일을 업로드 후 미리보기로 렌더링할 때 active content 가 실행되는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "SVG file body",
+        value:
+          '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(\'svg-file-xss\')"></svg>',
+        note: "업로드된 SVG 를 img 로만 쓰는지, inline/object/embed 로 렌더링하는지 확인한다.",
+      },
+      {
+        label: "HTML file body",
+        value:
+          '<!doctype html><meta charset="utf-8"><script>alert("html-upload-xss")</script>',
+        note: "첨부파일 미리보기, 문서 변환, 관리자 검수 화면에서 HTML 이 실행되는지 확인한다.",
+      },
+    ],
+    checks: [
+      "업로드 파일을 같은 origin 에서 HTML 로 열지 않는지 확인",
+      "SVG 는 이미지로만 제공하거나 별도 다운로드 도메인/첨부 헤더를 사용하는지 확인",
+      "MIME sniffing 방지를 위해 Content-Type 과 X-Content-Type-Options 를 설정하는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "file",
+  },
+  {
+    slug: "profile-rendering-xss",
+    title: "프로필 닉네임 / 아이콘 렌더링 XSS",
+    summary:
+      "닉네임, 상태 메시지, 아이콘 URL 처럼 사소해 보이는 프로필 필드가 속성/HTML 컨텍스트에서 실행 가능한 코드가 되는지 확인한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "nickname attribute breakout",
+        value: '" autofocus onfocus="alert(\'nickname-xss\')" x="',
+        note: "닉네임이 title, aria-label, value 같은 속성에 들어갈 때 따옴표 탈출을 확인한다.",
+      },
+      {
+        label: "icon renderer HTML",
+        value: "<img src=x onerror=\"alert('profile-icon-xss')\">",
+        note: "아이콘/배지/프로필 꾸미기 필드를 dangerouslySetInnerHTML 로 그리는지 확인한다.",
+      },
+    ],
+    checks: [
+      "닉네임은 textContent 로만 렌더링되는지 확인",
+      "속성에 넣는 값은 attribute context 에 맞게 인코딩되는지 확인",
+      "아이콘 URL 은 URL 객체와 host/protocol allowlist 로 검증하는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "content",
+  },
+  {
+    slug: "blind-xss-workflow",
+    title: "Blind XSS 워크플로우",
+    summary:
+      "사용자 입력이 즉시 실행되지 않더라도 관리자 콘솔, 알림, 로그 뷰어, CRM 같은 나중의 렌더링 화면에서 실행되는지 추적한다.",
+    surface: "html",
+    payloads: [
+      {
+        label: "same-origin callback probe",
+        value:
+          "<img src=x onerror=\"fetch('/redirected?from=blind-xss&surface=admin-log',{mode:'no-cors'})\">",
+        note: "실제 테스트에서는 본인이 소유한 callback endpoint 로 교체해 지연 실행을 기록한다.",
+      },
+      {
+        label: "passive image beacon",
+        value:
+          '<img src="/redirected?from=blind-xss-image" alt="blind-xss-probe">',
+        note: "script 없이도 나중에 렌더링된 화면에서 외부/내부 요청이 발생하는지 확인한다.",
+      },
+    ],
+    checks: [
+      "사용자 화면뿐 아니라 관리자/운영자/메일/로그 화면까지 같은 렌더링 정책을 쓰는지 확인",
+      "콜백에는 민감정보를 담지 말고 실행 시점과 표면만 기록하는지 확인",
+      "저장형 XSS 는 delayed surface 까지 테스트 케이스로 관리하는지 확인",
+    ],
+    noSandbox: "works",
+    scriptsOnly: "works",
+    fullSandbox: "blocked",
+    sopBlocks: false,
+    category: "delayed",
   },
   {
     slug: "top-redirect",
@@ -395,6 +641,9 @@ export const CATEGORY_LABEL: Record<IScenario["category"], string> = {
   html: "HTML Injection",
   dom: "DOM XSS",
   protocol: "URL / Protocol",
+  context: "Context Breakout",
+  file: "File Upload",
+  content: "User Content",
   navigation: "Navigation",
   communication: "Communication",
   exfil: "Exfiltration",
@@ -408,6 +657,9 @@ export const ALL_CATEGORIES: IScenario["category"][] = [
   "html",
   "dom",
   "protocol",
+  "context",
+  "file",
+  "content",
   "navigation",
   "communication",
   "exfil",

@@ -69,6 +69,23 @@ button.danger:hover {
   background: rgba(248, 81, 73, 0.1);
 }
 
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.button-link:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
 input {
   background: var(--bg);
   border: 1px solid var(--border);
