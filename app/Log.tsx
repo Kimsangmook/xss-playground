@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
 
-export const useLog = () => {
+const DEFAULT_MAX_LOG_LINES = 120;
+
+export const useLog = (maxLines = DEFAULT_MAX_LOG_LINES) => {
   const [lines, setLines] = useState<string[]>([]);
   const push = (msg: string) => {
     const time = new Date().toISOString().slice(11, 19);
-    setLines((prev) => [...prev, `[${time}] ${msg}`]);
+    setLines((prev) => [...prev, `[${time}] ${msg}`].slice(-maxLines));
   };
   const clear = () => setLines([]);
   return { lines, push, clear };
