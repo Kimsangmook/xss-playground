@@ -396,33 +396,59 @@
   font-size: 10px;
 }
 
-.sim-code-editor,
-.sim-html-output,
-.sim-browser-page pre,
-.sim-rendered-text {
+/* CodeMirror wrapper(.cm-editor) 가 모든 코드 영역의 시각/타이포 베이스가 된다. */
+.sim-payload-editor,
+.sim-render-editor,
+.sim-html-output {
+  display: flex;
+  min-height: 0;
   border: 1px solid #2a2f34;
   border-radius: 3px;
-  background: #0b0d10;
-  color: #d9e3ee;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+
+.sim-payload-editor :global(.cm-editor),
+.sim-render-editor :global(.cm-editor),
+.sim-html-output :global(.cm-editor) {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-.sim-code-editor {
-  width: 100%;
-  resize: none;
+.sim-payload-editor :global(.cm-scroller),
+.sim-render-editor :global(.cm-scroller),
+.sim-html-output :global(.cm-scroller) {
+  flex: 1 1 auto;
+  min-height: 0;
+  font-family: inherit;
 }
 
-.sim-code-editor:focus {
+.sim-payload-editor :global(.cm-editor.cm-focused),
+.sim-render-editor :global(.cm-editor.cm-focused) {
   outline: none;
-  border-color: #6aa0d8;
+  box-shadow: inset 0 0 0 1px #6aa0d8;
 }
 
 .sim-payload-editor {
   flex: 1;
-  min-height: 0;
-  padding: 9px;
+}
+
+.sim-code-editor-loading {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 64px;
+  color: #6e7681;
+  background: #1e1e1e;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
 }
 
 .sim-submit-button {
@@ -444,8 +470,15 @@
 }
 
 .sim-render-editor {
-  height: 116px;
-  padding: 9px;
+  /* 서버 패널 안에서 render 함수 코드 블록은 고정 높이로 분량을 보장 */
+  flex: 0 0 auto;
+  height: 132px;
+}
+
+.sim-server-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
 .sim-mini-status {
@@ -490,127 +523,113 @@
 }
 
 .sim-html-output {
-  max-height: 96px;
-  margin: 0;
-  padding: 9px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  flex: 1;
+  min-height: 96px;
 }
 
 .sim-client-body {
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.sim-browser-chrome {
-  display: grid;
-  grid-template-columns: 7px 7px 7px 1fr;
+/* xss.haozi.me 스타일 i-browser: 단순한 브라우저 chrome + 본문 iframe 한 장. */
+.i-browser {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+}
+
+.i-browser-hd {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 9px;
+  gap: 6px;
+  padding: 8px 10px;
   border-bottom: 1px solid #d8dee4;
   background: #f6f8fa;
 }
 
-.sim-browser-chrome span {
-  width: 6px;
-  height: 6px;
+.i-browser-dot {
+  width: 9px;
+  height: 9px;
   border-radius: 999px;
-  background: #8b4a55;
+  background: #ff5f57;
+  flex: 0 0 auto;
 }
 
-.sim-browser-chrome span:nth-child(2) {
-  background: #827b4a;
+.i-browser-dot:nth-child(2) {
+  background: #febc2e;
 }
 
-.sim-browser-chrome span:nth-child(3) {
-  background: #587f5d;
+.i-browser-dot:nth-child(3) {
+  background: #28c840;
 }
 
-.sim-browser-chrome div {
+.i-browser-url {
+  flex: 1;
   min-width: 0;
+  margin-left: 6px;
+}
+
+.i-browser-url input {
+  width: 100%;
   border: 1px solid #d0d7de;
-  border-radius: 3px;
-  padding: 3px 6px;
-  color: #57606a;
-  font-size: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sim-browser-page {
-  min-height: calc(100% - 34px);
-  padding: 10px;
+  border-radius: 14px;
+  padding: 4px 10px;
   background: #fff;
-  color: #24292f;
+  color: #57606a;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
 }
 
-.sim-browser-page-danger {
+.i-browser-bd {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  background: #fff;
+}
+
+.i-browser-bd-danger {
   box-shadow: inset 0 0 0 2px #cf222e;
 }
 
-.sim-browser-title {
-  margin-bottom: 7px;
-  color: #57606a;
-  font-size: 11px;
-}
-
-.sim-page-card,
-.sim-comment-area {
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
+.i-browser-iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: 0;
   background: #fff;
-  padding: 12px;
 }
 
-.sim-page-card {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 10px;
-  align-items: start;
-}
-
-.sim-page-avatar {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #0969da;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.sim-page-card strong,
-.sim-comment-area strong {
+.i-browser-text {
+  flex: 1;
+  margin: 0;
+  padding: 12px 14px;
   color: #24292f;
-  font-size: 13px;
-}
-
-.sim-page-card p,
-.sim-comment-area p {
-  margin: 4px 0 0;
-  color: #57606a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
   line-height: 1.5;
+  white-space: pre-wrap;
   word-break: break-word;
+  overflow: auto;
 }
 
-.sim-comment-area {
-  margin-top: 10px;
-  min-height: 76px;
-}
-
-/* sandbox iframe srcDoc 라이브 프리뷰: 취약 sink 토글 시 댓글 영역에 박힘. */
-.sim-live-preview {
-  display: block;
-  width: 100%;
-  min-height: 96px;
-  margin-top: 6px;
-  border: 1px dashed #d04444;
-  border-radius: 4px;
-  background: #fff;
+.i-browser-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: #8b949e;
+  font-size: 12px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #fafbfc 0,
+    #fafbfc 12px,
+    #f2f4f7 12px,
+    #f2f4f7 24px
+  );
 }
 
 .simulation-resize-handle {

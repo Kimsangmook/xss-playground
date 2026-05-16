@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/i18n/types";
 import styles from "./XssSimulationBoard.module.css";
+import { CodeEditor } from "./CodeEditor";
 
 import type {
   FilterMode,
@@ -40,7 +41,6 @@ import {
   inferPayloadEffect,
   makeRank,
   renderHtml,
-  stripTagsForPreview,
 } from "../lib/rendering";
 
 const cx = (...classes: Array<string | false | null | undefined>) =>
@@ -131,6 +131,15 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
    * 초기에는 빈 문자열이라 db/server/client 창이 비어있다가 첫 Submit 후부터 흘러간다.
    */
   const [committedPayload, setCommittedPayload] = useState("");
+  // 같은 페이로드를 다시 Submit 했을 때도 sandbox iframe 이 재마운트되어 효과가
+  // 다시 발생하도록, submit 마다 증가시키는 nonce.
+  const [submitNonce, setSubmitNonce] = useState(0);
+  /**
+   * 흐름 화살표 pulse 와 동기되어, routeEdges 의 몇 번째까지 통과했는지 추적.
+   * flowStage === 0  : attacker 만 도달 (DB/server/client 아직 비어있음)
+   * flowStage === N  : routeEdges[0..N-1] 의 to 윈도우까지 채워짐
+   */
+  const [flowStage, setFlowStage] = useState(0);
   const [activePreset, setActivePreset] = useState<IPayloadPreset | null>(
     PAYLOAD_PRESETS[0]
   );
@@ -175,19 +184,39 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     return result;
   }, [sortedWindows]);
 
+  // 흐름 단계에 따라 어떤 윈도우까지 데이터가 도달했는지 결정.
+  // edge pulse 가 진행되면 setFlowStage 가 증가하면서 단계적으로 reveal.
+  const arrivedWindows = useMemo(() => {
+    const arrived = new Set<WindowId>(["attacker"]);
+    for (let i = 0; i < flowStage; i += 1) {
+      const edge = routeEdges[i];
+      if (edge) arrived.add(edge.to);
+    }
+    return arrived;
+  }, [flowStage, routeEdges]);
+
+  const dbArrived = arrivedWindows.has("database");
+  const serverArrived = arrivedWindows.has("server");
+  const clientArrived = arrivedWindows.has("client");
+
   // 모든 흐름은 committedPayload(=Submit 시점 스냅샷)에서만 derive.
   // payload(=draft)는 attacker textarea 표시 용도로만 쓰인다.
-  const dbValue = toggles.dbSave ? committedPayload : "";
+  const dbValue = toggles.dbSave && dbArrived ? committedPayload : "";
   const renderInput = toggles.dbSave ? dbValue : committedPayload;
-  const serverOutput = toggles.serverRender
-    ? renderHtml(renderInput, renderContext, filterMode)
-    : renderInput;
+  const serverOutput =
+    toggles.serverRender && serverArrived
+      ? renderHtml(renderInput, renderContext, filterMode)
+      : "";
   const clientSource = toggles.serverRender
     ? serverOutput
     : toggles.dbSave
       ? dbValue
       : committedPayload;
-  const clientHtml = toggles.unsafeSink ? clientSource : escapeHtml(clientSource);
+  const clientHtml = clientArrived
+    ? toggles.unsafeSink
+      ? clientSource
+      : escapeHtml(clientSource)
+    : "";
   const inferredEffect = useMemo(
     () => inferPayloadEffect(clientHtml, toggles.unsafeSink),
     [clientHtml, toggles.unsafeSink]
@@ -295,11 +324,13 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   };
 
   const startFlow = useCallback(() => {
-    // Submit 시점에 draft → committed 로 commit. 이때 비로소 db/server/client 흐름이 갱신.
+    // Submit 시점에 draft → committed 로 commit. 단 derived 값들은 flowStage 가
+    // 증가하면서 단계적으로 reveal 된다 (DB/server/client 가 동시에 채워지지 않게).
     setCommittedPayload(payload);
+    setSubmitNonce((n) => n + 1);
+    setFlowStage(0);
 
-    // setCommittedPayload 는 다음 렌더에서야 반영되므로, 결과 effect 라벨은
-    // 새 payload 기준으로 inline 재계산해서 setTimeout closure 에 고정한다.
+    // 결과 effect 라벨은 새 payload 기준으로 inline 재계산해서 setTimeout closure 에 고정.
     const newDbValue = toggles.dbSave ? payload : "";
     const newRenderInput = toggles.dbSave ? newDbValue : payload;
     const newServerOutput = toggles.serverRender
@@ -319,11 +350,18 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     setLastEvent(t.activePath);
     setPulseEdge(null);
 
+    const STEP_MS = 560;
+
     routeEdges.forEach((_, index) => {
-      const timer = window.setTimeout(() => {
+      // edge index pulse 시작 — 화살표 발광
+      const pulseTimer = window.setTimeout(() => {
         setPulseEdge(index);
-      }, index * 560);
-      timersRef.current.push(timer);
+      }, index * STEP_MS);
+      // edge index 도달 완료 — to 윈도우에 데이터 reveal
+      const arriveTimer = window.setTimeout(() => {
+        setFlowStage(index + 1);
+      }, (index + 1) * STEP_MS);
+      timersRef.current.push(pulseTimer, arriveTimer);
     });
 
     const doneTimer = window.setTimeout(
@@ -340,7 +378,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
           setLastEvent(t.safeRender);
         }
       },
-      Math.max(1, routeEdges.length) * 560 + 260
+      Math.max(1, routeEdges.length) * STEP_MS + 260
     );
     timersRef.current.push(doneTimer);
   }, [
@@ -356,15 +394,24 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     toggles,
   ]);
 
-  const applyPayloadPreset = useCallback((preset: IPayloadPreset) => {
-    // 프리셋 클릭/단축키: textarea·toggles·context·filter 만 prefill.
-    // 흐름은 사용자가 Submit 버튼을 직접 눌러야 시작 (db/server/client 보드에 반영됨).
-    setActivePreset(preset);
-    setPayload(absolutizeEmbedUrls(preset.payload, window.location.origin));
-    setToggles(preset.toggles);
-    setRenderContext(preset.context);
-    setFilterMode(preset.filter);
-  }, []);
+  const applyPayloadPreset = useCallback(
+    (preset: IPayloadPreset) => {
+      // 프리셋 클릭/단축키: textarea·toggles·context·filter 만 prefill.
+      // 흐름은 사용자가 Submit 버튼을 직접 눌러야 시작 (db/server/client 보드에 반영됨).
+      setActivePreset(preset);
+      setPayload(absolutizeEmbedUrls(preset.payload, window.location.origin));
+      setToggles(preset.toggles);
+      setRenderContext(preset.context);
+      setFilterMode(preset.filter);
+      // 새 페이로드 prefill 시 기존 흐름 잔존을 비워, 시도 누를 때 다시 흘러가게 한다.
+      clearTimers();
+      setPulseEdge(null);
+      setFlowStage(0);
+      setCommittedPayload("");
+      setLastEvent(t.idle);
+    },
+    [clearTimers, t.idle]
+  );
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -410,6 +457,9 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     setRankSeed(5);
     setActiveWindow("client");
     setPulseEdge(null);
+    setFlowStage(0);
+    setCommittedPayload("");
+    setLastEvent(t.idle);
   };
 
   const updateToggle = (key: keyof IFlowToggles) => {
@@ -429,14 +479,15 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
       return (
         <div className={cx("sim-panel-body", "sim-attacker-body")}>
           <div className={cx("sim-field-label")}>{t.rawPayload}</div>
-          <textarea
-            className={cx("sim-code-editor", "sim-payload-editor")}
+          <CodeEditor
+            className={cx("sim-payload-editor")}
             value={payload}
-            onChange={(event) => {
+            language="html"
+            onChange={(next) => {
               setActivePreset(null);
-              setPayload(event.target.value);
+              setPayload(next);
             }}
-            spellCheck={false}
+            ariaLabel={t.rawPayload}
           />
           <button className={cx("sim-submit-button")} onClick={startFlow}>
             {t.submit}
@@ -464,61 +515,79 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     if (id === "server") {
       return (
         <div className={cx("sim-panel-body", "sim-server-body")}>
-          <textarea
-            className={cx("sim-code-editor", "sim-render-editor")}
+          <CodeEditor
+            className={cx("sim-render-editor")}
             value={serverCode}
+            language="javascript"
             readOnly
-            spellCheck={false}
+            ariaLabel="render function"
           />
           <div className={cx("sim-field-label")}>{t.serverOutput}</div>
-          <pre className={cx("sim-html-output")}>{serverOutput}</pre>
+          <CodeEditor
+            className={cx("sim-html-output")}
+            value={serverOutput}
+            language="html"
+            readOnly
+            ariaLabel={t.serverOutput}
+          />
         </div>
       );
     }
 
+    // 클라이언트 패널은 xss.haozi.me 의 i-browser 스타일로 단순화한다.
+    // 브라우저 chrome(점 3개 + URL 바) + 본문 iframe(취약 sink 일 때 sandbox srcDoc 렌더,
+    // 안전 모드일 때는 escape 된 텍스트만 표시).
+    const previewOrigin =
+      typeof window === "undefined" ? "" : window.location.origin;
     return (
       <div className={cx("sim-panel-body", "sim-client-body")}>
-        <div className={cx("sim-browser-chrome")}>
-          <span />
-          <span />
-          <span />
-          <div>https://victim.example/view</div>
-        </div>
-        <div
-          className={cx(
-            "sim-browser-page",
-            attackDetected && "sim-browser-page-danger"
-          )}
-        >
-          <div className={cx("sim-browser-title")}>{t.clientDocument}</div>
-          <div className={cx("sim-page-card")}>
-            <div className={cx("sim-page-avatar")}>SM</div>
-            <div>
-              <strong>Sangmook Kim</strong>
-              {/* nickname surface: React 가 자동 escape — 항상 textContent 로 안전. */}
-              <p>{toggles.unsafeSink ? stripTagsForPreview(clientHtml) : clientHtml}</p>
+        <div className={cx("i-browser")}>
+          <div className={cx("i-browser-hd")}>
+            <span className={cx("i-browser-dot")} />
+            <span className={cx("i-browser-dot")} />
+            <span className={cx("i-browser-dot")} />
+            <div className={cx("i-browser-url")}>
+              <input
+                type="text"
+                value="https://victim.example/view"
+                readOnly
+                aria-label="address bar"
+              />
             </div>
           </div>
-          <div className={cx("sim-comment-area")}>
-            <strong>{t.commentPreview}</strong>
-            {toggles.unsafeSink ? (
+          <div
+            className={cx(
+              "i-browser-bd",
+              attackDetected && "i-browser-bd-danger"
+            )}
+          >
+            {!clientArrived ? (
+              <div className={cx("i-browser-empty")}>
+                {/* 흐름이 client 까지 아직 도달하지 않았을 때 placeholder */}
+                {committedPayload ? t.activePath : t.idle}
+              </div>
+            ) : toggles.unsafeSink ? (
               // 취약 sink: sandbox iframe srcDoc 으로 진짜 렌더링.
-              // sandbox 가 allow-same-origin 을 빼므로 부모 origin 의 storage/cookie 는 안전.
+              // allow-same-origin 을 포함시켜야 sandbox 내부에서 /embed/* 페이지를
+              // 다시 임베드할 때 frame-ancestors 가 same origin 으로 매칭된다.
               <iframe
-                key={clientHtml}
-                className={cx("sim-live-preview")}
-                title="vulnerable comment preview"
-                sandbox="allow-scripts allow-modals allow-popups allow-popups-to-escape-sandbox allow-forms"
-                srcDoc={buildPreviewDocument(
-                  clientHtml,
-                  typeof window === "undefined"
-                    ? ""
-                    : window.location.origin
-                )}
+                // submitNonce 를 key 에 포함해 같은 페이로드를 다시 Submit 해도
+                // iframe 이 재마운트되며 alert/effect 가 다시 발생한다.
+                key={`${submitNonce}:${clientHtml}`}
+                name="sandbox"
+                className={cx("i-browser-iframe")}
+                title="vulnerable sink preview"
+                // allow-top-navigation: top.location / window.location 같은 페이지 이동
+                //   페이로드가 실제로 동작하도록 허용. 시뮬레이터 자체가 redirect 되는
+                //   리스크가 있지만, 이 페이지의 목적상 effect 시연이 우선.
+                // allow-same-origin: nested /embed/* 임베드를 frame-ancestors 'self' 로
+                //   매칭시키기 위해 필요.
+                sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation allow-downloads"
+                srcDoc={buildPreviewDocument(clientHtml, previewOrigin)}
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <p>{clientHtml}</p>
+              <pre className={cx("i-browser-text")}>{clientHtml}</pre>
             )}
           </div>
         </div>

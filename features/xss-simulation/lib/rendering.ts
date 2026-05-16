@@ -127,11 +127,8 @@ export const absolutizeEmbedUrls = (html: string, origin: string) =>
  *
  * - rawHtml 은 가공/escape 하지 않고 그대로 body 에 주입한다 (취약 sink 시뮬레이션 목적).
  * - <base href="{origin}/"> 로 상대 경로(/embed/...) 가 사이트 origin 으로 해석되게 한다.
- * - parent 시뮬레이터로 effect 발생을 알리기 위해 alert / postMessage / form submit /
- *   window.open / top navigation 시도를 가로채서 message 로 보낸다 (event.origin === "null").
- *
- * 격리는 iframe 측 sandbox 속성 (allow-scripts allow-modals ...)로 처리하며,
- * 이 함수가 만드는 문서 자체는 평범한 HTML 문서다.
+ * - 부모 시뮬레이터로 effect 발생을 알리기 위해 alert / form submit / window.open 시도를
+ *   가로채 postMessage 로 보고한다. 격리는 iframe 측 sandbox 속성으로 처리한다.
  */
 export const buildPreviewDocument = (rawHtml: string, origin: string) => `<!doctype html>
 <html>
@@ -139,10 +136,9 @@ export const buildPreviewDocument = (rawHtml: string, origin: string) => `<!doct
 <meta charset="utf-8">
 <base href="${origin}/">
 <style>
-  html, body { margin: 0; padding: 0; background: transparent; color: #111; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.5; }
-  body { padding: 8px 10px; }
-  iframe { max-width: 100%; }
-  img { max-width: 100%; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.5; }
+  body { padding: 10px 12px; }
+  iframe, img { max-width: 100%; }
 </style>
 <script>
 (function () {
@@ -150,43 +146,31 @@ export const buildPreviewDocument = (rawHtml: string, origin: string) => `<!doct
     try { parent.postMessage({ __xssSim: true, kind: kind, detail: detail }, "*"); } catch (e) {}
   };
   var origAlert = window.alert;
-  window.alert = function (msg) { post("alert", String(msg)); try { origAlert.call(window, msg); } catch (e) {} };
+  window.alert = function (msg) {
+    post("alert", String(msg));
+    try { origAlert.call(window, msg); } catch (e) {}
+  };
   var origOpen = window.open;
-  window.open = function (url) { post("popup", String(url || "")); return origOpen.apply(window, arguments); };
+  window.open = function (url) {
+    post("popup", String(url || ""));
+    return origOpen.apply(window, arguments);
+  };
   document.addEventListener("submit", function (e) {
     var f = e.target;
     post("form", { action: f && f.action, method: f && f.method });
   }, true);
-  // top navigation 시도 감지: sandbox 가 막더라도 시도 자체는 보고
-  try {
-    var topProxy = new Proxy({}, { set: function (_t, k, v) { post("topNav", { key: String(k), value: String(v) }); return true; } });
-    Object.defineProperty(window, "__topProbe", { value: topProxy });
-  } catch (e) {}
+  // top/parent.location 변경 시도 가로채기: allow-top-navigation 이 있어도
+  // 시뮬레이터까지 효과를 한 번 보고해서 lastEvent 라벨로 보여준다.
+  // 이후 실제 navigation 은 sandbox 가 처리.
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest && e.target.closest("a[href]");
+    if (a) post("navigate", { href: a.href, target: a.target || "_self" });
+  }, true);
   window.addEventListener("error", function (e) { post("error", String(e.message || "")); });
+  window.addEventListener("beforeunload", function () { post("unload", String(location.href || "")); });
 })();
 </script>
 </head>
 <body>${rawHtml}</body>
 </html>`;
 
-const describeIframe = (attributes: string) => {
-  const src = attributes.match(/\bsrc\s*=\s*(["'])(.*?)\1/i)?.[2];
-  if (/srcdoc\s*=/i.test(attributes)) return "[iframe srcdoc]";
-  if (src?.startsWith("data:")) return "[iframe data URL]";
-  if (src?.includes("/embed/")) {
-    const slug = src.split("/embed/")[1]?.split(/[?#'"]/)[0];
-    return slug ? `[iframe: ${slug}]` : "[iframe embed]";
-  }
-  return "[iframe]";
-};
-
-export const stripTagsForPreview = (html: string) =>
-  html
-    .replace(/<iframe\b([^>]*)>\s*<\/iframe>/gi, (_match, attributes: string) =>
-      describeIframe(attributes)
-    )
-    .replace(/<iframe\b([^>]*)>/gi, (_match, attributes: string) =>
-      describeIframe(attributes)
-    )
-    .replace(/<script[\s\S]*?<\/script>/gi, "[script]")
-    .replace(/<[^>]+>/g, "");
