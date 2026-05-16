@@ -10,6 +10,16 @@
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
 }
 
+/*
+ * viewport < 1120px 에서는 데스크탑 layout 을 통째로 가린다.
+ * (allen-web 의 TabletDesktop styled.div 와 동일 패턴 — display:none 토글)
+ */
+@media (max-width: 1119px) {
+  .xss-simulation-page {
+    display: none;
+  }
+}
+
 .simulation-grid-bg {
   position: fixed;
   inset: 0;
@@ -127,27 +137,19 @@
 }
 
 .payload-gear-button {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  align-items: start;
-  gap: 6px;
+  display: block;
   width: 100%;
   margin-top: 5px;
+  padding: 6px 9px;
   line-height: 1.25;
   text-align: left;
   overflow-wrap: anywhere;
 }
 
-.payload-gear-button span {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
-  border-radius: 2px;
-  background: #21262d;
-  color: #c9d1d9;
-  font-size: 10px;
+.payload-gear-button.active {
+  border-color: #58a6ff;
+  background: #1f2937;
+  color: #e6edf3;
 }
 
 .composer-section {
@@ -657,4 +659,420 @@
     margin-left: 12px;
     margin-right: 300px;
   }
+}
+
+/* ============================================================
+   모바일 탭 layout (viewport < 1120px)
+   - 4 보드를 탭으로 보여주고, payload deck + render composer 를 sheet drawer 로 묶는다
+   - Submit 시 화살표 pulse 대신 탭 자체의 색 전환으로 흐름을 표시
+   ============================================================ */
+
+.xss-simulation-mobile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: #050705;
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
+}
+
+/*
+ * viewport >= 1120px 에서는 모바일 layout 을 통째로 가린다.
+ * (allen-web 의 Mobile styled.div 와 동일 패턴 — display:none 토글)
+ * 두 layout 이 항상 SSR 마크업으로 들어가므로 모바일 진입 시 데스크탑 layout flash 가 없다.
+ */
+@media (min-width: 1120px) {
+  .xss-simulation-mobile {
+    display: none;
+  }
+}
+
+.sim-mobile-topbar {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.96);
+}
+
+.sim-mobile-topbar-title h1 {
+  margin: 0;
+  color: #e6edf3;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sim-mobile-topbar-title p {
+  margin: 2px 0 0;
+  color: #8b949e;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.sim-mobile-topbar-icon-button {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  background: #161b22;
+}
+
+.sim-mobile-topbar-icon-button span {
+  display: block;
+  height: 2px;
+  background: #c9d1d9;
+  border-radius: 1px;
+}
+
+.sim-mobile-submit {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #3f566c;
+  border-radius: 4px;
+  background: #1d2630;
+  color: #e6edf3;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sim-mobile-submit:hover,
+.sim-mobile-submit:focus-visible {
+  border-color: #6aa0d8;
+  background: #233242;
+}
+
+.sim-mobile-event {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid #1f2329;
+  background: #0d1117;
+  font-size: 11px;
+}
+
+.sim-mobile-event span {
+  color: #8b949e;
+}
+
+.sim-mobile-event strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #c9d1d9;
+  font-weight: 500;
+}
+
+.sim-mobile-event-danger strong {
+  color: #ffb3ad;
+}
+
+/*
+ * 모바일 탭 디자인 — Chrome 브라우저 탭 풍.
+ *  - 위쪽만 둥근 사각형(8px), 비활성은 어두운 회색, 활성은 콘텐츠 영역과 같은 색으로 "이어진" 느낌
+ *  - 비활성 탭 사이에 가는 separator
+ *  - pulsing(=흐름 통과 중)은 Chrome 페이지 로딩 처럼 탭 위쪽에 가는 progress bar 가 흐르는 애니메이션
+ *  - arrived(=도달 완료)는 favicon 색만 살짝 강조해 "이미 본 탭" 느낌
+ *  - inactive(=토글로 비활성)는 dim
+ *
+ * 활성 탭이 콘텐츠 영역과 이어져 보이려면 탭 strip 의 bottom 과 활성 탭의 background 가
+ * 동일한 색이어야 한다. 여기서는 pane-header(#0d1117) 와 활성 탭 색을 통일.
+ */
+.sim-mobile-tabs {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 6px 6px 0;
+  background: #1c1f24; /* Chrome 의 titlebar 색 */
+}
+
+/* 탭 strip 하단에 1px 라인 — 활성 탭은 이 라인을 ::after 로 덮어서 콘텐츠와 이어진 느낌 */
+.sim-mobile-tabs::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #30363d;
+  z-index: 0;
+}
+
+.sim-mobile-tab {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px 6px;
+  border: 0;
+  border-radius: 8px 8px 0 0;
+  background: #161a20;
+  color: #8b949e;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.sim-mobile-tab:hover {
+  background: #1f242b;
+  color: #c9d1d9;
+}
+
+.sim-mobile-tab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * 단계별 상태 (우선순위 pulsing > active > arrived > inactive)
+ * - active: 콘텐츠 영역(pane-header) 과 같은 #0d1117 로 통일 → 탭 strip 의 1px 라인을
+ *   ::after 로 덮어 콘텐츠와 이어진 시각.
+ */
+.sim-mobile-tab.arrived {
+  color: #b3c5d6;
+  background: #1a212a;
+}
+
+.sim-mobile-tab.active {
+  z-index: 1;
+  color: #f0f6fc;
+  background: #0d1117;
+}
+
+.sim-mobile-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #0d1117;
+}
+
+/*
+ * pulsing: Chrome 페이지 로딩 progress bar.
+ * 탭 위쪽 1.5px 라인이 좌→우로 흐르는 사이클을 반복. 동시에 favicon 영역도 강조색.
+ */
+.sim-mobile-tab.pulsing {
+  color: #fff;
+  background: #1a2433;
+}
+
+.sim-mobile-tab.pulsing::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 20%,
+    #58a6ff 35%,
+    #58a6ff 65%,
+    transparent 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sim-mobile-tab-loading 1s linear infinite;
+}
+
+@keyframes sim-mobile-tab-loading {
+  from {
+    background-position: -100% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.sim-mobile-tab.inactive {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* favicon(=sim-role-icon) 색 상태별 강조 */
+.sim-mobile-tab .sim-role-icon {
+  width: 14px;
+  height: 14px;
+  border-color: #4a4f56;
+  background: transparent;
+}
+
+.sim-mobile-tab.active .sim-role-icon {
+  border-color: #6aa0d8;
+}
+
+.sim-mobile-tab.pulsing .sim-role-icon {
+  border-color: #58a6ff;
+  box-shadow: 0 0 8px rgba(88, 166, 255, 0.45);
+}
+
+.sim-mobile-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sim-mobile-pane-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1f2329;
+  background: #0d1117;
+}
+
+.sim-mobile-pane-header strong {
+  color: #e6edf3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sim-mobile-pane-header small {
+  color: #8b949e;
+  font-size: 10px;
+}
+
+.sim-mobile-pane-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* 패널 본문은 stage 가 차지하던 영역 대신 viewport 의 남은 높이를 채움 */
+  background: #111315;
+}
+
+/* renderWindowBody 의 .sim-panel-body 가 모바일에서도 그대로 늘어나도록 */
+.sim-mobile-pane-body > .sim-panel-body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* sheet drawer */
+.sim-mobile-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 330;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.sim-mobile-sheet-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.sim-mobile-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sim-mobile-sheet-open .sim-mobile-sheet-backdrop {
+  opacity: 1;
+}
+
+.sim-mobile-sheet-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(360px, 90vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  background: rgba(13, 17, 23, 0.98);
+  border-left: 1px solid #30363d;
+  transform: translateX(100%);
+  transition: transform 0.24s ease;
+}
+
+.sim-mobile-sheet-open .sim-mobile-sheet-panel {
+  transform: translateX(0);
+}
+
+.sim-mobile-sheet-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.98);
+}
+
+.sim-mobile-sheet-header strong {
+  color: #e6edf3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sim-mobile-sheet-header button {
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  background: #161b22;
+  color: #c9d1d9;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.sim-mobile-sheet-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid #1f2329;
+}
+
+.sim-mobile-sheet-section .payload-gear-button.active {
+  border-color: #58a6ff;
+  background: #1f2937;
+  color: #e6edf3;
+}
+
+.sim-mobile-sheet-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.98);
+}
+
+.sim-mobile-sheet-footer button {
+  flex: 1;
+  min-height: 32px;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  background: #161b22;
+  color: #c9d1d9;
+  font-size: 11px;
 }

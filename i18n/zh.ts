@@ -19,7 +19,7 @@ export const zh: IDictionary = {
   },
   nav: {
     home: "首页",
-    embedHelper: "Embed Helper",
+    simulator: "模拟器",
     learn: "学习笔记",
     forum: "论坛",
     github: "GitHub",

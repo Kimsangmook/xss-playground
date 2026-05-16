@@ -19,7 +19,7 @@ export const ja: IDictionary = {
   },
   nav: {
     home: "ホーム",
-    embedHelper: "Embed Helper",
+    simulator: "シミュレーター",
     learn: "学習ノート",
     forum: "フォーラム",
     github: "GitHub",

@@ -1,7 +1,7 @@
 import { XssSimulationBoard } from "@/features/xss-simulation";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
 
-interface IEmbedHelperPageProps {
+interface ISimulatorPageProps {
   params: { locale?: string };
 }
 
@@ -10,8 +10,8 @@ const pickLocale = (raw: unknown): Locale =>
     ? (raw as Locale)
     : DEFAULT_LOCALE;
 
-const EmbedHelperPage = ({ params }: IEmbedHelperPageProps) => (
+const SimulatorPage = ({ params }: ISimulatorPageProps) => (
   <XssSimulationBoard locale={pickLocale(params.locale)} />
 );
 
-export default EmbedHelperPage;
+export default SimulatorPage;

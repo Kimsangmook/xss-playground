@@ -21,6 +21,23 @@ const nextConfig = {
       },
     ];
   },
+  // 기존 /[locale]/embed-helper 경로를 시뮬레이터 신규 경로로 영구 redirect.
+  // 외부 백링크와 검색엔진 인덱스에 남아있는 옛 URL 의 SEO 자산을 보존한다.
+  async redirects() {
+    return [
+      {
+        source: "/:locale(ko|en|ja|zh)/embed-helper",
+        destination: "/:locale/simulator",
+        permanent: true,
+      },
+      {
+        // locale prefix 없이 들어온 경우도 처리 (middleware 가 locale 붙이기 전에 가로채지지 않음)
+        source: "/embed-helper",
+        destination: "/simulator",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

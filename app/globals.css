@@ -548,3 +548,70 @@ body.simulation-route .main {
   min-height: 100vh;
   padding: 0;
 }
+
+/* 시뮬레이터 모바일 분기: 데스크탑 권장 안내 */
+.simulator-mobile-notice {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px 64px;
+  min-height: 100vh;
+  background: var(--bg, #0d1117);
+  color: var(--text, #c9d1d9);
+}
+
+.simulator-mobile-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 24px;
+  border: 1px solid var(--border, #30363d);
+  border-radius: 8px;
+  background: var(--bg-elev, #161b22);
+}
+
+.simulator-mobile-card h1 {
+  margin: 0 0 12px;
+  color: var(--text, #e6edf3);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.simulator-mobile-card p {
+  margin: 0 0 16px;
+  color: var(--text-dim, #8b949e);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.simulator-mobile-links {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.simulator-mobile-links li + li {
+  margin-top: 8px;
+}
+
+.simulator-mobile-links a {
+  display: block;
+  padding: 12px 14px;
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  color: var(--accent, #58a6ff);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.simulator-mobile-links a:hover,
+.simulator-mobile-links a:focus-visible {
+  border-color: var(--accent, #58a6ff);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.simulator-mobile-recommend {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border, #30363d);
+  color: var(--text-dim, #8b949e);
+  font-size: 12px;
+}

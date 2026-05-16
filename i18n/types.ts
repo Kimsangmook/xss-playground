@@ -19,7 +19,7 @@ export interface IDictionary {
   };
   nav: {
     home: string;
-    embedHelper: string;
+    simulator: string;
     learn: string;
     forum: string;
     github: string;

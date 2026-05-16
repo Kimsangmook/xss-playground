@@ -3,7 +3,7 @@ import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import { findScenario } from "@/lib/scenarios";
-import { SITE_AUTHOR, SITE_URL } from "@/lib/site";
+import { BAIDU, GOOGLE, SEARCH_ENGINES, SITE_AUTHOR, SITE_URL } from "@/lib/site";
 
 export type TRobots =
   | "index, follow"
@@ -68,11 +68,34 @@ const getTitle = ({
   return `${title} | ${dict.site.name}`;
 };
 
-export const buildLanguageAlternates = (path = "") =>
-  Object.fromEntries([
-    ...LOCALES.map((locale) => [locale, getLocalizedUrl(locale, path)]),
-    ["x-default", getLocalizedUrl(DEFAULT_LOCALE, path)],
-  ]);
+/**
+ * 기본 hreflang(`ko`, `en`, `ja`, `zh`) 외에 지역 변형을 추가해 검색엔진 시그널을 강화.
+ *
+ * - `zh-CN`  : Baidu 가 `zh` 보다 `zh-CN` 을 정확히 매칭
+ * - `en-IN`  : 인도 Google 인덱싱이 region-specific hreflang 에 가중치
+ * - `en-US`, `en-GB` : 기존 영어 변형 보강 (옵셔널이지만 충돌 없음)
+ *
+ * 모두 같은 URL 을 가리키게 두므로 콘텐츠 중복 없이 지역 시그널만 추가.
+ */
+const REGIONAL_ALIASES: Record<Locale, string[]> = {
+  ko: ["ko-KR"],
+  en: ["en-US", "en-GB", "en-IN"],
+  ja: ["ja-JP"],
+  zh: ["zh-CN", "zh-Hans"],
+};
+
+export const buildLanguageAlternates = (path = "") => {
+  const entries: Array<[string, string]> = [];
+  for (const locale of LOCALES) {
+    const url = getLocalizedUrl(locale, path);
+    entries.push([locale, url]);
+    for (const alias of REGIONAL_ALIASES[locale]) {
+      entries.push([alias, url]);
+    }
+  }
+  entries.push(["x-default", getLocalizedUrl(DEFAULT_LOCALE, path)]);
+  return Object.fromEntries(entries);
+};
 
 interface ISeoMetadataProps {
   locale: Locale;
@@ -131,6 +154,22 @@ export const createSeoMetadata = ({
   };
 };
 
+/**
+ * locale 무관하게 모든 페이지에서 공유되는 검색엔진 verification 메타.
+ * 환경변수로 값이 들어왔을 때만 출력 (빈 값은 next 가 자동 omit).
+ */
+const buildVerification = (): Metadata["verification"] => {
+  const other: Record<string, string | string[]> = {};
+  if (BAIDU.verification) other["baidu-site-verification"] = BAIDU.verification;
+  if (SEARCH_ENGINES.naver) other["naver-site-verification"] = SEARCH_ENGINES.naver;
+  if (SEARCH_ENGINES.bing) other["msvalidate.01"] = SEARCH_ENGINES.bing;
+  return {
+    google: GOOGLE.searchConsole || undefined,
+    yandex: SEARCH_ENGINES.yandex || undefined,
+    other: Object.keys(other).length > 0 ? other : undefined,
+  };
+};
+
 export const createLocaleBaseMetadata = (locale: Locale): Metadata => {
   const dict = getDictionary(locale);
 
@@ -160,6 +199,7 @@ export const createLocaleBaseMetadata = (locale: Locale): Metadata => {
       images: [getImageUrl()],
     },
     robots: getRobots("index, follow"),
+    verification: buildVerification(),
   };
 };
 
@@ -172,27 +212,36 @@ export const createHomeSeoMetadata = (locale: Locale) => {
   });
 };
 
-export const createEmbedHelperSeoMetadata = (locale: Locale) => {
-  const dict = getDictionary(locale);
-  const titleByLocale: Record<Locale, string> = {
-    ko: "부모 페이지 임베드 헬퍼",
-    en: "Parent Embed Helper",
-    ja: "親ページ Embed Helper",
-    zh: "父页面 Embed Helper",
-  };
-  const descriptionByLocale: Record<Locale, string> = {
-    ko: "XSS Playground 시나리오를 부모 페이지 안에 임베드하고 sandbox 정책별 브라우저 동작과 postMessage 로그를 비교하는 테스트 헬퍼입니다.",
-    en: "Embed XSS Playground scenarios inside a parent page and compare browser behavior, sandbox policies, and postMessage logs.",
-    ja: "XSS Playground のシナリオを親ページ内に埋め込み、sandbox ポリシーと postMessage ログを比較するテストヘルパーです。",
-    zh: "将 XSS Playground 场景嵌入父页面，并比较 sandbox 策略、浏览器行为与 postMessage 日志。",
-  };
+export const SIMULATOR_TITLE: Record<Locale, string> = {
+  ko: "XSS Simulation Board — Stored / Reflected / DOM 흐름 인터랙티브 시연",
+  en: "XSS Simulation Board — Stored, Reflected & DOM XSS Flow Demo",
+  ja: "XSS シミュレーションボード — Stored / Reflected / DOM フロー実演",
+  zh: "XSS 模拟看板 — Stored / Reflected / DOM 攻击流交互演示",
+};
 
+export const SIMULATOR_DESCRIPTION: Record<Locale, string> = {
+  ko: "공격자 input → DB → 서버 render → 브라우저 sink 까지 한 화면에서 단계별로 시각화하는 인터랙티브 XSS 시뮬레이터. 시나리오 단축키로 페이로드를 골라 sandbox iframe 안에서 alert, postMessage, form submit, top navigation 효과를 실제로 확인할 수 있습니다.",
+  en: "Interactive XSS simulator that visualizes the full attacker input → database → server render → browser sink flow on one canvas. Pick a payload with a hotkey and watch real alert, postMessage, form submit, and top-navigation effects inside a sandbox iframe.",
+  ja: "攻撃者 input → DB → サーバー render → ブラウザ sink までを一画面でステップ可視化するインタラクティブ XSS シミュレーター。ショートカットでペイロードを選択し、sandbox iframe 内で alert / postMessage / form submit / top navigation の挙動を実際に確認できます。",
+  zh: "在一个画面中分步可视化攻击者 input → 数据库 → 服务器 render → 浏览器 sink 全流程的交互式 XSS 模拟器。通过快捷键选择 payload，可在 sandbox iframe 内观察 alert、postMessage、表单提交、顶级导航等真实效果。",
+};
+
+export const createSimulatorSeoMetadata = (locale: Locale) => {
+  const dict = getDictionary(locale);
   return createSeoMetadata({
     locale,
-    path: "/embed-helper",
-    title: titleByLocale[locale],
-    description: descriptionByLocale[locale],
-    keywords: [...dict.site.keywords, "iframe helper", "sandbox test"],
+    path: "/simulator",
+    title: SIMULATOR_TITLE[locale],
+    description: SIMULATOR_DESCRIPTION[locale],
+    keywords: [
+      ...dict.site.keywords,
+      "XSS simulator",
+      "stored XSS demo",
+      "reflected XSS demo",
+      "DOM XSS demo",
+      "sandbox iframe",
+      "interactive security playground",
+    ],
   });
 };
 
@@ -363,15 +412,31 @@ export const createScenarioJsonLd = (locale: Locale, slug: string) => {
   };
 };
 
-export const createEmbedHelperJsonLd = (locale: Locale) => {
+export const createSimulatorJsonLd = (locale: Locale) => {
   const dict = getDictionary(locale);
   return {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: "Parent Embed Helper",
-    url: getLocalizedUrl(locale, "/embed-helper"),
-    description: dict.site.description,
+    // SoftwareApplication 으로 격상 — 인터랙티브 시뮬레이터의 본질에 가장 가까운 schema
+    "@type": ["SoftwareApplication", "WebApplication"],
+    name: SIMULATOR_TITLE[locale],
+    url: getLocalizedUrl(locale, "/simulator"),
+    description: SIMULATOR_DESCRIPTION[locale],
     inLanguage: locale,
+    applicationCategory: "SecurityApplication",
+    applicationSubCategory: "EducationalApplication",
+    operatingSystem: "Any (web browser)",
+    browserRequirements: "Requires JavaScript. Designed for desktop ≥ 1120px.",
+    isAccessibleForFree: true,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    author: {
+      "@type": "Person",
+      name: SITE_AUTHOR.name,
+      url: `https://github.com/${SITE_AUTHOR.github}`,
+    },
     isPartOf: {
       "@type": "WebSite",
       name: dict.site.name,

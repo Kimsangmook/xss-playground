@@ -29,10 +29,10 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
         {dict.nav.home}
       </Link>
       <Link
-        href={`${linkBase}/embed-helper`}
-        className={isActive(`${linkBase}/embed-helper`) ? "active" : ""}
+        href={`${linkBase}/simulator`}
+        className={isActive(`${linkBase}/simulator`) ? "active" : ""}
       >
-        {dict.nav.embedHelper}
+        {dict.nav.simulator}
       </Link>
       <Link
         href={`${linkBase}/learn`}
