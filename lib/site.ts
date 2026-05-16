@@ -28,3 +28,15 @@ export const GOOGLE = {
   /** Search Console verification meta content */
   searchConsole: process.env.NEXT_PUBLIC_GSC_VERIFICATION ?? "",
 };
+
+/** Baidu Ziyuan(站长资源平台) verification meta content. 중국 검색 인덱싱 신청 시 발급. */
+export const BAIDU = {
+  verification: process.env.NEXT_PUBLIC_BAIDU_VERIFICATION ?? "",
+};
+
+/** Naver / Yandex / Bing 등 추가 검색엔진 verification 슬롯 */
+export const SEARCH_ENGINES = {
+  naver: process.env.NEXT_PUBLIC_NAVER_VERIFICATION ?? "",
+  yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION ?? "",
+  bing: process.env.NEXT_PUBLIC_BING_VERIFICATION ?? "",
+};

@@ -24,14 +24,14 @@ const sitemap = (): MetadataRoute.Sitemap => {
       alternates: { languages: languageAlternates() },
     });
 
-    // embed-helper
+    // simulator (XSS Simulation Board)
     entries.push({
-      url: `${SITE_URL}/${locale}/embed-helper`,
+      url: `${SITE_URL}/${locale}/simulator`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.9,
       alternates: {
-        languages: languageAlternates("/embed-helper"),
+        languages: languageAlternates("/simulator"),
       },
     });
 

@@ -19,7 +19,7 @@ export const en: IDictionary = {
   },
   nav: {
     home: "Home",
-    embedHelper: "Embed Helper",
+    simulator: "Simulator",
     learn: "Learn",
     forum: "Forum",
     github: "GitHub",

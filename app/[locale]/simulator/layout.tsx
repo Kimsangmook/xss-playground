@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { LOCALES, type Locale } from "@/i18n/types";
 import {
-  createEmbedHelperJsonLd,
-  createEmbedHelperSeoMetadata,
+  createSimulatorJsonLd,
+  createSimulatorSeoMetadata,
 } from "@/components/seo/Seo";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
-interface IEmbedHelperLayoutProps {
+interface ISimulatorLayoutProps {
   children: React.ReactNode;
   params: { locale: string };
 }
@@ -17,20 +17,18 @@ export const generateMetadata = ({
   params: { locale: string };
 }): Metadata => {
   if (!LOCALES.includes(params.locale as Locale)) return {};
-  return createEmbedHelperSeoMetadata(params.locale as Locale);
+  return createSimulatorSeoMetadata(params.locale as Locale);
 };
 
-const EmbedHelperLayout = ({ children, params }: IEmbedHelperLayoutProps) => {
+const SimulatorLayout = ({ children, params }: ISimulatorLayoutProps) => {
   if (!LOCALES.includes(params.locale as Locale)) return <>{children}</>;
 
   return (
     <>
-      <JsonLdScript
-        data={createEmbedHelperJsonLd(params.locale as Locale)}
-      />
+      <JsonLdScript data={createSimulatorJsonLd(params.locale as Locale)} />
       {children}
     </>
   );
 };
 
-export default EmbedHelperLayout;
+export default SimulatorLayout;

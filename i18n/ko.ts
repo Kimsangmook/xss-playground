@@ -19,7 +19,7 @@ export const ko: IDictionary = {
   },
   nav: {
     home: "홈",
-    embedHelper: "임베드 헬퍼",
+    simulator: "시뮬레이터",
     learn: "학습 노트",
     forum: "포럼",
     github: "GitHub",

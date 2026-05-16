@@ -5,6 +5,19 @@ import type { Locale } from "@/i18n/types";
 import styles from "./XssSimulationBoard.module.css";
 import { CodeEditor } from "./CodeEditor";
 
+/**
+ * 데스크탑 4-pane 캔버스 vs 모바일 탭 layout 분기점.
+ *
+ * 양쪽 layout 을 항상 SSR 마크업으로 렌더하고 CSS @media 로 viewport 별로 한쪽만 보여준다
+ * (allen-web 의 Mobile / TabletDesktop styled.div 와 동일 패턴 — display:none 토글 기반).
+ * 이렇게 하면 모바일에서 페이지 진입 시 데스크탑 layout 이 깜빡 보이는 hydration flash 가 없다.
+ *
+ * 다만 sandbox iframe 만은 두 layout 에 동시에 마운트되면 페이로드(alert / postMessage) 가
+ * 두 번 실행되므로, 활성 layout 측에서만 마운트되도록 isMobile JS 상태로 분기한다.
+ * 그 외 본문(CodeMirror 등) 은 두 곳에 마운트되어도 사이드이펙트가 없어 그대로 둔다.
+ */
+const SIMULATOR_MIN_WIDTH = 1120;
+
 import type {
   FilterMode,
   IFlowToggles,
@@ -112,6 +125,17 @@ const effectLabels: Record<PayloadEffect, Record<Locale, string>> = {
   },
 };
 
+/**
+ * 모바일 탭은 가로 4분할 공간에 들어가야 해서 windowTitles(긴 라벨) 대신 줄임 라벨을 쓴다.
+ * locale 별로 자연스러운 단축어를 직접 정의.
+ */
+const SHORT_TAB_LABELS: Record<WindowId, Record<Locale, string>> = {
+  attacker: { ko: "공격", en: "Attacker", ja: "攻撃", zh: "攻击" },
+  database: { ko: "DB", en: "DB", ja: "DB", zh: "DB" },
+  server: { ko: "서버", en: "Server", ja: "サーバー", zh: "服务器" },
+  client: { ko: "클라이언트", en: "Client", ja: "クライアント", zh: "客户端" },
+};
+
 interface IXssSimulationBoardProps {
   locale: Locale;
 }
@@ -119,11 +143,26 @@ interface IXssSimulationBoardProps {
 export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   const t = SIM_TEXT[locale];
 
+  // 모바일 viewport 분기. SSR/hydration 안전을 위해 초기값은 false(=데스크탑 가정) 로 두고
+  // 마운트 후 실제 viewport 측정. matchMedia 로 리사이즈도 추적해 회전/창 크기 변경에 반응.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia(`(max-width: ${SIMULATOR_MIN_WIDTH - 1}px)`);
+    const apply = () => setIsMobile(mql.matches);
+    apply();
+    mql.addEventListener("change", apply);
+    return () => mql.removeEventListener("change", apply);
+  }, []);
+
   const [windows, setWindows] = useState<Record<WindowId, ISimWindow>>(
     initialWindows
   );
   const [rankSeed, setRankSeed] = useState(5);
-  const [activeWindow, setActiveWindow] = useState<WindowId>("client");
+  // SSR 마크업과 첫 paint 가 흔들리지 않도록 데스크탑·모바일 공통 초기값으로 통일.
+  // 모바일에서 첫 탭이 attacker 인 것이 자연스럽고, 데스크탑에서는 z-index/border 강조만
+  // 영향이라 시각 영향이 거의 없다.
+  const [activeWindow, setActiveWindow] = useState<WindowId>("attacker");
   const [payload, setPayload] = useState(PAYLOAD_PRESETS[0].payload);
   /**
    * Submit 버튼을 눌러야 draft payload 가 흐름으로 commit 된다.
@@ -151,6 +190,11 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   const [pulseEdge, setPulseEdge] = useState<number | null>(null);
   const [lastEvent, setLastEvent] = useState(t.idle);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  /**
+   * 모바일 전용: payload deck + render composer 를 묶은 sheet drawer 열림 여부.
+   * 데스크탑 isSidebarOpen 과 의미가 달라서 별도 state.
+   */
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
@@ -164,6 +208,10 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   useEffect(() => {
     document.body.classList.toggle("simulation-sidebar-open", isSidebarOpen);
   }, [isSidebarOpen]);
+
+  // 과거에는 viewport 변경 시 activeWindow 를 강제 reset 했지만, CSS 미디어 쿼리로
+  // 두 layout 을 토글하는 새 구조에서는 첫 paint 가 흔들리지 않게 그대로 둔다.
+  // startFlow 시점에만 모바일에서 attacker 로 reset 한다.
 
   const routeEdges = useMemo(() => getFlowEdges(toggles), [toggles]);
   const inactiveWindows = useMemo(() => getInactiveWindows(toggles), [toggles]);
@@ -198,6 +246,17 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   const dbArrived = arrivedWindows.has("database");
   const serverArrived = arrivedWindows.has("server");
   const clientArrived = arrivedWindows.has("client");
+
+  /**
+   * 모바일에서 Submit 흐름이 진행되면 pulse 중인 edge 의 도착지(=to) 탭으로
+   * 자동 전환된다. 데스크탑은 4 보드가 한 화면에 깔려있으므로 굳이 전환 안 함.
+   */
+  useEffect(() => {
+    if (!isMobile) return;
+    if (pulseEdge === null) return;
+    const edge = routeEdges[pulseEdge];
+    if (edge) setActiveWindow(edge.to);
+  }, [isMobile, pulseEdge, routeEdges]);
 
   // 모든 흐름은 committedPayload(=Submit 시점 스냅샷)에서만 derive.
   // payload(=draft)는 attacker textarea 표시 용도로만 쓰인다.
@@ -329,6 +388,8 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     setCommittedPayload(payload);
     setSubmitNonce((n) => n + 1);
     setFlowStage(0);
+    // 모바일은 흐름 시작 시점에 attacker 탭으로 되돌아간 뒤 단계별 자동 전환.
+    if (isMobile) setActiveWindow("attacker");
 
     // 결과 effect 라벨은 새 payload 기준으로 inline 재계산해서 setTimeout closure 에 고정.
     const newDbValue = toggles.dbSave ? payload : "";
@@ -350,7 +411,10 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     setLastEvent(t.activePath);
     setPulseEdge(null);
 
-    const STEP_MS = 560;
+    // 데스크탑은 4 보드가 한 화면에 있어 빠른 pulse(560ms) 가 자연스럽지만,
+    // 모바일은 탭이 한 번에 하나만 보이므로 어떤 단계에서 어디로 전환됐는지
+    // 인지할 시간이 필요. 단계당 텀을 늘려 흐름을 "조금 느리게" 보여준다.
+    const STEP_MS = isMobile ? 1100 : 560;
 
     routeEdges.forEach((_, index) => {
       // edge index pulse 시작 — 화살표 발광
@@ -385,6 +449,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     activePreset,
     clearTimers,
     filterMode,
+    isMobile,
     locale,
     payload,
     renderContext,
@@ -413,22 +478,11 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     [clearTimers, t.idle]
   );
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      const tag = target?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-      const preset = PAYLOAD_PRESETS.find((item) => item.hotkey === event.key);
-      if (!preset) return;
-      event.preventDefault();
-      applyPayloadPreset(preset);
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyPayloadPreset]);
+  // 단축키 글로벌 리스너는 의도적으로 제거됨.
+  // CodeMirror 의 cm-editor 는 textarea 가 아니라 contenteditable 라서 기존 가드
+  // (INPUT/TEXTAREA/SELECT 만 무시) 를 빠져나가, 페이로드 편집 중 1·2·q 같은 평문 입력이
+  // 프리셋 prefill 을 트리거하는 문제가 있었음. 페이로드 덱은 클릭/탭으로만 동작시킨다.
+  // (PAYLOAD_PRESETS 의 hotkey 필드는 React key 식별 용도로 유지)
 
   useEffect(() => clearTimers, [clearTimers]);
 
@@ -474,7 +528,12 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     window.location.href = `/${locale}`;
   };
 
-  const renderWindowBody = (id: WindowId) => {
+  /**
+   * @param id 어떤 윈도우 본문을 그릴지
+   * @param isLayoutActive 호출 측 layout 이 현재 viewport 에서 active 인지.
+   *   sandbox iframe 처럼 사이드이펙트 있는 콘텐츠는 active layout 일 때만 마운트한다.
+   */
+  const renderWindowBody = (id: WindowId, isLayoutActive: boolean) => {
     if (id === "attacker") {
       return (
         <div className={cx("sim-panel-body", "sim-attacker-body")}>
@@ -561,9 +620,13 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
               attackDetected && "i-browser-bd-danger"
             )}
           >
-            {!clientArrived ? (
+            {!clientArrived || !isLayoutActive ? (
               <div className={cx("i-browser-empty")}>
-                {/* 흐름이 client 까지 아직 도달하지 않았을 때 placeholder */}
+                {/*
+                 * 흐름이 client 까지 아직 도달하지 않았거나, 이 layout 이 현재 viewport 에서
+                 * 비활성이면 placeholder. iframe 마운트를 비활성 layout 에서 막아 페이로드가
+                 * 두 곳에서 동시에 실행되는 것을 방지한다.
+                 */}
                 {committedPayload ? t.activePath : t.idle}
               </div>
             ) : toggles.unsafeSink ? (
@@ -595,11 +658,222 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     );
   };
 
+  // 양쪽 layout 을 항상 함께 반환. CSS @media 가 viewport 에 맞춰 한쪽만 display 한다.
+  // - viewport >= SIMULATOR_MIN_WIDTH: .xss-simulation-page 만 보임 (데스크탑 4-pane)
+  // - viewport <  SIMULATOR_MIN_WIDTH: .xss-simulation-mobile 만 보임 (탭 + sheet)
+  // 첫 paint 부터 CSS 가 결정하므로 hydration flash 없음.
   return (
-    <div className={cx("xss-simulation-page")}>
-      <div className={cx("simulation-grid-bg")} aria-hidden="true" />
+    <>
+      <div className={cx("xss-simulation-mobile")}>
+        <header className={cx("sim-mobile-topbar")}>
+          <button
+            className={cx("sim-mobile-topbar-icon-button")}
+            onClick={() => setIsMobileSheetOpen(true)}
+            aria-label={t.payloadDeck}
+          >
+            {/* 햄버거 — payload + composer 묶음을 sheet drawer 로 연다 */}
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className={cx("sim-mobile-topbar-title")}>
+            <h1>{t.title}</h1>
+            <p>{t.subtitle}</p>
+          </div>
+          <button
+            className={cx("sim-mobile-submit")}
+            onClick={startFlow}
+            aria-label={t.submit}
+          >
+            {t.submit}
+          </button>
+        </header>
 
-      <header className={cx("simulation-topbar")}>
+        <div
+          className={cx(
+            "sim-mobile-event",
+            attackDetected && "sim-mobile-event-danger"
+          )}
+        >
+          <span>{t.lastEvent}</span>
+          <strong>{lastEvent}</strong>
+        </div>
+
+        <nav className={cx("sim-mobile-tabs")} role="tablist">
+          {windowOrder.map((id) => {
+            const isActive = activeWindow === id;
+            const isPulsing =
+              pulseEdge !== null && routeEdges[pulseEdge]?.to === id;
+            const isArrived = arrivedWindows.has(id);
+            const isInactive = inactiveWindows.has(id);
+            return (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={isActive}
+                disabled={isInactive}
+                className={cx(
+                  "sim-mobile-tab",
+                  isActive && "active",
+                  isPulsing && "pulsing",
+                  isArrived && "arrived",
+                  isInactive && "inactive"
+                )}
+                onClick={() => setActiveWindow(id)}
+              >
+                {/* Chrome 의 favicon 자리 — sim-role-icon 으로 윈도우 타입 시각화 */}
+                <span
+                  className={cx("sim-role-icon", `sim-role-icon-${id}`)}
+                  aria-hidden="true"
+                >
+                  <span />
+                </span>
+                <span className={cx("sim-mobile-tab-label")}>
+                  {SHORT_TAB_LABELS[id][locale]}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <main className={cx("sim-mobile-pane")}>
+          <div className={cx("sim-mobile-pane-header")}>
+            <strong>{windowTitles[activeWindow]}</strong>
+            <small>{windows[activeWindow].caption}</small>
+          </div>
+          <div className={cx("sim-mobile-pane-body")}>
+            {renderWindowBody(activeWindow, isMobile)}
+          </div>
+        </main>
+
+        {/* sheet drawer: payload deck + render composer 통합. 모바일에서 단축키 대신 사용 */}
+        <div
+          className={cx(
+            "sim-mobile-sheet",
+            isMobileSheetOpen && "sim-mobile-sheet-open"
+          )}
+          aria-hidden={!isMobileSheetOpen}
+        >
+          <div
+            className={cx("sim-mobile-sheet-backdrop")}
+            onClick={() => setIsMobileSheetOpen(false)}
+          />
+          <aside className={cx("sim-mobile-sheet-panel")}>
+            <header className={cx("sim-mobile-sheet-header")}>
+              <strong>{t.payloadDeck}</strong>
+              <button
+                onClick={() => setIsMobileSheetOpen(false)}
+                aria-label={t.close}
+              >
+                ×
+              </button>
+            </header>
+
+            <section className={cx("sim-mobile-sheet-section")}>
+              <div className={cx("floating-panel-title")}>{t.payloadDeck}</div>
+              {PAYLOAD_PRESETS.map((preset) => (
+                <button
+                  key={preset.hotkey}
+                  className={cx(
+                    "payload-gear-button",
+                    activePreset?.hotkey === preset.hotkey && "active"
+                  )}
+                  onClick={() => {
+                    applyPayloadPreset(preset);
+                    setIsMobileSheetOpen(false);
+                  }}
+                >
+                  {preset.label[locale]}
+                </button>
+              ))}
+            </section>
+
+            <section className={cx("sim-mobile-sheet-section")}>
+              <div className={cx("floating-panel-title")}>
+                {t.renderComposer}
+              </div>
+
+              <div className={cx("composer-section")}>
+                <div className={cx("composer-label")}>{t.flowPresets}</div>
+                <div className={cx("composer-button-grid")}>
+                  {SCENARIO_PRESETS.map((preset) => (
+                    <button
+                      key={preset.label.en}
+                      className={cx(
+                        JSON.stringify(preset.toggles) ===
+                          JSON.stringify(toggles) && "active"
+                      )}
+                      onClick={() => setToggles(preset.toggles)}
+                    >
+                      {preset.label[locale]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={cx("composer-section")}>
+                <div className={cx("composer-label")}>{t.toggles}</div>
+                {toggleLabels.map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={cx(
+                      "composer-toggle",
+                      toggles[key] && "active"
+                    )}
+                    onClick={() => updateToggle(key)}
+                    aria-pressed={toggles[key]}
+                  >
+                    <span />
+                    {label[locale]}
+                  </button>
+                ))}
+              </div>
+
+              <div className={cx("composer-section")}>
+                <div className={cx("composer-label")}>{t.renderContext}</div>
+                <div className={cx("composer-button-grid")}>
+                  {(Object.keys(RENDER_CONTEXT_LABELS) as RenderContext[]).map(
+                    (context) => (
+                      <button
+                        key={context}
+                        className={cx(renderContext === context && "active")}
+                        onClick={() => setRenderContext(context)}
+                      >
+                        {RENDER_CONTEXT_LABELS[context][locale]}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div className={cx("composer-section")}>
+                <div className={cx("composer-label")}>{t.filterMode}</div>
+                <div className={cx("composer-button-grid")}>
+                  {(Object.keys(FILTER_LABELS) as FilterMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      className={cx(filterMode === mode && "active")}
+                      onClick={() => setFilterMode(mode)}
+                    >
+                      {FILTER_LABELS[mode][locale]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <footer className={cx("sim-mobile-sheet-footer")}>
+              <button onClick={resetLayout}>{t.reset}</button>
+              <button onClick={goBack}>{t.back}</button>
+            </footer>
+          </aside>
+        </div>
+      </div>
+
+      <div className={cx("xss-simulation-page")}>
+        <div className={cx("simulation-grid-bg")} aria-hidden="true" />
+
+        <header className={cx("simulation-topbar")}>
         <div>
           <h1>{t.title}</h1>
           <p>{t.subtitle}</p>
@@ -624,10 +898,12 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
         {PAYLOAD_PRESETS.map((preset) => (
           <button
             key={preset.hotkey}
-            className={cx("payload-gear-button")}
+            className={cx(
+              "payload-gear-button",
+              activePreset?.hotkey === preset.hotkey && "active"
+            )}
             onClick={() => applyPayloadPreset(preset)}
           >
-            <span>{preset.hotkey}</span>
             {preset.label[locale]}
           </button>
         ))}
@@ -799,7 +1075,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
                   <small>{win.caption}</small>
                 </div>
               </div>
-              {renderWindowBody(id)}
+              {renderWindowBody(id, !isMobile)}
               <button
                 className={cx("simulation-resize-handle")}
                 aria-label="Resize window"
@@ -808,8 +1084,8 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
             </section>
           );
         })}
-      </main>
-
-    </div>
+        </main>
+      </div>
+    </>
   );
 };
