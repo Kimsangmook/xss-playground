@@ -41,6 +41,8 @@ const PAYLOADS: Array<{ label: string; data: unknown }> = [
   },
 ];
 
+const MAX_REPLIES = 80;
+
 const ParentListenerProbePage = () => {
   const scenario = findScenario("parent-message-listener-probe")!;
   const { lines, push, clear } = useLog();
@@ -50,17 +52,23 @@ const ParentListenerProbePage = () => {
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {
+      if (e.source === window) return;
       setReplies((prev) => [
         ...prev,
         fmt(t.log?.received, {
           origin: e.origin,
           data: JSON.stringify(e.data).slice(0, 200),
         }),
-      ]);
+      ].slice(-MAX_REPLIES));
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, []);
+  }, [t.log?.received]);
+
+  const clearAll = () => {
+    clear();
+    setReplies([]);
+  };
 
   const fire = (data: unknown, label: string) => {
     push(fmt(t.log?.sending, { label }));
@@ -95,7 +103,7 @@ const ParentListenerProbePage = () => {
         <button className="danger" onClick={fireAll}>
           {t.buttons?.fireAll}
         </button>
-        <button onClick={clear}>{t.buttons?.clearLog}</button>
+        <button onClick={clearAll}>{t.buttons?.clearLog}</button>
       </div>
       <Log lines={lines} />
 
