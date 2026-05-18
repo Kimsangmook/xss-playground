@@ -41,7 +41,7 @@ const useRepositoryIssues = ({
     {
       revalidateOnFocus: false,
       dedupingInterval: 60_000,
-    },
+    }
   );
 
   return {

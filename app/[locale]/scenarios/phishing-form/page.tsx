@@ -40,7 +40,7 @@ const PhishingFormPage = () => {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             placeholder={text("emailPlaceholder")}
           />
         </div>
@@ -53,7 +53,7 @@ const PhishingFormPage = () => {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
         </div>
         <button className="danger" type="submit">

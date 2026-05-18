@@ -63,7 +63,7 @@ const ja: IPageText = {
   },
   explanation: [
     '最も古い CSRF 形態です。<code>&lt;img src="https://target/action?a=b"&gt;</code> だけでユーザーの cookie とともに GET request が送られます。',
-    'sandbox が空でも img request は送られます。止めるには CSP <code>img-src</code>、または HTML 描画時の img src host 検証が必要です。',
+    "sandbox が空でも img request は送られます。止めるには CSP <code>img-src</code>、または HTML 描画時の img src host 検証が必要です。",
     "ターゲットが SameSite=Lax cookie を使う場合、cross-site GET では cookie が付かず CSRF 影響は小さくなります。ただし IP 露出、tracking pixel、internal-only endpoint への ping は残ります。",
     "多くの editor / CMS は img タグを許可するため、この面を閉じるには host allowlist または CSP が必要です。",
   ],

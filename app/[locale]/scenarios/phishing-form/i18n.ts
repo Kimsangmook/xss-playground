@@ -46,7 +46,8 @@ const en: IScenarioPageI18n = {
   text: {
     callout:
       "In a real attack this iframe would be placed inside the parent page to look like the service's own modal or login area. The user has no easy way to notice the domain is attacker.example.",
-    formHeading: "Fake login form (free to draw anything inside its own origin)",
+    formHeading:
+      "Fake login form (free to draw anything inside its own origin)",
     emailLabel: "Email",
     passwordLabel: "Password",
     logsHeading: "Captured log",
@@ -118,4 +119,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

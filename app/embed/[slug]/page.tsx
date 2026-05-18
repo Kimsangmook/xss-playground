@@ -5,7 +5,7 @@ import { EmbedScenarioRouter } from "./EmbedScenarioRouter";
 import { createEmbedSeoMetadata } from "@/components/seo/Seo";
 
 export const generateStaticParams = () =>
-  SCENARIOS.filter((s) => (s.surface ?? "iframe") === "iframe").map((s) => ({
+  SCENARIOS.filter(s => (s.surface ?? "iframe") === "iframe").map(s => ({
     slug: s.slug,
   }));
 

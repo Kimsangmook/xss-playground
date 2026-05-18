@@ -8,12 +8,7 @@ import type {
   RenderContext,
 } from "./types";
 
-const text = (
-  ko: string,
-  en = ko,
-  ja = en,
-  zh = en,
-): LocalizedText => ({
+const text = (ko: string, en = ko, ja = en, zh = en): LocalizedText => ({
   ko,
   en,
   ja,
@@ -38,30 +33,60 @@ const effectResults: Record<PayloadEffect, LocalizedText> = {
     "사용자 액션 필요",
     "user action required",
     "ユーザー操作が必要",
-    "需要用户操作",
+    "需要用户操作"
   ),
   message: text(
     "postMessage 전송",
     "postMessage sent",
     "postMessage 送信",
-    "postMessage 已发送",
+    "postMessage 已发送"
   ),
   navigation: text(
     "top navigation 시도",
     "top navigation attempted",
     "top navigation 試行",
-    "已尝试 top navigation",
+    "已尝试 top navigation"
   ),
-  form: text("form submit 시도", "form submit attempted", "form submit 試行", "已尝试 form submit"),
-  network: text("네트워크 요청 시도", "network request attempted", "network request 試行", "已尝试网络请求"),
-  phishing: text("피싱 UI 렌더", "phishing UI rendered", "phishing UI 表示", "已渲染钓鱼 UI"),
-  probe: text("권한/토큰 probe 시도", "probe attempted", "probe 試行", "已尝试 probe"),
-  delayed: text("지연/체인 흐름 준비", "delayed chain staged", "遅延/chain 準備", "已准备延迟/链式流程"),
-  iframe: text("iframe 문서 로드", "iframe document loaded", "iframe document 読み込み", "iframe 文档已加载"),
+  form: text(
+    "form submit 시도",
+    "form submit attempted",
+    "form submit 試行",
+    "已尝试 form submit"
+  ),
+  network: text(
+    "네트워크 요청 시도",
+    "network request attempted",
+    "network request 試行",
+    "已尝试网络请求"
+  ),
+  phishing: text(
+    "피싱 UI 렌더",
+    "phishing UI rendered",
+    "phishing UI 表示",
+    "已渲染钓鱼 UI"
+  ),
+  probe: text(
+    "권한/토큰 probe 시도",
+    "probe attempted",
+    "probe 試行",
+    "已尝试 probe"
+  ),
+  delayed: text(
+    "지연/체인 흐름 준비",
+    "delayed chain staged",
+    "遅延/chain 準備",
+    "已准备延迟/链式流程"
+  ),
+  iframe: text(
+    "iframe 문서 로드",
+    "iframe document loaded",
+    "iframe document 読み込み",
+    "iframe 文档已加载"
+  ),
 };
 
 const findScenario = (slug: string) => {
-  const scenario = SCENARIOS.find((item) => item.slug === slug);
+  const scenario = SCENARIOS.find(item => item.slug === slug);
   if (!scenario) {
     throw new Error(`Unknown scenario slug: ${slug}`);
   }

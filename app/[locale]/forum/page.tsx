@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
   createForumJsonLd,
@@ -64,7 +64,7 @@ const ForumPage = ({ params }: IProps) => {
 
       <h2>{t.howTitle}</h2>
       <ol>
-        {t.how.map((item) => (
+        {t.how.map(item => (
           <li key={item}>{item}</li>
         ))}
       </ol>
@@ -90,7 +90,7 @@ const ForumPage = ({ params }: IProps) => {
 
       <h2>{t.guidelinesTitle}</h2>
       <ul>
-        {t.guidelines.map((item) => (
+        {t.guidelines.map(item => (
           <li key={item}>{item}</li>
         ))}
       </ul>

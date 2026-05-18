@@ -22,7 +22,7 @@ const HistoryPollutionPage = () => {
 
   const tryBackBlock = () => {
     push(t.log.trapInstalled);
-    window.addEventListener("popstate", (e) => {
+    window.addEventListener("popstate", () => {
       push(t.log.intercepted);
       history.pushState({}, "", "?trapped=" + Date.now());
     });

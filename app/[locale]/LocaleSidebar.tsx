@@ -2,7 +2,7 @@
 
 import { ALL_CATEGORIES, SCENARIOS } from "@/lib/scenarios";
 import type { IDictionary, Locale } from "@/i18n/types";
-import { LOCALES, LOCALE_LABEL } from "@/i18n/types";
+import { LOCALE_LABEL, LOCALES } from "@/i18n/types";
 
 import Link from "next/link";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
@@ -47,13 +47,13 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
         {dict.nav.forum}
       </Link>
 
-      {ALL_CATEGORIES.map((cat) => {
-        const items = SCENARIOS.filter((s) => s.category === cat);
+      {ALL_CATEGORIES.map(cat => {
+        const items = SCENARIOS.filter(s => s.category === cat);
         if (items.length === 0) return null;
         return (
           <div key={cat}>
             <div className="group-label">{dict.categories[cat] ?? cat}</div>
-            {items.map((s) => {
+            {items.map(s => {
               const href = `${linkBase}/scenarios/${s.slug}`;
               const title = getScenarioI18n(locale, s.slug)?.title ?? s.title;
               return (
@@ -79,7 +79,7 @@ export const LocaleSidebar = ({ locale, dict }: IProps) => {
           flexWrap: "wrap",
         }}
       >
-        {LOCALES.map((l) => {
+        {LOCALES.map(l => {
           const swapped = pathname.replace(/^\/[a-z]{2}/, `/${l}`);
           return (
             <Link

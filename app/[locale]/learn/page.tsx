@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
-import { createLearnJsonLd, createLearnSeoMetadata } from "@/components/seo/Seo";
+import {
+  createLearnJsonLd,
+  createLearnSeoMetadata,
+} from "@/components/seo/Seo";
 import { I18N } from "./i18n";
 
 interface IProps {
@@ -27,14 +30,14 @@ const LearnPage = ({ params }: IProps) => {
 
       <h2>{t.methodologyTitle}</h2>
       <ol>
-        {t.methodology.map((item) => (
+        {t.methodology.map(item => (
           <li key={item}>{item}</li>
         ))}
       </ol>
 
       <h2>{t.surfacesTitle}</h2>
       <div className="threat-grid">
-        {t.surfaces.map((surface) => (
+        {t.surfaces.map(surface => (
           <section className="threat-card" key={surface.title}>
             <strong>{surface.title}</strong>
             <p>{surface.body}</p>
@@ -44,13 +47,13 @@ const LearnPage = ({ params }: IProps) => {
 
       <h2>{t.defensesTitle}</h2>
       <ul>
-        {t.defenses.map((item) => (
+        {t.defenses.map(item => (
           <li key={item}>{item}</li>
         ))}
       </ul>
 
       <h2>{t.storiesTitle}</h2>
-      {t.stories.map((story) => (
+      {t.stories.map(story => (
         <section className="card" key={story.title}>
           <strong>{story.title}</strong>
           <p style={{ color: "var(--text-dim)", marginBottom: 0 }}>
@@ -61,8 +64,13 @@ const LearnPage = ({ params }: IProps) => {
 
       <div className="reference-links">
         <strong>{t.referencesTitle}</strong>
-        {t.references.map((source) => (
-          <a key={source.href} href={source.href} target="_blank" rel="noreferrer">
+        {t.references.map(source => (
+          <a
+            key={source.href}
+            href={source.href}
+            target="_blank"
+            rel="noreferrer"
+          >
             {source.label}
           </a>
         ))}

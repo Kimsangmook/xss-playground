@@ -4,7 +4,7 @@ export const buildRedirectTarget = (
   origin: string,
   locale: Locale,
   from: string,
-  extra: Record<string, string | number | boolean | undefined> = {},
+  extra: Record<string, string | number | boolean | undefined> = {}
 ) => {
   const params = new URLSearchParams({ from });
   for (const [key, value] of Object.entries(extra)) {

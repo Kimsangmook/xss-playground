@@ -73,7 +73,7 @@ export const SCENARIO_I18N: Record<
 
 export const getScenarioI18n = (
   locale: Locale,
-  slug: string,
+  slug: string
 ): IScenarioPageI18n | null => {
   const scenario = findScenario(slug);
   const localized = SCENARIO_I18N[slug]?.[locale];

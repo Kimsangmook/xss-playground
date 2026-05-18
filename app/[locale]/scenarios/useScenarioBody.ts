@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { getDictionary } from "@/i18n";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { getScenarioI18n } from "./i18nRegistry";
 
 const pickLocale = (raw: unknown): Locale =>
@@ -13,11 +13,11 @@ const pickLocale = (raw: unknown): Locale =>
 /** "{key}" placeholder 를 vars[key] 로 치환 */
 export const fmt = (
   template: string | undefined,
-  vars: Record<string, string | number | boolean | undefined> = {},
+  vars: Record<string, string | number | boolean | undefined> = {}
 ): string => {
   if (!template) return "";
   return template.replace(/\{(\w+)\}/g, (_, k) =>
-    vars[k] === undefined ? `{${k}}` : String(vars[k]),
+    vars[k] === undefined ? `{${k}}` : String(vars[k])
   );
 };
 
@@ -28,7 +28,7 @@ interface IUseScenarioBody {
   actions: (key: string) => string;
   log: (
     key: string,
-    vars?: Record<string, string | number | boolean>,
+    vars?: Record<string, string | number | boolean>
   ) => string;
   text: (key: string) => string;
   explanation: string[];
@@ -44,9 +44,9 @@ export const useScenarioBody = (slug: string): IUseScenarioBody => {
     locale,
     dict,
     scenarioPage: dict.scenarioPage,
-    actions: (key) => body?.actionLabels?.[key] ?? key,
+    actions: key => body?.actionLabels?.[key] ?? key,
     log: (key, vars = {}) => fmt(body?.logMessages?.[key], vars),
-    text: (key) => body?.text?.[key] ?? "",
+    text: key => body?.text?.[key] ?? "",
     explanation: body?.explanation ?? [],
   };
 };

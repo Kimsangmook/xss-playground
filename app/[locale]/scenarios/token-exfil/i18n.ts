@@ -30,12 +30,14 @@ const ko: IScenarioPageI18n = {
     storageNote: "→ 부모 origin storage 는 SOP 로 접근 불가",
     askParent: "부모에게 토큰 요청 페이로드 {count}개 발사",
     sent: "  sent: {payload}",
-    hookInstall: "자기 origin XHR/fetch 가로채기 설치 — 부모 네트워크는 못 본다",
+    hookInstall:
+      "자기 origin XHR/fetch 가로채기 설치 — 부모 네트워크는 못 본다",
     hookDone: "훅 설치 완료. 부모의 axios/fetch 는 부모 컨텍스트라 안 잡힘.",
     tryParentStorage: "시도: parent.localStorage 키 접근",
     parentStorageSuccess: "성공 (same-origin): {keys}",
     sopBlocked: "차단됨 (SOP): {message}",
-    ownFetch: "자기 origin /api/dummy 호출 (테스트용 — 부모 서비스 origin 과는 다름)",
+    ownFetch:
+      "자기 origin /api/dummy 호출 (테스트용 — 부모 서비스 origin 과는 다름)",
     status: "status={status}",
     failed: "실패: {message}",
     runAll: "=== 전체 시도 시작 ===",
@@ -76,12 +78,14 @@ const en: IScenarioPageI18n = {
     storageNote: "→ parent-origin storage is inaccessible by SOP",
     askParent: "sending {count} token request payloads to parent",
     sent: "  sent: {payload}",
-    hookInstall: "install own-origin XHR/fetch hooks — parent network is invisible",
+    hookInstall:
+      "install own-origin XHR/fetch hooks — parent network is invisible",
     hookDone: "hook installed. Parent axios/fetch runs in the parent context.",
     tryParentStorage: "try: access parent.localStorage keys",
     parentStorageSuccess: "success (same-origin): {keys}",
     sopBlocked: "blocked (SOP): {message}",
-    ownFetch: "own-origin /api/dummy call (different from parent service origin)",
+    ownFetch:
+      "own-origin /api/dummy call (different from parent service origin)",
     status: "status={status}",
     failed: "failed: {message}",
     runAll: "=== running all probes ===",
@@ -141,8 +145,7 @@ const ja: IScenarioPageI18n = {
 
 const zh: IScenarioPageI18n = {
   title: "父页面 token / 网络窃取尝试",
-  summary:
-    "从 iframe 内探测父页面 JWT、storage 和正在进行的网络请求边界。",
+  summary: "从 iframe 内探测父页面 JWT、storage 和正在进行的网络请求边界。",
   actionsHeading: "执行",
   explanationHeading: "说明",
   buttons: {
@@ -186,4 +189,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

@@ -30,7 +30,8 @@ const ko: IScenarioPageI18n = {
     tryLocationWrite: "시도: parent.location.href = ... (쓰기)",
     locationWriteNote:
       "참고: location 쓰기는 cross-origin 이어도 허용됨 (top-redirect 시나리오 참고)",
-    tryCookie: "시도: parent.document.cookie 읽기 → 위 parent.document 와 동일하게 차단",
+    tryCookie:
+      "시도: parent.document.cookie 읽기 → 위 parent.document 와 동일하게 차단",
     tryOwnStorage: "시도: 자기 origin localStorage",
     ownStorage: "자기 origin storage: {value}",
     failed: "실패: {message}",
@@ -38,7 +39,8 @@ const ko: IScenarioPageI18n = {
       "참고: 부모 origin 의 localStorage 는 SOP 로 접근 불가. cookie/sessionStorage 도 동일.",
     tryFetchSelf: "시도: fetch('/') 자기 origin",
     fetchStatus: "결과: status={status}",
-    tryFetchParent: "시도: fetch(parent origin) → CORS 헤더 없으면 응답 읽기 차단",
+    tryFetchParent:
+      "시도: fetch(parent origin) → CORS 헤더 없으면 응답 읽기 차단",
     fetchParentNote:
       "참고: 요청 자체는 나가지만 응답 read 가 막힘. cookie 는 SameSite 정책 따름.",
   },
@@ -67,7 +69,7 @@ const en: IScenarioPageI18n = {
   },
   text: {
     callout:
-      'This page verifies the things that should fail. Every direct parent access should be blocked. Some probes can succeed if embedded same-origin.',
+      "This page verifies the things that should fail. Every direct parent access should be blocked. Some probes can succeed if embedded same-origin.",
   },
   log: {
     tryDocument: "try: access parent.document",
@@ -78,7 +80,8 @@ const en: IScenarioPageI18n = {
     tryLocationWrite: "try: parent.location.href = ... (write)",
     locationWriteNote:
       "note: location writes can be allowed cross-origin (see top-redirect)",
-    tryCookie: "try: read parent.document.cookie → blocked like parent.document",
+    tryCookie:
+      "try: read parent.document.cookie → blocked like parent.document",
     tryOwnStorage: "try: own-origin localStorage",
     ownStorage: "own-origin storage: {value}",
     failed: "failed: {message}",
@@ -86,7 +89,8 @@ const en: IScenarioPageI18n = {
       "note: parent-origin localStorage is inaccessible by SOP. cookie/sessionStorage are the same.",
     tryFetchSelf: "try: fetch('/') own origin",
     fetchStatus: "result: status={status}",
-    tryFetchParent: "try: fetch(parent origin) → response read blocked without CORS",
+    tryFetchParent:
+      "try: fetch(parent origin) → response read blocked without CORS",
     fetchParentNote:
       "note: the request may leave, but response reading is blocked. Cookies follow SameSite policy.",
   },
@@ -126,7 +130,8 @@ const ja: IScenarioPageI18n = {
     tryLocationWrite: "試行: parent.location.href = ... (書き込み)",
     locationWriteNote:
       "メモ: location 書き込みは cross-origin でも許可されることがあります (top-redirect 参照)",
-    tryCookie: "試行: parent.document.cookie を読む → parent.document と同様にブロック",
+    tryCookie:
+      "試行: parent.document.cookie を読む → parent.document と同様にブロック",
     tryOwnStorage: "試行: 自分の origin の localStorage",
     ownStorage: "自分の origin storage: {value}",
     failed: "失敗: {message}",
@@ -134,7 +139,8 @@ const ja: IScenarioPageI18n = {
       "メモ: 親 origin の localStorage は SOP でアクセス不可。cookie/sessionStorage も同じです。",
     tryFetchSelf: "試行: fetch('/') 自分の origin",
     fetchStatus: "結果: status={status}",
-    tryFetchParent: "試行: fetch(parent origin) → CORS なしでは response read がブロック",
+    tryFetchParent:
+      "試行: fetch(parent origin) → CORS なしでは response read がブロック",
     fetchParentNote:
       "メモ: request 自体は送られることがありますが、response read はブロックされます。cookie は SameSite に従います。",
   },
@@ -174,7 +180,8 @@ const zh: IScenarioPageI18n = {
     tryLocationWrite: "尝试 parent.location.href = ...（写入）",
     locationWriteNote:
       "说明：location 写入在 cross-origin 下也可能被允许（见 top-redirect）",
-    tryCookie: "尝试读取 parent.document.cookie → 与 parent.document 一样被阻止",
+    tryCookie:
+      "尝试读取 parent.document.cookie → 与 parent.document 一样被阻止",
     tryOwnStorage: "尝试自己 origin 的 localStorage",
     ownStorage: "自己 origin storage: {value}",
     failed: "失败: {message}",
@@ -194,4 +201,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

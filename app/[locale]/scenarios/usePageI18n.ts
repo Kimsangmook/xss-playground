@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 
 const pickLocale = (raw: unknown): Locale =>
   typeof raw === "string" && LOCALES.includes(raw as Locale)
@@ -28,10 +28,10 @@ export const usePageI18n = <T>(table: Record<Locale, T>): T => {
 
 export const fmt = (
   template: string | undefined,
-  vars: Record<string, string | number | boolean | undefined> = {},
+  vars: Record<string, string | number | boolean | undefined> = {}
 ): string => {
   if (!template) return "";
   return template.replace(/\{(\w+)\}/g, (_, k) =>
-    vars[k] === undefined ? `{${k}}` : String(vars[k]),
+    vars[k] === undefined ? `{${k}}` : String(vars[k])
   );
 };

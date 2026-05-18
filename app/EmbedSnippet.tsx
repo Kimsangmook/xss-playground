@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { findScenario } from "@/lib/scenarios";
 import { SITE_URL } from "@/lib/site";
 import { getDictionary } from "@/i18n";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 
 interface IEmbedSnippetProps {
@@ -48,7 +48,11 @@ export const EmbedSnippet = ({ slug }: IEmbedSnippetProps) => {
   // ?lang= 으로 임베드 페이지에 부모 사이트의 locale 전달
   const url = `${origin}/embed/${slug}?lang=${locale}`;
   const sandboxAttr =
-    sandbox === null ? "" : sandbox === "" ? " sandbox" : ` sandbox="${sandbox}"`;
+    sandbox === null
+      ? ""
+      : sandbox === ""
+      ? " sandbox"
+      : ` sandbox="${sandbox}"`;
   const snippet = `<iframe src="${url}" title="XSS Playground - ${title}"${sandboxAttr} width="600" height="420" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
 
   const handleCopy = () => {

@@ -70,15 +70,17 @@ four sections below — please complete each one:
 ### Local setup
 
 ```bash
-yarn install
+yarn setup
 yarn dev
-# http://localhost:3000
+# https://local.xss-playground.com
 ```
 
 Lint must pass:
 
 ```bash
 yarn lint
+yarn format:check
+yarn typecheck
 yarn build
 ```
 

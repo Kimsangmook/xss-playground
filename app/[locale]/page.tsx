@@ -1,18 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { SCENARIOS, ALL_CATEGORIES } from "@/lib/scenarios";
+import { ALL_CATEGORIES, SCENARIOS } from "@/lib/scenarios";
 import { getDictionary } from "@/i18n";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import { SITE_AUTHOR, SOCIAL } from "@/lib/site";
 import { AdSlot } from "@/app/AdSlot";
 import { QuickEmbedCopy } from "@/app/QuickEmbedCopy";
 import { QuickPayloadCopy } from "@/app/QuickPayloadCopy";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
-import {
-  createHomeJsonLd,
-  createHomeSeoMetadata,
-} from "@/components/seo/Seo";
+import { createHomeJsonLd, createHomeSeoMetadata } from "@/components/seo/Seo";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 interface IProps {
@@ -72,7 +69,11 @@ const HomePage = ({ params }: IProps) => {
             </p>
           ))}
           <p style={{ marginTop: 12, fontSize: 13 }}>
-            <a href={SOCIAL.githubRepo} target="_blank" rel="noopener noreferrer">
+            <a
+              href={SOCIAL.githubRepo}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {dict.nav.github}
             </a>
             {SITE_AUTHOR.email && (
@@ -103,10 +104,34 @@ const HomePage = ({ params }: IProps) => {
         ))}
       </ol>
 
+      <h2>{dict.home.sanitizationHeading}</h2>
+      <p className="summary">{dict.home.sanitizationIntro}</p>
+      <div className="threat-grid">
+        {dict.home.sanitizationCards.map(item => (
+          <section key={item.title} className="threat-card">
+            <strong>{item.title}</strong>
+            <p>{item.body}</p>
+          </section>
+        ))}
+      </div>
+      <div className="reference-links">
+        <strong>{dict.home.sanitizationLinksHeading}</strong>
+        {dict.home.sanitizationLinks.map(source => (
+          <a
+            key={source.href}
+            href={source.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {source.label}
+          </a>
+        ))}
+      </div>
+
       <h2>{dict.home.threatsHeading}</h2>
       <p className="summary">{dict.home.threatsIntro}</p>
       <div className="threat-grid">
-        {dict.home.threats.map((item) => (
+        {dict.home.threats.map(item => (
           <section key={item.title} className="threat-card">
             <strong>{item.title}</strong>
             <p>{item.body}</p>
@@ -115,8 +140,13 @@ const HomePage = ({ params }: IProps) => {
       </div>
       <div className="reference-links">
         <strong>{dict.home.referencesHeading}</strong>
-        {dict.home.references.map((source) => (
-          <a key={source.href} href={source.href} target="_blank" rel="noreferrer">
+        {dict.home.references.map(source => (
+          <a
+            key={source.href}
+            href={source.href}
+            target="_blank"
+            rel="noreferrer"
+          >
             {source.label}
           </a>
         ))}
@@ -127,15 +157,15 @@ const HomePage = ({ params }: IProps) => {
       <h2>{dict.home.scenariosHeading}</h2>
       <p className="summary">{dict.home.scenariosIntro}</p>
 
-      {ALL_CATEGORIES.map((cat) => {
-        const items = SCENARIOS.filter((s) => s.category === cat);
+      {ALL_CATEGORIES.map(cat => {
+        const items = SCENARIOS.filter(s => s.category === cat);
         if (items.length === 0) return null;
         return (
           <section key={cat}>
             <h3 style={{ margin: "18px 0 8px", fontSize: 14 }}>
               {dict.categories[cat] ?? cat}
             </h3>
-            {items.map((s) => {
+            {items.map(s => {
               const meta = getScenarioI18n(locale, s.slug);
               return (
                 <div key={s.slug} className="card">
@@ -171,7 +201,7 @@ const HomePage = ({ params }: IProps) => {
           <p key={i}>{p}</p>
         ))}
         <div className="contributing-links">
-          {dict.home.contributingLinks.map((link) => (
+          {dict.home.contributingLinks.map(link => (
             <a
               key={link.href}
               href={link.href}

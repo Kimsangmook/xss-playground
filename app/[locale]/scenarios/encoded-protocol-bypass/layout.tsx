@@ -4,7 +4,7 @@ import {
 } from "../ScenarioSeoLayout";
 
 export const generateMetadata = createScenarioMetadata(
-  "encoded-protocol-bypass",
+  "encoded-protocol-bypass"
 );
 
 export default createScenarioLayout("encoded-protocol-bypass");

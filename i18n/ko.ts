@@ -67,6 +67,42 @@ export const ko: IDictionary = {
         body: "iframe, 오버레이, 알림, 클립보드, postMessage 를 이용해 자격증명을 속여 입력받거나 관찰 가능한 정보를 외부로 보낼 수 있습니다.",
       },
     ],
+    sanitizationHeading: "Sanitize 실무 가이드",
+    sanitizationIntro:
+      "HTML 을 사용자 기능으로 허용해야 한다면 단순 문자열 replace 나 블랙리스트가 아니라, 출력 컨텍스트별 인코딩과 검증된 sanitizer 정책을 함께 설계해야 합니다.",
+    sanitizationCards: [
+      {
+        title: "DOMPurify",
+        body: "DOMPurify 는 HTML, SVG, MathML 에서 실행 가능한 위험 요소를 제거하는 대표적인 sanitizer 입니다. React 의 dangerouslySetInnerHTML, Markdown/MDX 렌더러, rich text 출력처럼 HTML 을 의도적으로 넣는 지점에만 사용하세요.",
+      },
+      {
+        title: "Node.js / SSR",
+        body: "서버에서 sanitize 하려면 DOMPurify 에 DOM 구현이 필요합니다. Node 환경에서는 최신 jsdom 조합을 쓰고, 클라이언트와 서버의 allowlist 가 달라지지 않도록 정책을 공유해 테스트하세요.",
+      },
+      {
+        title: "정책 문서화",
+        body: "허용 태그, 속성, URL protocol/host, iframe sandbox, CSP 를 기능 단위로 기록해야 합니다. sanitize 후 다른 렌더러가 HTML 을 다시 변형하면 방어 효과가 깨질 수 있습니다.",
+      },
+    ],
+    sanitizationLinksHeading: "DOMPurify / sanitize 자료",
+    sanitizationLinks: [
+      {
+        label: "DOMPurify GitHub",
+        href: "https://github.com/cure53/DOMPurify",
+      },
+      {
+        label: "DOMPurify npm",
+        href: "https://www.npmjs.com/package/dompurify",
+      },
+      {
+        label: "DOMPurify on Node.js",
+        href: "https://github.com/cure53/DOMPurify?tab=readme-ov-file#running-dompurify-on-the-server",
+      },
+      {
+        label: "OWASP HTML Sanitization",
+        href: "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#html-sanitization",
+      },
+    ],
     referencesHeading: "참고 자료",
     references: [
       {
@@ -210,7 +246,7 @@ export const ko: IDictionary = {
           autoScheduled: "{n}초 뒤 자동 리다이렉트 예약",
         },
         explanation: [
-          "<code>window.top.location</code> 변경은 cross-origin 이어도 기본 허용됩니다. SOP 가 막아주지 않는 영역입니다.",
+          "same-origin frame 은 <code>window.top.location</code> 으로 최상위 페이지를 바꿀 수 있고, cross-origin frame 은 최신 브라우저에서 사용자 상호작용이 있을 때만 허용되는 편입니다. SOP 가 읽기는 막지만 이 navigation surface 를 완전히 대신 막아주지는 않습니다.",
           '차단하려면 sandbox 에 <code>allow-top-navigation</code> 을 주지 않으면 됩니다. <code>sandbox="allow-scripts"</code> 만 줘도 차단됩니다.',
           "실제 공격 가치는 매우 큽니다. 사용자가 신뢰하는 서비스 안에서 무언가 클릭한 직후 페이지가 통째로 피싱 사이트로 갈아치워지는 시나리오가 만들어집니다.",
         ],
@@ -291,7 +327,7 @@ export const ko: IDictionary = {
     "notification-permission": {
       title: "알림 권한 요청 / 푸시 hijack",
       summary:
-        "Notification.requestPermission 으로 권한 프롬프트. 허용되면 attacker 도메인이 푸시 발송 가능.",
+        "Notification.requestPermission 으로 권한 프롬프트를 시도한다. 최신 브라우저는 cross-origin iframe 요청을 대부분 막지만, 허용되면 공격자 origin 에서 피싱 알림이 가능하다.",
     },
     "clipboard-hijack": {
       title: "클립보드 hijack",

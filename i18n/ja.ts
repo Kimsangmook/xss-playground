@@ -67,6 +67,42 @@ export const ja: IDictionary = {
         body: "iframe、オーバーレイ、通知、クリップボード、postMessage により、秘密情報の入力誘導や観測可能な情報の外部送信が起こります。",
       },
     ],
+    sanitizationHeading: "Sanitize 実務ガイド",
+    sanitizationIntro:
+      "ユーザー機能として HTML を許可する必要がある場合、単純な文字列置換や blacklist ではなく、コンテキスト別 encoding と検証済み sanitizer policy を組み合わせて設計します。",
+    sanitizationCards: [
+      {
+        title: "DOMPurify",
+        body: "DOMPurify は HTML、SVG、MathML から実行可能な危険要素を除去する代表的な sanitizer です。dangerouslySetInnerHTML、Markdown/MDX 出力、rich text rendering のように HTML を意図的に描画する箇所で使います。",
+      },
+      {
+        title: "Node.js / SSR",
+        body: "サーバー側 sanitize には DOM 実装が必要です。Node.js では最新の jsdom と DOMPurify を組み合わせ、client/server の allowlist がずれないようテストします。",
+      },
+      {
+        title: "Policy documentation",
+        body: "許可する tag、attribute、URL protocol/host、iframe sandbox、CSP を機能単位で記録します。sanitize 後に別 renderer が HTML を変形すると防御効果が失われる可能性があります。",
+      },
+    ],
+    sanitizationLinksHeading: "DOMPurify / sanitize 資料",
+    sanitizationLinks: [
+      {
+        label: "DOMPurify GitHub",
+        href: "https://github.com/cure53/DOMPurify",
+      },
+      {
+        label: "DOMPurify npm",
+        href: "https://www.npmjs.com/package/dompurify",
+      },
+      {
+        label: "DOMPurify on Node.js",
+        href: "https://github.com/cure53/DOMPurify?tab=readme-ov-file#running-dompurify-on-the-server",
+      },
+      {
+        label: "OWASP HTML Sanitization",
+        href: "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#html-sanitization",
+      },
+    ],
     referencesHeading: "参考資料",
     references: [
       {

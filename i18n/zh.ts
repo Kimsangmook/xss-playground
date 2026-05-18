@@ -67,6 +67,42 @@ export const zh: IDictionary = {
         body: "iframe、覆盖层、通知、剪贴板和 postMessage 可能诱导用户输入机密，或把可观察信息发送到外部。",
       },
     ],
+    sanitizationHeading: "Sanitize 实践指南",
+    sanitizationIntro:
+      "如果产品功能必须允许 HTML，不要依赖字符串替换或黑名单。应将按上下文输出编码与经过验证的 sanitizer 策略结合起来。",
+    sanitizationCards: [
+      {
+        title: "DOMPurify",
+        body: "DOMPurify 是常用的 sanitizer，可从 HTML、SVG、MathML 中移除可执行风险。只在确实需要渲染 HTML 的位置使用，例如 dangerouslySetInnerHTML、Markdown/MDX 输出或富文本渲染。",
+      },
+      {
+        title: "Node.js / SSR",
+        body: "服务端 sanitize 需要 DOM 实现。在 Node.js 中应将 DOMPurify 与最新 jsdom 组合使用，并测试客户端与服务端 allowlist 不会漂移。",
+      },
+      {
+        title: "策略文档化",
+        body: "按功能记录允许的标签、属性、URL protocol/host、iframe sandbox 与 CSP。如果 sanitize 后又被其他 renderer 改写 HTML，防护效果可能被破坏。",
+      },
+    ],
+    sanitizationLinksHeading: "DOMPurify / sanitize 资料",
+    sanitizationLinks: [
+      {
+        label: "DOMPurify GitHub",
+        href: "https://github.com/cure53/DOMPurify",
+      },
+      {
+        label: "DOMPurify npm",
+        href: "https://www.npmjs.com/package/dompurify",
+      },
+      {
+        label: "DOMPurify on Node.js",
+        href: "https://github.com/cure53/DOMPurify?tab=readme-ov-file#running-dompurify-on-the-server",
+      },
+      {
+        label: "OWASP HTML Sanitization",
+        href: "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#html-sanitization",
+      },
+    ],
     referencesHeading: "参考资料",
     references: [
       {

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import type { IPayloadExample } from "@/lib/scenarios";
 import { Log, useLog } from "@/app/Log";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 
 interface IPayloadLabProps {
   payloads: IPayloadExample[];
@@ -131,7 +131,7 @@ export const PayloadLab = ({
   const selected = payloads[selectedIdx];
   const srcDoc = useMemo(
     () => buildSrcDoc(previewPayload, t.isolatedPreviewLabel),
-    [previewPayload, t.isolatedPreviewLabel],
+    [previewPayload, t.isolatedPreviewLabel]
   );
 
   const selectPayload = (idx: number) => {
@@ -148,7 +148,7 @@ export const PayloadLab = ({
 
   const render = () => {
     setPreviewPayload(customPayload);
-    setRenderKey((v) => v + 1);
+    setRenderKey(v => v + 1);
     push(previewMode === "srcdoc" ? t.srcdocLog : t.innerHtmlLog);
   };
 
@@ -180,7 +180,7 @@ export const PayloadLab = ({
         <textarea
           className="payload-editor"
           value={customPayload}
-          onChange={(e) => setCustomPayload(e.target.value)}
+          onChange={e => setCustomPayload(e.target.value)}
           spellCheck={false}
         />
         <div className="actions">
@@ -193,9 +193,7 @@ export const PayloadLab = ({
       </div>
 
       <h2>{t.previewHeading}</h2>
-      <div className="callout danger">
-        {t.previewWarning}
-      </div>
+      <div className="callout danger">{t.previewWarning}</div>
       {previewMode === "srcdoc" ? (
         <iframe
           key={renderKey}

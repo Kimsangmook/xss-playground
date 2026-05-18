@@ -7,3 +7,6 @@ out/
 *.log
 .DS_Store
 next-env.d.ts
+tsconfig.tsbuildinfo
+local.xss-playground-key.pem
+local.xss-playground.pem

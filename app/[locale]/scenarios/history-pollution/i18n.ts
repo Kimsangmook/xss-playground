@@ -91,8 +91,7 @@ const ja: IPageText = {
     done: "完了。親タブの戻る操作がこの iframe history を通ります。",
     trapInstalled: "popstate interceptor を設置",
     intercepted: "popstate を横取り → 再度 pushState",
-    trapNote:
-      "ユーザーが戻るを押してもすぐ前へ戻されます (history trap)",
+    trapNote: "ユーザーが戻るを押してもすぐ前へ戻されます (history trap)",
   },
   explanation: [
     "iframe の pushState は自分の origin URL だけを変えますが、その entry は親タブの back stack に積まれます。ユーザーが前のサービス画面へ戻ろうとしても iframe history を巡回することがあります。",
@@ -103,8 +102,7 @@ const ja: IPageText = {
 
 const zh: IPageText = {
   title: "history.pushState 污染",
-  summary:
-    "堆积 iframe 自身 origin 的 history 条目，干扰父标签页的后退导航。",
+  summary: "堆积 iframe 自身 origin 的 history 条目，干扰父标签页的后退导航。",
   actionsHeading: "执行",
   explanationHeading: "说明",
   buttons: {
@@ -118,8 +116,7 @@ const zh: IPageText = {
     done: "完成。父标签页的后退导航现在会经过此 iframe 的 history。",
     trapInstalled: "popstate 拦截器已安装",
     intercepted: "popstate 已拦截 → 再次 pushState",
-    trapNote:
-      "现在用户即使点击后退，也会立刻被拉回前进状态（history trap）。",
+    trapNote: "现在用户即使点击后退，也会立刻被拉回前进状态（history trap）。",
   },
   explanation: [
     "iframe pushState 只改变自己的 URL，但这些条目会堆积到父标签页的后退栈中。用户想回到服务上一页时，可能只是在 iframe history 中循环。",

@@ -4,12 +4,12 @@ import type { IScenarioPageI18n } from "../types";
 const payloads = [
   {
     label: "img onerror",
-    value: '<img src=x onerror="alert(\'xss-playground\')">',
+    value: "<img src=x onerror=\"alert('xss-playground')\">",
   },
   {
     label: "details ontoggle",
     value:
-      '<details open ontoggle="alert(\'xss-playground\')"><summary>open</summary></details>',
+      "<details open ontoggle=\"alert('xss-playground')\"><summary>open</summary></details>",
   },
 ];
 
@@ -122,4 +122,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

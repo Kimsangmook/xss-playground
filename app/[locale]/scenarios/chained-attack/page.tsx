@@ -36,7 +36,7 @@ const ChainedAttackPage = () => {
         window.top!.location.href = buildRedirectTarget(
           window.location.origin,
           locale,
-          "chained-attack",
+          "chained-attack"
         );
       } catch (err) {
         push(log("redirectBlocked", { message: (err as Error).message }));
@@ -101,7 +101,7 @@ const ChainedAttackPage = () => {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               style={{
                 display: "block",
                 width: "100%",
@@ -120,7 +120,7 @@ const ChainedAttackPage = () => {
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               style={{
                 display: "block",
                 width: "100%",

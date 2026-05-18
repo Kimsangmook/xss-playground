@@ -30,7 +30,7 @@ const BeaconExfilPage = () => {
       window.removeEventListener("click", onClick);
       window.removeEventListener("keydown", onKey);
     };
-  }, [tracking, push]);
+  }, [tracking, push, t.log.clickCapture, t.log.keyCapture]);
 
   const sendBeacon = () => {
     const payload = {
@@ -76,12 +76,16 @@ const BeaconExfilPage = () => {
         <div className="k">{t.text.referrerLabel}</div>
         <div>
           <code>
-            {typeof window === "undefined" ? "-" : document.referrer || t.log.empty}
+            {typeof window === "undefined"
+              ? "-"
+              : document.referrer || t.log.empty}
           </code>
         </div>
         <div className="k">{t.text.uaLabel}</div>
         <div>
-          <code>{typeof window === "undefined" ? "-" : navigator.userAgent}</code>
+          <code>
+            {typeof window === "undefined" ? "-" : navigator.userAgent}
+          </code>
         </div>
       </div>
       <div className="actions">
@@ -93,7 +97,7 @@ const BeaconExfilPage = () => {
         </button>
         <button
           className={tracking ? "danger" : ""}
-          onClick={() => setTracking((t) => !t)}
+          onClick={() => setTracking(t => !t)}
         >
           {tracking ? t.buttons.trackingOff : t.buttons.trackingOn}
         </button>

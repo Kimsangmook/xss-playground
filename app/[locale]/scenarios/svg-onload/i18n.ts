@@ -24,8 +24,14 @@ const ko: IScenarioPageI18n = {
     "태그 이름만 보는 블랙리스트가 아닌 구조적 HTML 필터를 쓰는지 확인",
   ],
   payloads: [
-    { ...payloads[0], note: "script 태그 없이 onload 이벤트만으로 실행되는 대표적인 SVG payload." },
-    { ...payloads[1], note: "HTML parser 경계와 namespace 처리가 느슨한 필터를 확인할 때 사용." },
+    {
+      ...payloads[0],
+      note: "script 태그 없이 onload 이벤트만으로 실행되는 대표적인 SVG payload.",
+    },
+    {
+      ...payloads[1],
+      note: "HTML parser 경계와 namespace 처리가 느슨한 필터를 확인할 때 사용.",
+    },
   ],
   explanationHeading: "해설",
   explanation: [
@@ -45,8 +51,14 @@ const en: IScenarioPageI18n = {
     "Use structural HTML filtering instead of a tag-name blacklist",
   ],
   payloads: [
-    { ...payloads[0], note: "A representative SVG payload that executes through onload without a script tag." },
-    { ...payloads[1], note: "Useful for checking weak parser-boundary and namespace handling." },
+    {
+      ...payloads[0],
+      note: "A representative SVG payload that executes through onload without a script tag.",
+    },
+    {
+      ...payloads[1],
+      note: "Useful for checking weak parser-boundary and namespace handling.",
+    },
   ],
   explanationHeading: "Explanation",
   explanation: [
@@ -66,8 +78,14 @@ const ja: IScenarioPageI18n = {
     "タグ名 blacklist ではなく構造的な HTML フィルタを使うか確認",
   ],
   payloads: [
-    { ...payloads[0], note: "script タグなしで onload イベントだけで実行される代表的な SVG payload。" },
-    { ...payloads[1], note: "HTML parser 境界や namespace 処理が緩いフィルタの確認に使います。" },
+    {
+      ...payloads[0],
+      note: "script タグなしで onload イベントだけで実行される代表的な SVG payload。",
+    },
+    {
+      ...payloads[1],
+      note: "HTML parser 境界や namespace 処理が緩いフィルタの確認に使います。",
+    },
   ],
   explanationHeading: "解説",
   explanation: [
@@ -87,8 +105,14 @@ const zh: IScenarioPageI18n = {
     "确认使用结构化 HTML 过滤，而不是只看标签名的 blacklist",
   ],
   payloads: [
-    { ...payloads[0], note: "无需 script 标签，仅通过 onload 事件执行的典型 SVG payload。" },
-    { ...payloads[1], note: "用于检查 parser 边界和 namespace 处理不严的过滤器。" },
+    {
+      ...payloads[0],
+      note: "无需 script 标签，仅通过 onload 事件执行的典型 SVG payload。",
+    },
+    {
+      ...payloads[1],
+      note: "用于检查 parser 边界和 namespace 处理不严的过滤器。",
+    },
   ],
   explanationHeading: "说明",
   explanation: [
@@ -99,4 +123,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

@@ -20,4 +20,3 @@ export interface IScenarioPageI18n {
   };
   explanation?: string[];
 }
-

@@ -21,7 +21,7 @@ const applyFilter = (input: string, mode: FilterMode) => {
 export const renderHtml = (
   input: string,
   context: RenderContext,
-  filter: FilterMode,
+  filter: FilterMode
 ) => {
   const value = applyFilter(input, filter);
   if (context === "input") return `<input type="name" value="${value}">`;
@@ -32,27 +32,24 @@ export const renderHtml = (
   return `<div class="comment">${value}</div>`;
 };
 
-export const buildRenderCode = (
-  context: RenderContext,
-  filter: FilterMode,
-) => {
+export const buildRenderCode = (context: RenderContext, filter: FilterMode) => {
   const filterLine =
     filter === "escapeHtml"
       ? "  input = escapeHtml(input)"
       : filter === "stripScript"
-        ? "  input = input.replace(/<\\/?script[^>]*>/gi, '')"
-        : filter === "stripParens"
-          ? "  input = input.replace(/[()]/g, '')"
-          : "  // no output encoding";
+      ? "  input = input.replace(/<\\/?script[^>]*>/gi, '')"
+      : filter === "stripParens"
+      ? "  input = input.replace(/[()]/g, '')"
+      : "  // no output encoding";
 
   const returnLine =
     context === "input"
-      ? '  return \'<input type="name" value="\' + input + \'">\''
+      ? "  return '<input type=\"name\" value=\"' + input + '\">'"
       : context === "textarea"
-        ? "  return '<textarea>' + input + '</textarea>'"
-        : context === "script"
-          ? "  return '<script>window.profile = ' + input + '</script>'"
-          : "  return '<div class=\"comment\">' + input + '</div>'";
+      ? "  return '<textarea>' + input + '</textarea>'"
+      : context === "script"
+      ? "  return '<script>window.profile = ' + input + '</script>'"
+      : "  return '<div class=\"comment\">' + input + '</div>'";
 
   return `function render(input) {\n${filterLine}\n${returnLine}\n}`;
 };
@@ -94,7 +91,7 @@ const getEmbedSlug = (html: string) => {
 
 export const inferPayloadEffect = (
   html: string,
-  unsafeSink: boolean,
+  unsafeSink: boolean
 ): PayloadEffect | null => {
   if (!unsafeSink) return null;
 
@@ -119,7 +116,7 @@ export const inferPayloadEffect = (
 export const absolutizeEmbedUrls = (html: string, origin: string) =>
   html.replace(
     /(<iframe\b[^>]*\bsrc\s*=\s*)(["'])\/embed\//gi,
-    `$1$2${origin}/embed/`,
+    `$1$2${origin}/embed/`
   );
 
 /**
@@ -130,7 +127,10 @@ export const absolutizeEmbedUrls = (html: string, origin: string) =>
  * - 부모 시뮬레이터로 effect 발생을 알리기 위해 alert / form submit / window.open 시도를
  *   가로채 postMessage 로 보고한다. 격리는 iframe 측 sandbox 속성으로 처리한다.
  */
-export const buildPreviewDocument = (rawHtml: string, origin: string) => `<!doctype html>
+export const buildPreviewDocument = (
+  rawHtml: string,
+  origin: string
+) => `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -173,4 +173,3 @@ export const buildPreviewDocument = (rawHtml: string, origin: string) => `<!doct
 </head>
 <body>${rawHtml}</body>
 </html>`;
-

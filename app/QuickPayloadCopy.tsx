@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 
 interface IQuickPayloadCopyProps {
   payload: string;
@@ -23,7 +23,10 @@ const TEXT: Record<Locale, { copy: string; copied: string }> = {
   zh: { copy: "复制 Payload", copied: "已复制!" },
 };
 
-export const QuickPayloadCopy = ({ payload, title }: IQuickPayloadCopyProps) => {
+export const QuickPayloadCopy = ({
+  payload,
+  title,
+}: IQuickPayloadCopyProps) => {
   const params = useParams<{ locale?: string }>();
   const locale = pickLocale(params?.locale);
   const t = TEXT[locale];

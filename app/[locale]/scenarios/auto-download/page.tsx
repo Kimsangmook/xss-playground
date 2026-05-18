@@ -15,7 +15,9 @@ const AutoDownloadPage = () => {
   const tryBlobDownload = () => {
     push(t.log.tryBlob);
     const blob = new Blob(
-      ["This file was downloaded without user click.\nIf you see this, the iframe controlled your browser to download a file."],
+      [
+        "This file was downloaded without user click.\nIf you see this, the iframe controlled your browser to download a file.",
+      ],
       { type: "text/plain" }
     );
     const url = URL.createObjectURL(blob);
@@ -32,8 +34,7 @@ const AutoDownloadPage = () => {
   const tryDataUrl = () => {
     push(t.log.tryData);
     const a = document.createElement("a");
-    a.href =
-      "data:text/plain;base64,VGhpcyBmaWxlIHdhcyBhdXRvLWRvd25sb2FkZWQu";
+    a.href = "data:text/plain;base64,VGhpcyBmaWxlIHdhcyBhdXRvLWRvd25sb2FkZWQu";
     a.download = "auto.txt";
     document.body.appendChild(a);
     a.click();
@@ -59,9 +60,7 @@ const AutoDownloadPage = () => {
         <button className="danger" onClick={tryDataUrl}>
           {t.buttons.dataUrl}
         </button>
-        <button onClick={tryLocationDownload}>
-          {t.buttons.locationInfo}
-        </button>
+        <button onClick={tryLocationDownload}>{t.buttons.locationInfo}</button>
         <button onClick={clear}>{t.buttons.clearLog}</button>
       </div>
       <Log lines={lines} />
