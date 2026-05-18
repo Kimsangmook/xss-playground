@@ -16,7 +16,9 @@ const TokenExfilPage = () => {
     push(fmt(t.log?.referrer, { value: document.referrer || t.log?.empty }));
     if (document.referrer) {
       const u = new URL(document.referrer);
-      push(fmt(t.log?.parentOrigin, { origin: u.origin, pathname: u.pathname }));
+      push(
+        fmt(t.log?.parentOrigin, { origin: u.origin, pathname: u.pathname })
+      );
     }
   };
 
@@ -30,11 +32,15 @@ const TokenExfilPage = () => {
 
   const probeMyStorage = () => {
     push(t.log?.ownStorage ?? "");
-    push(fmt(t.log?.localKeys, { value: JSON.stringify(Object.keys(localStorage)) }));
+    push(
+      fmt(t.log?.localKeys, {
+        value: JSON.stringify(Object.keys(localStorage)),
+      })
+    );
     push(
       fmt(t.log?.sessionKeys, {
         value: JSON.stringify(Object.keys(sessionStorage)),
-      }),
+      })
     );
     push(t.log?.storageNote ?? "");
   };
@@ -82,8 +88,8 @@ const TokenExfilPage = () => {
         typeof args[0] === "string"
           ? args[0]
           : args[0] instanceof URL
-            ? args[0].toString()
-            : "(Request)";
+          ? args[0].toString()
+          : "(Request)";
       push(`[fetch] ${url}`);
       return origFetch.apply(this, args);
     };
@@ -131,9 +137,13 @@ const TokenExfilPage = () => {
           {t.buttons?.runAll}
         </button>
         <button onClick={probeReferrer}>{t.buttons?.referrer}</button>
-        <button onClick={probeAncestorOrigins}>{t.buttons?.ancestorOrigins}</button>
+        <button onClick={probeAncestorOrigins}>
+          {t.buttons?.ancestorOrigins}
+        </button>
         <button onClick={probeMyStorage}>{t.buttons?.myStorage}</button>
-        <button onClick={tryParentLocalStorage}>{t.buttons?.parentStorage}</button>
+        <button onClick={tryParentLocalStorage}>
+          {t.buttons?.parentStorage}
+        </button>
         <button className="danger" onClick={askParentForToken}>
           {t.buttons?.askParent}
         </button>

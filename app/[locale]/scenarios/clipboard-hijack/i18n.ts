@@ -116,8 +116,7 @@ const ja: IPageText = {
 
 const zh: IPageText = {
   title: "剪贴板劫持",
-  summary:
-    "用户在 iframe 区域复制时拦截 copy 事件，并用其他内容覆盖剪贴板。",
+  summary: "用户在 iframe 区域复制时拦截 copy 事件，并用其他内容覆盖剪贴板。",
   actionsHeading: "执行",
   explanationHeading: "说明",
   buttons: {
@@ -131,12 +130,10 @@ const zh: IPageText = {
     failed: "失败: {message}",
   },
   text: {
-    victim:
-      "请选择并复制这一行（Cmd/Ctrl+C）。剪贴板中会变成其他内容。",
+    victim: "请选择并复制这一行（Cmd/Ctrl+C）。剪贴板中会变成其他内容。",
     hijackValue:
       "rm -rf /  ← 原本要复制的内容被替换成了这个。（PoC: clipboard hijack 成功）",
-    writeValue:
-      "这是 iframe 通过 clipboard.writeText() 直接写入的值。",
+    writeValue: "这是 iframe 通过 clipboard.writeText() 直接写入的值。",
   },
   explanation: [
     "<code>copy</code> 事件可以在 iframe 自身 origin 内被自由拦截。用户以为复制了服务内容，实际剪贴板可能变成攻击者内容。",

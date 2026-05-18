@@ -29,12 +29,12 @@ import type {
 } from "../model/types";
 import {
   FILTER_LABELS,
+  initialWindows,
   MIN_WINDOW_HEIGHT,
   MIN_WINDOW_WIDTH,
   RENDER_CONTEXT_LABELS,
   SCENARIO_PRESETS,
   SIM_TEXT,
-  initialWindows,
   toggleLabels,
   windowOrder,
 } from "../model/constants";
@@ -59,7 +59,7 @@ import {
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes
     .filter(Boolean)
-    .map((className) => styles[className as string] ?? className)
+    .map(className => styles[className as string] ?? className)
     .join(" ");
 
 const effectLabels: Record<PayloadEffect, Record<Locale, string>> = {
@@ -155,10 +155,9 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     return () => mql.removeEventListener("change", apply);
   }, []);
 
-  const [windows, setWindows] = useState<Record<WindowId, ISimWindow>>(
-    initialWindows
-  );
-  const [rankSeed, setRankSeed] = useState(5);
+  const [windows, setWindows] =
+    useState<Record<WindowId, ISimWindow>>(initialWindows);
+  const rankSeedRef = useRef(5);
   // SSR 마크업과 첫 paint 가 흔들리지 않도록 데스크탑·모바일 공통 초기값으로 통일.
   // 모바일에서 첫 탭이 attacker 인 것이 자연스럽고, 데스크탑에서는 z-index/border 강조만
   // 영향이라 시각 영향이 거의 없다.
@@ -269,8 +268,8 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   const clientSource = toggles.serverRender
     ? serverOutput
     : toggles.dbSave
-      ? dbValue
-      : committedPayload;
+    ? dbValue
+    : committedPayload;
   const clientHtml = clientArrived
     ? toggles.unsafeSink
       ? clientSource
@@ -291,25 +290,23 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   };
 
   const clearTimers = useCallback(() => {
-    timersRef.current.forEach((timer) => window.clearTimeout(timer));
+    timersRef.current.forEach(timer => window.clearTimeout(timer));
     timersRef.current = [];
   }, []);
 
   const bringToFront = useCallback((id: WindowId) => {
     setActiveWindow(id);
-    setRankSeed((seed) => {
-      const next = seed + 1;
-      setWindows((current) => ({
-        ...current,
-        [id]: { ...current[id], rank: makeRank(next) },
-      }));
-      return next;
-    });
+    rankSeedRef.current += 1;
+    const next = rankSeedRef.current;
+    setWindows(current => ({
+      ...current,
+      [id]: { ...current[id], rank: makeRank(next) },
+    }));
   }, []);
 
   const moveWindow = useCallback(
     (id: WindowId, nextX: number, nextY: number) => {
-      setWindows((current) => ({
+      setWindows(current => ({
         ...current,
         [id]: {
           ...current[id],
@@ -323,7 +320,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
 
   const resizeWindow = useCallback(
     (id: WindowId, width: number, height: number) => {
-      setWindows((current) => ({
+      setWindows(current => ({
         ...current,
         [id]: {
           ...current[id],
@@ -386,7 +383,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     // Submit 시점에 draft → committed 로 commit. 단 derived 값들은 flowStage 가
     // 증가하면서 단계적으로 reveal 된다 (DB/server/client 가 동시에 채워지지 않게).
     setCommittedPayload(payload);
-    setSubmitNonce((n) => n + 1);
+    setSubmitNonce(n => n + 1);
     setFlowStage(0);
     // 모바일은 흐름 시작 시점에 attacker 탭으로 되돌아간 뒤 단계별 자동 전환.
     if (isMobile) setActiveWindow("attacker");
@@ -400,8 +397,8 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
     const newClientSource = toggles.serverRender
       ? newServerOutput
       : toggles.dbSave
-        ? newDbValue
-        : payload;
+      ? newDbValue
+      : payload;
     const newClientHtml = toggles.unsafeSink
       ? newClientSource
       : escapeHtml(newClientSource);
@@ -428,22 +425,19 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
       timersRef.current.push(pulseTimer, arriveTimer);
     });
 
-    const doneTimer = window.setTimeout(
-      () => {
-        setPulseEdge(null);
-        if (newEffect) {
-          const resultLabel =
-            activePreset?.effect === newEffect
-              ? activePreset.result[locale]
-              : effectLabels[newEffect][locale];
-          setLastEvent(resultLabel);
-          // 강제 alert 호출 금지: 진짜 페이로드가 sandbox iframe 안에서 alert 을 띄운다.
-        } else {
-          setLastEvent(t.safeRender);
-        }
-      },
-      Math.max(1, routeEdges.length) * STEP_MS + 260
-    );
+    const doneTimer = window.setTimeout(() => {
+      setPulseEdge(null);
+      if (newEffect) {
+        const resultLabel =
+          activePreset?.effect === newEffect
+            ? activePreset.result[locale]
+            : effectLabels[newEffect][locale];
+        setLastEvent(resultLabel);
+        // 강제 alert 호출 금지: 진짜 페이로드가 sandbox iframe 안에서 alert 을 띄운다.
+      } else {
+        setLastEvent(t.safeRender);
+      }
+    }, Math.max(1, routeEdges.length) * STEP_MS + 260);
     timersRef.current.push(doneTimer);
   }, [
     activePreset,
@@ -489,17 +483,21 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   // sandbox iframe(srcDoc) 내부에서 보낸 effect 알림을 수신해 lastEvent 에 반영.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      const data = event.data as
-        | { __xssSim?: boolean; kind?: string; detail?: unknown }
-        | null;
+      const data = event.data as {
+        __xssSim?: boolean;
+        kind?: string;
+        detail?: unknown;
+      } | null;
       if (!data || !data.__xssSim || !data.kind) return;
       const detailText =
         typeof data.detail === "string"
           ? data.detail
           : data.detail
-            ? JSON.stringify(data.detail).slice(0, 80)
-            : "";
-      setLastEvent(`victim · ${data.kind}${detailText ? ` :: ${detailText}` : ""}`);
+          ? JSON.stringify(data.detail).slice(0, 80)
+          : "";
+      setLastEvent(
+        `victim · ${data.kind}${detailText ? ` :: ${detailText}` : ""}`
+      );
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -508,7 +506,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   const resetLayout = () => {
     clearTimers();
     setWindows(initialWindows());
-    setRankSeed(5);
+    rankSeedRef.current = 5;
     setActiveWindow("client");
     setPulseEdge(null);
     setFlowStage(0);
@@ -517,7 +515,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
   };
 
   const updateToggle = (key: keyof IFlowToggles) => {
-    setToggles((current) => ({ ...current, [key]: !current[key] }));
+    setToggles(current => ({ ...current, [key]: !current[key] }));
   };
 
   const goBack = () => {
@@ -542,7 +540,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
             className={cx("sim-payload-editor")}
             value={payload}
             language="html"
-            onChange={(next) => {
+            onChange={next => {
               setActivePreset(null);
               setPayload(next);
             }}
@@ -552,7 +550,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
             {t.submit}
           </button>
           <div className={cx("sim-mini-status")}>
-            {routeEdges.map((edge) => (
+            {routeEdges.map(edge => (
               <span key={`${edge.from}-${edge.to}`}>{edge.label}</span>
             ))}
           </div>
@@ -700,7 +698,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
         </div>
 
         <nav className={cx("sim-mobile-tabs")} role="tablist">
-          {windowOrder.map((id) => {
+          {windowOrder.map(id => {
             const isActive = activeWindow === id;
             const isPulsing =
               pulseEdge !== null && routeEdges[pulseEdge]?.to === id;
@@ -771,7 +769,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
 
             <section className={cx("sim-mobile-sheet-section")}>
               <div className={cx("floating-panel-title")}>{t.payloadDeck}</div>
-              {PAYLOAD_PRESETS.map((preset) => (
+              {PAYLOAD_PRESETS.map(preset => (
                 <button
                   key={preset.hotkey}
                   className={cx(
@@ -796,7 +794,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
               <div className={cx("composer-section")}>
                 <div className={cx("composer-label")}>{t.flowPresets}</div>
                 <div className={cx("composer-button-grid")}>
-                  {SCENARIO_PRESETS.map((preset) => (
+                  {SCENARIO_PRESETS.map(preset => (
                     <button
                       key={preset.label.en}
                       className={cx(
@@ -816,10 +814,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
                 {toggleLabels.map(([key, label]) => (
                   <button
                     key={key}
-                    className={cx(
-                      "composer-toggle",
-                      toggles[key] && "active"
-                    )}
+                    className={cx("composer-toggle", toggles[key] && "active")}
                     onClick={() => updateToggle(key)}
                     aria-pressed={toggles[key]}
                   >
@@ -833,7 +828,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
                 <div className={cx("composer-label")}>{t.renderContext}</div>
                 <div className={cx("composer-button-grid")}>
                   {(Object.keys(RENDER_CONTEXT_LABELS) as RenderContext[]).map(
-                    (context) => (
+                    context => (
                       <button
                         key={context}
                         className={cx(renderContext === context && "active")}
@@ -849,7 +844,7 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
               <div className={cx("composer-section")}>
                 <div className={cx("composer-label")}>{t.filterMode}</div>
                 <div className={cx("composer-button-grid")}>
-                  {(Object.keys(FILTER_LABELS) as FilterMode[]).map((mode) => (
+                  {(Object.keys(FILTER_LABELS) as FilterMode[]).map(mode => (
                     <button
                       key={mode}
                       className={cx(filterMode === mode && "active")}
@@ -874,216 +869,219 @@ export const XssSimulationBoard = ({ locale }: IXssSimulationBoardProps) => {
         <div className={cx("simulation-grid-bg")} aria-hidden="true" />
 
         <header className={cx("simulation-topbar")}>
-        <div>
-          <h1>{t.title}</h1>
-          <p>{t.subtitle}</p>
-        </div>
-        <div className={cx("simulation-top-actions")}>
-          <button onClick={goBack}>{t.back}</button>
-          <button onClick={() => setIsSidebarOpen((open) => !open)}>
-            {isSidebarOpen ? t.closeSidebar : t.openSidebar}
-          </button>
-          <span
-            className={cx("simulation-event", attackDetected && "danger")}
-          >
-            {t.lastEvent}: {lastEvent}
-          </span>
-          <button onClick={startFlow}>{t.run}</button>
-          <button onClick={resetLayout}>{t.reset}</button>
-        </div>
-      </header>
-
-      <aside className={cx("payload-gear-panel")} aria-label={t.payloadDeck}>
-        <div className={cx("floating-panel-title")}>{t.payloadDeck}</div>
-        {PAYLOAD_PRESETS.map((preset) => (
-          <button
-            key={preset.hotkey}
-            className={cx(
-              "payload-gear-button",
-              activePreset?.hotkey === preset.hotkey && "active"
-            )}
-            onClick={() => applyPayloadPreset(preset)}
-          >
-            {preset.label[locale]}
-          </button>
-        ))}
-      </aside>
-
-      <aside className={cx("render-composer-panel")} aria-label={t.renderComposer}>
-        <div className={cx("floating-panel-title")}>{t.renderComposer}</div>
-
-        <div className={cx("composer-section")}>
-          <div className={cx("composer-label")}>{t.flowPresets}</div>
-          <div className={cx("composer-button-grid")}>
-            {SCENARIO_PRESETS.map((preset) => (
-              <button
-                key={preset.label.en}
-                className={cx(
-                  JSON.stringify(preset.toggles) === JSON.stringify(toggles)
-                    && "active"
-                )}
-                onClick={() => setToggles(preset.toggles)}
-              >
-                {preset.label[locale]}
-              </button>
-            ))}
+          <div>
+            <h1>{t.title}</h1>
+            <p>{t.subtitle}</p>
           </div>
-        </div>
-
-        <div className={cx("composer-section")}>
-          <div className={cx("composer-label")}>{t.toggles}</div>
-          {toggleLabels.map(([key, label]) => (
-            <button
-              key={key}
-              className={cx("composer-toggle", toggles[key] && "active")}
-              onClick={() => updateToggle(key)}
-              aria-pressed={toggles[key]}
+          <div className={cx("simulation-top-actions")}>
+            <button onClick={goBack}>{t.back}</button>
+            <button onClick={() => setIsSidebarOpen(open => !open)}>
+              {isSidebarOpen ? t.closeSidebar : t.openSidebar}
+            </button>
+            <span
+              className={cx("simulation-event", attackDetected && "danger")}
             >
-              <span />
-              {label[locale]}
+              {t.lastEvent}: {lastEvent}
+            </span>
+            <button onClick={startFlow}>{t.run}</button>
+            <button onClick={resetLayout}>{t.reset}</button>
+          </div>
+        </header>
+
+        <aside className={cx("payload-gear-panel")} aria-label={t.payloadDeck}>
+          <div className={cx("floating-panel-title")}>{t.payloadDeck}</div>
+          {PAYLOAD_PRESETS.map(preset => (
+            <button
+              key={preset.hotkey}
+              className={cx(
+                "payload-gear-button",
+                activePreset?.hotkey === preset.hotkey && "active"
+              )}
+              onClick={() => applyPayloadPreset(preset)}
+            >
+              {preset.label[locale]}
             </button>
           ))}
-        </div>
+        </aside>
 
-        <div className={cx("composer-section")}>
-          <div className={cx("composer-label")}>{t.renderContext}</div>
-          <div className={cx("composer-button-grid")}>
-            {(Object.keys(RENDER_CONTEXT_LABELS) as RenderContext[]).map(
-              (context) => (
+        <aside
+          className={cx("render-composer-panel")}
+          aria-label={t.renderComposer}
+        >
+          <div className={cx("floating-panel-title")}>{t.renderComposer}</div>
+
+          <div className={cx("composer-section")}>
+            <div className={cx("composer-label")}>{t.flowPresets}</div>
+            <div className={cx("composer-button-grid")}>
+              {SCENARIO_PRESETS.map(preset => (
                 <button
-                  key={context}
-                  className={cx(renderContext === context && "active")}
-                  onClick={() => setRenderContext(context)}
+                  key={preset.label.en}
+                  className={cx(
+                    JSON.stringify(preset.toggles) ===
+                      JSON.stringify(toggles) && "active"
+                  )}
+                  onClick={() => setToggles(preset.toggles)}
                 >
-                  {RENDER_CONTEXT_LABELS[context][locale]}
+                  {preset.label[locale]}
                 </button>
-              )
-            )}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className={cx("composer-section")}>
-          <div className={cx("composer-label")}>{t.filterMode}</div>
-          <div className={cx("composer-button-grid")}>
-            {(Object.keys(FILTER_LABELS) as FilterMode[]).map((mode) => (
+          <div className={cx("composer-section")}>
+            <div className={cx("composer-label")}>{t.toggles}</div>
+            {toggleLabels.map(([key, label]) => (
               <button
-                key={mode}
-                className={cx(filterMode === mode && "active")}
-                onClick={() => setFilterMode(mode)}
+                key={key}
+                className={cx("composer-toggle", toggles[key] && "active")}
+                onClick={() => updateToggle(key)}
+                aria-pressed={toggles[key]}
               >
-                {FILTER_LABELS[mode][locale]}
+                <span />
+                {label[locale]}
               </button>
             ))}
           </div>
-        </div>
-      </aside>
 
-      <main className={cx("simulation-stage")}>
-        <svg
-          className={cx("simulation-arrows")}
-          viewBox="0 0 1260 820"
-          aria-hidden="true"
-        >
-          <defs>
-            <marker
-              id="sim-arrow-active"
-              markerWidth="12"
-              markerHeight="12"
-              refX="10"
-              refY="6"
-              orient="auto"
-            >
-              <path d="M 0 0 L 12 6 L 0 12 z" />
-            </marker>
-            <marker
-              id="sim-arrow-muted"
-              markerWidth="12"
-              markerHeight="12"
-              refX="10"
-              refY="6"
-              orient="auto"
-            >
-              <path d="M 0 0 L 12 6 L 0 12 z" />
-            </marker>
-          </defs>
-          {routeEdges.map((edge, index) => {
-            const from = getAnchor(windows[edge.from], windows[edge.to]);
-            const to = getAnchor(windows[edge.to], windows[edge.from]);
-            const pulse = midpoint(from, to);
-            return (
-              <g key={`${edge.from}-${edge.to}-${edge.label}`}>
-                <path
-                  className={cx(
-                    "simulation-arrow",
-                    "active",
-                    pulseEdge === index && "pulse"
-                  )}
-                  d={buildPath(from, to)}
-                  markerEnd="url(#sim-arrow-active)"
-                />
-                <text
-                  x={pulse.x}
-                  y={pulse.y - 10}
-                  className={cx("simulation-edge-label")}
+          <div className={cx("composer-section")}>
+            <div className={cx("composer-label")}>{t.renderContext}</div>
+            <div className={cx("composer-button-grid")}>
+              {(Object.keys(RENDER_CONTEXT_LABELS) as RenderContext[]).map(
+                context => (
+                  <button
+                    key={context}
+                    className={cx(renderContext === context && "active")}
+                    onClick={() => setRenderContext(context)}
+                  >
+                    {RENDER_CONTEXT_LABELS[context][locale]}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+
+          <div className={cx("composer-section")}>
+            <div className={cx("composer-label")}>{t.filterMode}</div>
+            <div className={cx("composer-button-grid")}>
+              {(Object.keys(FILTER_LABELS) as FilterMode[]).map(mode => (
+                <button
+                  key={mode}
+                  className={cx(filterMode === mode && "active")}
+                  onClick={() => setFilterMode(mode)}
                 >
-                  {edge.label}
-                </text>
-                {pulseEdge === index && (
-                  <circle
-                    className={cx("simulation-flow-dot")}
-                    cx={pulse.x}
-                    cy={pulse.y}
-                    r="7"
+                  {FILTER_LABELS[mode][locale]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <main className={cx("simulation-stage")}>
+          <svg
+            className={cx("simulation-arrows")}
+            viewBox="0 0 1260 820"
+            aria-hidden="true"
+          >
+            <defs>
+              <marker
+                id="sim-arrow-active"
+                markerWidth="12"
+                markerHeight="12"
+                refX="10"
+                refY="6"
+                orient="auto"
+              >
+                <path d="M 0 0 L 12 6 L 0 12 z" />
+              </marker>
+              <marker
+                id="sim-arrow-muted"
+                markerWidth="12"
+                markerHeight="12"
+                refX="10"
+                refY="6"
+                orient="auto"
+              >
+                <path d="M 0 0 L 12 6 L 0 12 z" />
+              </marker>
+            </defs>
+            {routeEdges.map((edge, index) => {
+              const from = getAnchor(windows[edge.from], windows[edge.to]);
+              const to = getAnchor(windows[edge.to], windows[edge.from]);
+              const pulse = midpoint(from, to);
+              return (
+                <g key={`${edge.from}-${edge.to}-${edge.label}`}>
+                  <path
+                    className={cx(
+                      "simulation-arrow",
+                      "active",
+                      pulseEdge === index && "pulse"
+                    )}
+                    d={buildPath(from, to)}
+                    markerEnd="url(#sim-arrow-active)"
                   />
+                  <text
+                    x={pulse.x}
+                    y={pulse.y - 10}
+                    className={cx("simulation-edge-label")}
+                  >
+                    {edge.label}
+                  </text>
+                  {pulseEdge === index && (
+                    <circle
+                      className={cx("simulation-flow-dot")}
+                      cx={pulse.x}
+                      cy={pulse.y}
+                      r="7"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+
+          {windowOrder.map(id => {
+            const win = windows[id];
+            return (
+              <section
+                key={id}
+                className={cx(
+                  "simulation-window",
+                  `simulation-window-${id}`,
+                  activeWindow === id && "active",
+                  inactiveWindows.has(id) && "inactive"
                 )}
-              </g>
+                style={{
+                  transform: `translate(${win.x}px, ${win.y}px)`,
+                  width: win.width,
+                  height: win.height,
+                  zIndex: zIndexById[id],
+                }}
+                onPointerDown={() => bringToFront(id)}
+              >
+                <div
+                  className={cx("simulation-window-header")}
+                  onPointerDown={event => startDrag(event, id)}
+                >
+                  <span
+                    className={cx("sim-role-icon", `sim-role-icon-${id}`)}
+                    aria-hidden="true"
+                  >
+                    <span />
+                  </span>
+                  <div>
+                    <strong>{windowTitles[id]}</strong>
+                    <small>{win.caption}</small>
+                  </div>
+                </div>
+                {renderWindowBody(id, !isMobile)}
+                <button
+                  className={cx("simulation-resize-handle")}
+                  aria-label="Resize window"
+                  onPointerDown={event => startResize(event, id)}
+                />
+              </section>
             );
           })}
-        </svg>
-
-        {windowOrder.map((id) => {
-          const win = windows[id];
-          return (
-            <section
-              key={id}
-              className={cx(
-                "simulation-window",
-                `simulation-window-${id}`,
-                activeWindow === id && "active",
-                inactiveWindows.has(id) && "inactive"
-              )}
-              style={{
-                transform: `translate(${win.x}px, ${win.y}px)`,
-                width: win.width,
-                height: win.height,
-                zIndex: zIndexById[id],
-              }}
-              onPointerDown={() => bringToFront(id)}
-            >
-              <div
-                className={cx("simulation-window-header")}
-                onPointerDown={(event) => startDrag(event, id)}
-              >
-                <span
-                  className={cx("sim-role-icon", `sim-role-icon-${id}`)}
-                  aria-hidden="true"
-                >
-                  <span />
-                </span>
-                <div>
-                  <strong>{windowTitles[id]}</strong>
-                  <small>{win.caption}</small>
-                </div>
-              </div>
-              {renderWindowBody(id, !isMobile)}
-              <button
-                className={cx("simulation-resize-handle")}
-                aria-label="Resize window"
-                onPointerDown={(event) => startResize(event, id)}
-              />
-            </section>
-          );
-        })}
         </main>
       </div>
     </>

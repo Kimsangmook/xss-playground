@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LOCALES, DEFAULT_LOCALE, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 
 const LOCALE_RE = new RegExp(`^/(${LOCALES.join("|")})(/|$)`);
 

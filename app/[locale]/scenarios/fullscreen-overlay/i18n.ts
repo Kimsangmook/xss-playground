@@ -96,8 +96,7 @@ const ja: IScenarioPageI18n = {
 
 const zh: IScenarioPageI18n = {
   title: "全屏覆盖层伪装",
-  summary:
-    "把 iframe 放到屏幕区域上，并绘制类似父站点的 UI 来欺骗用户。",
+  summary: "把 iframe 放到屏幕区域上，并绘制类似父站点的 UI 来欺骗用户。",
   actionLabels: {
     showOverlay: "显示假服务覆盖层",
     tryRealFs: "真实 Fullscreen API",
@@ -125,4 +124,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

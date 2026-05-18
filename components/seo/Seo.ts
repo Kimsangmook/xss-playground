@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/i18n";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import { findScenario } from "@/lib/scenarios";
-import { BAIDU, GOOGLE, SEARCH_ENGINES, SITE_AUTHOR, SITE_URL } from "@/lib/site";
+import {
+  BAIDU,
+  GOOGLE,
+  SEARCH_ENGINES,
+  SITE_AUTHOR,
+  SITE_URL,
+} from "@/lib/site";
 
 export type TRobots =
   | "index, follow"
@@ -138,9 +144,7 @@ export const createSeoMetadata = ({
       url,
       siteName: dict.site.name,
       locale: OG_LOCALE[locale],
-      alternateLocale: LOCALES.filter((l) => l !== locale).map(
-        (l) => OG_LOCALE[l],
-      ),
+      alternateLocale: LOCALES.filter(l => l !== locale).map(l => OG_LOCALE[l]),
       type: "website",
       images: [{ url: imageUrl }],
     },
@@ -161,7 +165,8 @@ export const createSeoMetadata = ({
 const buildVerification = (): Metadata["verification"] => {
   const other: Record<string, string | string[]> = {};
   if (BAIDU.verification) other["baidu-site-verification"] = BAIDU.verification;
-  if (SEARCH_ENGINES.naver) other["naver-site-verification"] = SEARCH_ENGINES.naver;
+  if (SEARCH_ENGINES.naver)
+    other["naver-site-verification"] = SEARCH_ENGINES.naver;
   if (SEARCH_ENGINES.bing) other["msvalidate.01"] = SEARCH_ENGINES.bing;
   return {
     google: GOOGLE.searchConsole || undefined,
@@ -188,9 +193,7 @@ export const createLocaleBaseMetadata = (locale: Locale): Metadata => {
     openGraph: {
       siteName: dict.site.name,
       locale: OG_LOCALE[locale],
-      alternateLocale: LOCALES.filter((l) => l !== locale).map(
-        (l) => OG_LOCALE[l],
-      ),
+      alternateLocale: LOCALES.filter(l => l !== locale).map(l => OG_LOCALE[l]),
       type: "website",
       images: [{ url: getImageUrl() }],
     },
@@ -388,7 +391,7 @@ export const createHomeJsonLd = (locale: Locale) => {
 export const createScenarioJsonLd = (locale: Locale, slug: string) => {
   const dict = getDictionary(locale);
   const scenario = findScenario(slug);
-  const meta = scenario ? (getScenarioI18n(locale, slug) ?? scenario) : null;
+  const meta = scenario ? getScenarioI18n(locale, slug) ?? scenario : null;
   const url = getLocalizedUrl(locale, `/scenarios/${slug}`);
 
   return {

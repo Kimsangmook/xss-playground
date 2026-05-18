@@ -3,6 +3,8 @@ import {
   createScenarioMetadata,
 } from "../ScenarioSeoLayout";
 
-export const generateMetadata = createScenarioMetadata("notification-permission");
+export const generateMetadata = createScenarioMetadata(
+  "notification-permission"
+);
 
 export default createScenarioLayout("notification-permission");

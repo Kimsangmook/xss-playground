@@ -1,5 +1,5 @@
 import { XssSimulationBoard } from "@/features/xss-simulation";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 
 interface ISimulatorPageProps {
   params: { locale?: string };

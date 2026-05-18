@@ -33,7 +33,10 @@ const PAYLOADS: Array<{ label: string; data: unknown }> = [
   },
   {
     label: "toast style",
-    data: { type: "SHOW_TOAST", text: "Your session expired - click here to relogin" },
+    data: {
+      type: "SHOW_TOAST",
+      text: "Your session expired - click here to relogin",
+    },
   },
   {
     label: "set theme",
@@ -53,13 +56,15 @@ const ParentListenerProbePage = () => {
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (e.source === window) return;
-      setReplies((prev) => [
-        ...prev,
-        fmt(t.log?.received, {
-          origin: e.origin,
-          data: JSON.stringify(e.data).slice(0, 200),
-        }),
-      ].slice(-MAX_REPLIES));
+      setReplies(prev =>
+        [
+          ...prev,
+          fmt(t.log?.received, {
+            origin: e.origin,
+            data: JSON.stringify(e.data).slice(0, 200),
+          }),
+        ].slice(-MAX_REPLIES)
+      );
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
@@ -91,12 +96,16 @@ const ParentListenerProbePage = () => {
       <div className="kv">
         <div className="k">{t.text?.targetOriginLabel}</div>
         <div>
-          <input value={target} onChange={(e) => setTarget(e.target.value)} />
+          <input value={target} onChange={e => setTarget(e.target.value)} />
         </div>
       </div>
       <div className="actions">
         {PAYLOADS.map((p, i) => (
-          <button key={i} className="danger" onClick={() => fire(p.data, p.label)}>
+          <button
+            key={i}
+            className="danger"
+            onClick={() => fire(p.data, p.label)}
+          >
             {p.label}
           </button>
         ))}

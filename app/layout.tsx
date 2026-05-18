@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Analytics } from "./Analytics";
 import { GOOGLE, SITE_URL } from "@/lib/site";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -47,7 +47,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   // middleware 에서 주입한 x-locale 헤더로 SSR 시점부터 html lang 을 정확히 잡는다.
   const headerLocale = headers().get("x-locale") as Locale | null;
   const lang =
-    headerLocale && LOCALES.includes(headerLocale) ? headerLocale : DEFAULT_LOCALE;
+    headerLocale && LOCALES.includes(headerLocale)
+      ? headerLocale
+      : DEFAULT_LOCALE;
 
   return (
     <html lang={lang}>

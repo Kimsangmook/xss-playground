@@ -504,9 +504,9 @@ export const SCENARIOS: IScenario[] = [
     slug: "notification-permission",
     title: "알림 권한 요청 / 푸시 hijack",
     summary:
-      "Notification.requestPermission 으로 권한 프롬프트를 띄운다. 사용자가 허용하면 attacker.com 도메인에서 푸시를 보낼 수 있게 된다.",
-    noSandbox: "works",
-    scriptsOnly: "works",
+      "Notification.requestPermission 으로 권한 프롬프트를 시도한다. 최신 브라우저는 cross-origin iframe 요청을 대부분 막지만, 허용되면 공격자 origin 에서 푸시 피싱이 가능해진다.",
+    noSandbox: "partial",
+    scriptsOnly: "partial",
     fullSandbox: "blocked",
     sopBlocks: false,
     category: "annoyance",
@@ -635,7 +635,7 @@ export const SCENARIOS: IScenario[] = [
 ];
 
 export const findScenario = (slug: string) =>
-  SCENARIOS.find((s) => s.slug === slug);
+  SCENARIOS.find(s => s.slug === slug);
 
 export const CATEGORY_LABEL: Record<IScenario["category"], string> = {
   html: "HTML Injection",

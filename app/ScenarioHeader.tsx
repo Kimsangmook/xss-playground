@@ -6,9 +6,9 @@ import { getDictionary } from "@/i18n";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 import {
   DEFAULT_LOCALE,
-  LOCALES,
-  type Locale,
   type IDictionary,
+  type Locale,
+  LOCALES,
 } from "@/i18n/types";
 
 interface IScenarioHeaderProps {
@@ -94,9 +94,7 @@ export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
               </tr>
             </tbody>
           </table>
-          {scenario.sopBlocks && (
-            <div className="callout">{sp.sopBlocks}</div>
-          )}
+          {scenario.sopBlocks && <div className="callout">{sp.sopBlocks}</div>}
         </div>
       ) : (
         <div className="card" data-only-standalone>
@@ -108,7 +106,7 @@ export const ScenarioHeader = ({ scenario }: IScenarioHeaderProps) => {
           </p>
           {checks && (
             <ul style={{ marginBottom: 0 }}>
-              {checks.map((check) => (
+              {checks.map(check => (
                 <li key={check}>{check}</li>
               ))}
             </ul>

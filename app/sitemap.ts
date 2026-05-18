@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/site";
 
 const languageAlternates = (path = "") =>
   Object.fromEntries([
-    ...LOCALES.map((locale) => [locale, `${SITE_URL}/${locale}${path}`]),
+    ...LOCALES.map(locale => [locale, `${SITE_URL}/${locale}${path}`]),
     ["x-default", `${SITE_URL}/${DEFAULT_LOCALE}${path}`],
   ]);
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import { createRedirectedSeoMetadata } from "@/components/seo/Seo";
 import { I18N } from "./i18n";
 

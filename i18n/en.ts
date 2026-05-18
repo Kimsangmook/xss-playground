@@ -67,6 +67,42 @@ export const en: IDictionary = {
         body: "iframes, overlays, notifications, clipboard hooks, and postMessage can trick users into entering secrets or leak observable data out of the page.",
       },
     ],
+    sanitizationHeading: "Practical Sanitization",
+    sanitizationIntro:
+      "If a product feature must accept HTML, do not rely on string replacement or blacklists. Pair context-aware output encoding with a tested sanitizer policy.",
+    sanitizationCards: [
+      {
+        title: "DOMPurify",
+        body: "DOMPurify is a widely used sanitizer for stripping executable risk from HTML, SVG, and MathML. Use it only where HTML is intentionally rendered, such as dangerouslySetInnerHTML, Markdown/MDX output, or rich text rendering.",
+      },
+      {
+        title: "Node.js / SSR",
+        body: "Server-side sanitization needs a DOM implementation. In Node.js, use DOMPurify with an up-to-date jsdom setup, and test that client and server allowlists do not drift apart.",
+      },
+      {
+        title: "Policy documentation",
+        body: "Record allowed tags, attributes, URL protocols/hosts, iframe sandbox, and CSP per feature. If another renderer mutates HTML after sanitization, the protection can be undone.",
+      },
+    ],
+    sanitizationLinksHeading: "DOMPurify / sanitization resources",
+    sanitizationLinks: [
+      {
+        label: "DOMPurify GitHub",
+        href: "https://github.com/cure53/DOMPurify",
+      },
+      {
+        label: "DOMPurify npm",
+        href: "https://www.npmjs.com/package/dompurify",
+      },
+      {
+        label: "DOMPurify on Node.js",
+        href: "https://github.com/cure53/DOMPurify?tab=readme-ov-file#running-dompurify-on-the-server",
+      },
+      {
+        label: "OWASP HTML Sanitization",
+        href: "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#html-sanitization",
+      },
+    ],
     referencesHeading: "References",
     references: [
       {
@@ -211,7 +247,7 @@ export const en: IDictionary = {
           autoScheduled: "auto-redirect scheduled in {n}s",
         },
         explanation: [
-          "Changing <code>window.top.location</code> is allowed by default even cross-origin. SOP does not protect this surface.",
+          "A same-origin frame can change the top-level page with <code>window.top.location</code>; modern browsers usually allow cross-origin frames to do it only after user interaction. SOP blocks reads, but it does not fully replace navigation controls for this surface.",
           'To block it, do not grant <code>allow-top-navigation</code> in sandbox. Even <code>sandbox="allow-scripts"</code> is enough to block.',
           "The attack value is high: right after the user clicks something inside a trusted service, the whole tab can be replaced by a phishing site.",
         ],
@@ -294,7 +330,7 @@ export const en: IDictionary = {
     "notification-permission": {
       title: "Notification permission / push hijack",
       summary:
-        "Trigger Notification.requestPermission so the attacker domain can later push notifications.",
+        "Try Notification.requestPermission. Modern browsers mostly block cross-origin iframe requests, but if permission is granted the origin can send phishing notifications later.",
     },
     "clipboard-hijack": {
       title: "Clipboard hijack",

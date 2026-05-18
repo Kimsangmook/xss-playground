@@ -4,7 +4,7 @@ import type { IScenarioPageI18n } from "../types";
 const payloads = [
   {
     label: "img onerror DOM sink",
-    value: '<img src=x onerror="alert(\'dom-xss\')">',
+    value: "<img src=x onerror=\"alert('dom-xss')\">",
   },
   {
     label: "autofocus onfocus",
@@ -23,7 +23,10 @@ const ko: IScenarioPageI18n = {
     "클라이언트 라우터, hash, postMessage payload 를 sink 에 넣기 전 검증하는지 확인",
   ],
   payloads: [
-    { ...payloads[0], note: "innerHTML 에 들어갔을 때 이벤트 핸들러가 실행되는지 확인." },
+    {
+      ...payloads[0],
+      note: "innerHTML 에 들어갔을 때 이벤트 핸들러가 실행되는지 확인.",
+    },
     { ...payloads[1], note: "자동 focus 이벤트 기반 DOM XSS 확인." },
   ],
   explanationHeading: "해설",
@@ -44,8 +47,14 @@ const en: IScenarioPageI18n = {
     "Validate client router, hash, and postMessage payloads before writing to a sink",
   ],
   payloads: [
-    { ...payloads[0], note: "Checks whether event handlers execute when inserted through innerHTML." },
-    { ...payloads[1], note: "Checks a DOM XSS path triggered by automatic focus." },
+    {
+      ...payloads[0],
+      note: "Checks whether event handlers execute when inserted through innerHTML.",
+    },
+    {
+      ...payloads[1],
+      note: "Checks a DOM XSS path triggered by automatic focus.",
+    },
   ],
   explanationHeading: "Explanation",
   explanation: [
@@ -65,8 +74,14 @@ const ja: IScenarioPageI18n = {
     "client router, hash, postMessage payload を sink に入れる前に検証するか確認",
   ],
   payloads: [
-    { ...payloads[0], note: "innerHTML 挿入時にイベントハンドラが実行されるか確認します。" },
-    { ...payloads[1], note: "自動 focus イベントによる DOM XSS を確認します。" },
+    {
+      ...payloads[0],
+      note: "innerHTML 挿入時にイベントハンドラが実行されるか確認します。",
+    },
+    {
+      ...payloads[1],
+      note: "自動 focus イベントによる DOM XSS を確認します。",
+    },
   ],
   explanationHeading: "解説",
   explanation: [
@@ -98,4 +113,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

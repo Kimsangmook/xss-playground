@@ -18,7 +18,8 @@ interface IIssueListLabels {
 const formatComments = (
   count: number,
   pattern: { one: string; other: string }
-) => (count === 1 ? pattern.one : pattern.other).replace("{count}", String(count));
+) =>
+  (count === 1 ? pattern.one : pattern.other).replace("{count}", String(count));
 
 interface IIssueListProps {
   owner: string;
@@ -57,7 +58,7 @@ const IssueList = ({
 
   return (
     <>
-      {issues.map((issue) => (
+      {issues.map(issue => (
         <IssueCard key={issue.id} issue={issue} labels={labels} />
       ))}
     </>
@@ -82,7 +83,7 @@ const IssueCard = ({ issue, labels }: IIssueCardProps) => (
       {issue.labels.length > 0 ? (
         <>
           {" · "}
-          {issue.labels.map((l) => l.name).join(", ")}
+          {issue.labels.map(l => l.name).join(", ")}
         </>
       ) : null}
     </p>

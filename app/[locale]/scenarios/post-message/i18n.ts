@@ -114,4 +114,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

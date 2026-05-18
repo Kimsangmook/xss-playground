@@ -33,6 +33,11 @@ export interface IDictionary {
     threatsHeading: string;
     threatsIntro: string;
     threats: { title: string; body: string }[];
+    sanitizationHeading: string;
+    sanitizationIntro: string;
+    sanitizationCards: { title: string; body: string }[];
+    sanitizationLinksHeading: string;
+    sanitizationLinks: { label: string; href: string }[];
     referencesHeading: string;
     references: { label: string; href: string }[];
     scenariosHeading: string;

@@ -8,7 +8,7 @@ import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
 import { SITE_URL } from "@/lib/site";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { I18N } from "./i18n";
 import { fmt, usePageI18n } from "../usePageI18n";
 
@@ -47,7 +47,7 @@ const DelayedAttackPage = () => {
       setRemaining(null);
       return;
     }
-    const t = setTimeout(() => setRemaining((r) => (r ?? 0) - 1), 1000);
+    const t = setTimeout(() => setRemaining(r => (r ?? 0) - 1), 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining]);
@@ -70,7 +70,7 @@ const DelayedAttackPage = () => {
           window.top!.location.href = buildRedirectTarget(
             window.location.origin,
             locale,
-            "delayed-attack",
+            "delayed-attack"
           );
         } catch (e) {
           push(fmt(t.log?.blocked, { message: (e as Error).message }));
@@ -80,7 +80,7 @@ const DelayedAttackPage = () => {
       case "post-message": {
         window.parent.postMessage(
           { type: "DELAYED_ATTACK", fired: Date.now() },
-          "*",
+          "*"
         );
         push(t.log?.postMessage ?? "");
         break;
@@ -105,7 +105,7 @@ const DelayedAttackPage = () => {
         push(
           fmt(t.log?.popupResult, {
             result: w ? t.log?.opened : t.log?.blockedPlain,
-          }),
+          })
         );
         break;
       }
@@ -123,7 +123,7 @@ const DelayedAttackPage = () => {
         <div>
           <select
             value={action}
-            onChange={(e) => setAction(e.target.value as Action)}
+            onChange={e => setAction(e.target.value as Action)}
             style={{
               background: "var(--bg-elev-2)",
               color: "var(--text)",
@@ -133,7 +133,7 @@ const DelayedAttackPage = () => {
               width: "100%",
             }}
           >
-            {actions.map((a) => (
+            {actions.map(a => (
               <option key={a.key} value={a.key}>
                 {a.label}
               </option>
@@ -145,7 +145,7 @@ const DelayedAttackPage = () => {
           <input
             type="number"
             value={delay}
-            onChange={(e) => setDelay(Number(e.target.value) || 0)}
+            onChange={e => setDelay(Number(e.target.value) || 0)}
             min={0}
             max={120}
           />

@@ -41,9 +41,9 @@ const ko: IPageText = {
     body: "(이건 attacker.example 에서 보낸 알림입니다)",
   },
   explanation: [
-    "최신 크롬은 사용자 제스처 + 메인 프레임 + 안전한 origin 을 요구해서 iframe 안의 자동 호출은 보통 차단됩니다. 사파리/파폭은 정책이 더 느슨할 수 있습니다.",
-    "위험성은 즉시 정보 탈취가 아니라 <strong>이후 사용자가 다른 페이지를 보고 있을 때 attacker 도메인이 푸시 알림으로 피싱 가능</strong>해진다는 점입니다.",
-    'iframe 에서 권한 프롬프트가 뜨려면 <code>allow="notifications"</code> 가 필요한 브라우저도 있습니다. 임의 호스트 iframe 이라면 절대 부여하면 안 됩니다.',
+    "최신 Chrome/Firefox 는 cross-origin iframe 에서 알림 권한을 요청하는 흐름을 막습니다. 테스트할 때는 HTTPS, 사용자 제스처, top-level 문서 여부를 함께 기록하세요.",
+    "위험성은 즉시 정보 탈취가 아니라 <strong>사용자가 알림 권한을 허용한 origin 이 이후 피싱 알림을 보낼 수 있다는 점</strong>입니다. 장기 push 는 별도의 service worker / push subscription 흐름까지 필요합니다.",
+    "임의 호스트 iframe 에 강력한 browser permission 을 위임하는 정책을 두지 마세요. 권한 API 는 브라우저별 차이가 커서 실제 대상 브라우저에서 확인해야 합니다.",
   ],
 };
 
@@ -71,9 +71,9 @@ const en: IPageText = {
     body: "(this came from attacker.example)",
   },
   explanation: [
-    "Chrome requires a user gesture + main frame + secure origin, so automatic calls inside an iframe are usually blocked. Safari/Firefox are more permissive.",
-    "The risk is not immediate exfiltration — it is <strong>letting the attacker domain push phishing notifications later, while the user is on other pages</strong>.",
-    'Some browsers require <code>allow="notifications"</code> on the iframe for the prompt to appear at all. For arbitrary-host iframes, never grant it.',
+    "Modern Chrome/Firefox block notification permission requests from cross-origin iframes. When testing, record HTTPS, user gesture, and whether the request runs in a top-level document.",
+    "The risk is not immediate exfiltration — it is <strong>an origin with notification permission being able to send phishing notifications later</strong>. Long-lived push also requires a service worker / push subscription flow.",
+    "Do not delegate powerful browser permissions to arbitrary-host iframes. Permission APIs differ by browser, so verify behavior in the browsers you support.",
   ],
 };
 
@@ -101,9 +101,9 @@ const ja: IPageText = {
     body: "(これは attacker.example から送られた通知です)",
   },
   explanation: [
-    "Chrome はユーザー操作、main frame、安全な origin を要求するため、iframe 内の自動呼び出しは通常ブロックされます。Safari/Firefox はより緩い場合があります。",
-    "リスクは即時の情報窃取ではなく、<strong>後でユーザーが別ページを見ているときに攻撃者 domain が phishing 通知を送れる</strong>点です。",
-    'iframe で権限 prompt を出すには <code>allow="notifications"</code> が必要なブラウザもあります。任意ホスト iframe には絶対に付与しないでください。',
+    "最新の Chrome/Firefox は cross-origin iframe からの通知権限要求をブロックします。テスト時は HTTPS、ユーザー操作、top-level document かどうかを記録します。",
+    "リスクは即時の情報窃取ではなく、<strong>通知権限を得た origin が後で phishing 通知を送れる</strong>点です。長期 push には service worker / push subscription の流れも必要です。",
+    "任意ホスト iframe に強力な browser permission を委任しないでください。Permission API はブラウザ差が大きいため、対象ブラウザで確認します。",
   ],
 };
 
@@ -131,9 +131,9 @@ const zh: IPageText = {
     body: "（这是 attacker.example 发送的通知）",
   },
   explanation: [
-    "Chrome 要求用户手势、主 frame 和安全 origin，因此 iframe 内自动调用通常会被阻止。Safari/Firefox 的策略可能更宽松。",
-    "风险不是立即窃取信息，而是<strong>攻击者域名之后可以在用户浏览其他页面时推送钓鱼通知</strong>。",
-    '某些浏览器要求 iframe 设置 <code>allow="notifications"</code> 才会出现权限提示。对任意主机 iframe 绝不要授予它。',
+    "现代 Chrome/Firefox 会阻止 cross-origin iframe 请求通知权限。测试时应同时记录 HTTPS、用户手势以及是否在 top-level document 中触发。",
+    "风险不是立即窃取信息，而是<strong>获得通知权限的 origin 之后可以发送钓鱼通知</strong>。长期 push 还需要 service worker / push subscription 流程。",
+    "不要把强大的浏览器权限委托给任意主机 iframe。Permission API 的浏览器差异较大，应在目标浏览器中验证。",
   ],
 };
 

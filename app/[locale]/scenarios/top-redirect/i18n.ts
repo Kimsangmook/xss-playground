@@ -22,12 +22,13 @@ const ko: IScenarioPageI18n = {
     blocked: "차단됨: {message}",
     tryAnchorLog: '시도: <a target="_top" href="{target}"> 가짜 클릭',
     anchorCalled: "호출 완료 (성공했다면 페이지 이동)",
-    tryMetaLog: '시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)',
+    tryMetaLog:
+      '시도: meta http-equiv="refresh" 삽입 (자기 origin 내에서만 동작)',
     metaInserted: "meta refresh 삽입 완료",
     autoScheduled: "{n}초 뒤 자동 리다이렉트 예약",
   },
   explanation: [
-    "<code>window.top.location</code> 변경은 cross-origin 이어도 기본 허용됩니다. SOP 가 막아주지 않는 영역입니다.",
+    "same-origin frame 은 <code>window.top.location</code> 으로 최상위 페이지를 바꿀 수 있고, cross-origin frame 은 최신 브라우저에서 사용자 상호작용이 있을 때만 허용되는 편입니다. SOP 가 읽기는 막지만 이 navigation surface 를 완전히 대신 막아주지는 않습니다.",
     '차단하려면 sandbox 에 <code>allow-top-navigation</code> 을 주지 않으면 됩니다. <code>sandbox="allow-scripts"</code> 만 줘도 차단됩니다.',
     "공격 가치는 큽니다. 사용자가 신뢰하는 서비스 안에서 무언가 클릭한 직후 전체 탭이 피싱 사이트로 바뀔 수 있습니다.",
   ],
@@ -59,7 +60,7 @@ const en: IScenarioPageI18n = {
     autoScheduled: "auto-redirect scheduled in {n}s",
   },
   explanation: [
-    "Changing <code>window.top.location</code> is allowed by default even cross-origin. SOP does not protect this surface.",
+    "A same-origin frame can change the top-level page with <code>window.top.location</code>; modern browsers usually allow cross-origin frames to do it only after user interaction. SOP blocks reads, but it does not fully replace navigation controls for this surface.",
     'To block it, do not grant <code>allow-top-navigation</code> in sandbox. Even <code>sandbox="allow-scripts"</code> is enough to block.',
     "The attack value is high: after the user clicks inside a trusted service, the whole tab can be replaced by a phishing site.",
   ],
@@ -91,7 +92,7 @@ const ja: IScenarioPageI18n = {
     autoScheduled: "{n}秒後の自動 redirect を予約",
   },
   explanation: [
-    "<code>window.top.location</code> の変更は cross-origin でもデフォルトで許可されます。SOP はこの表面を守りません。",
+    "same-origin frame は <code>window.top.location</code> で最上位ページを変更できます。cross-origin frame は最新ブラウザでは通常、ユーザー操作後にのみ許可されます。SOP は読み取りを止めますが、この navigation surface を完全には代替防御しません。",
     '<code>allow-top-navigation</code> を sandbox に付けなければブロックできます。<code>sandbox="allow-scripts"</code> だけでもブロックされます。',
     "信頼されたサービス内でユーザーが何かをクリックした直後、タブ全体がフィッシングサイトへ置き換わるため攻撃価値は高いです。",
   ],
@@ -123,11 +124,10 @@ const zh: IScenarioPageI18n = {
     autoScheduled: "{n} 秒后自动 redirect 已预约",
   },
   explanation: [
-    "即使 cross-origin，<code>window.top.location</code> 默认也可以被修改。SOP 不保护这个表面。",
+    "same-origin frame 可以通过 <code>window.top.location</code> 修改顶层页面；现代浏览器通常只在用户交互后允许 cross-origin frame 这样做。SOP 会阻止读取，但不能完全替代此 navigation surface 的控制。",
     '不授予 sandbox 的 <code>allow-top-navigation</code> 即可阻止。仅使用 <code>sandbox="allow-scripts"</code> 也足以阻止。',
     "攻击价值很高：用户在可信服务中点击后，整个标签页可能被替换成钓鱼站点。",
   ],
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

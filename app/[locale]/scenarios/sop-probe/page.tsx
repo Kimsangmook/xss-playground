@@ -57,8 +57,8 @@ const SopProbePage = () => {
   const probeFetchSameOrigin = () => {
     push(t.log?.tryFetchSelf ?? "");
     fetch("/")
-      .then((r) => push(fmt(t.log?.fetchStatus, { status: r.status })))
-      .catch((e) => push(fmt(t.log?.failed, { message: e.message })));
+      .then(r => push(fmt(t.log?.fetchStatus, { status: r.status })))
+      .catch(e => push(fmt(t.log?.failed, { message: e.message })));
   };
 
   const probeFetchParent = () => {
@@ -71,14 +71,16 @@ const SopProbePage = () => {
       <ScenarioHeader scenario={scenario} />
       <EmbedSnippet slug="sop-probe" />
 
-      <div className="callout">
-        {t.text?.callout}
-      </div>
+      <div className="callout">{t.text?.callout}</div>
 
       <h2>{t.actionsHeading}</h2>
       <div className="actions">
-        <button onClick={probeParentDocument}>{t.buttons?.parentDocument}</button>
-        <button onClick={probeParentLocation}>{t.buttons?.parentLocation}</button>
+        <button onClick={probeParentDocument}>
+          {t.buttons?.parentDocument}
+        </button>
+        <button onClick={probeParentLocation}>
+          {t.buttons?.parentLocation}
+        </button>
         <button onClick={probeParentLocationWrite}>
           {t.buttons?.parentLocationWrite}
         </button>

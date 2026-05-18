@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import {
   createSimulatorJsonLd,
   createSimulatorSeoMetadata,

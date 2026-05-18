@@ -160,7 +160,10 @@ export const SCENARIO_PRESETS: IScenarioPreset[] = [
   },
 ];
 
-export const RENDER_CONTEXT_LABELS: Record<RenderContext, Record<Locale, string>> = {
+export const RENDER_CONTEXT_LABELS: Record<
+  RenderContext,
+  Record<Locale, string>
+> = {
   div: label("<div>", "<div>", "<div>", "<div>"),
   input: label("input value", "input value", "input value", "input value"),
   textarea: label("textarea", "textarea", "textarea", "textarea"),
@@ -170,7 +173,12 @@ export const RENDER_CONTEXT_LABELS: Record<RenderContext, Record<Locale, string>
 export const FILTER_LABELS: Record<FilterMode, Record<Locale, string>> = {
   none: label("없음", "none", "none", "无"),
   escapeHtml: label("HTML escape", "escapeHtml", "escapeHtml", "HTML 转义"),
-  stripScript: label("script 제거", "strip script", "script 除去", "移除 script"),
+  stripScript: label(
+    "script 제거",
+    "strip script",
+    "script 除去",
+    "移除 script"
+  ),
   stripParens: label("괄호 제거", "strip parens", "括弧除去", "移除括号"),
 };
 
@@ -217,11 +225,18 @@ export const initialWindows = (): Record<WindowId, ISimWindow> => ({
   },
 });
 
-export const toggleLabels: Array<[keyof IFlowToggles, Record<Locale, string>]> = [
-  ["dbSave", label("DB 저장", "DB save", "DB 保存", "DB 保存")],
-  ["serverRender", label("서버 render", "server render", "server render", "服务器 render")],
-  ["unsafeSink", label("unsafe sink", "unsafe sink", "unsafe sink", "unsafe sink")],
-];
+export const toggleLabels: Array<[keyof IFlowToggles, Record<Locale, string>]> =
+  [
+    ["dbSave", label("DB 저장", "DB save", "DB 保存", "DB 保存")],
+    [
+      "serverRender",
+      label("서버 render", "server render", "server render", "服务器 render"),
+    ],
+    [
+      "unsafeSink",
+      label("unsafe sink", "unsafe sink", "unsafe sink", "unsafe sink"),
+    ],
+  ];
 
 export const windowOrder: WindowId[] = [
   "attacker",

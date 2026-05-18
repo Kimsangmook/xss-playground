@@ -6,7 +6,7 @@ import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { EmbedSnippet } from "@/app/EmbedSnippet";
 import { Log, useLog } from "@/app/Log";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { I18N } from "./i18n";
 import { fmt, usePageI18n } from "../usePageI18n";
 
@@ -34,7 +34,7 @@ const PopupSpamPage = () => {
       buildRedirectTarget(window.location.origin, locale, "popup-spam", {
         surface: "popup",
       }),
-      "_blank",
+      "_blank"
     );
     push(w ? t.log.returnWindow : t.log.returnBlocked);
     if (w) {
@@ -47,7 +47,7 @@ const PopupSpamPage = () => {
     for (let i = 0; i < 3; i++) {
       const w = window.open("about:blank", "_blank");
       push(
-        fmt(t.log.floodItem, { n: i + 1, result: w ? "opened" : "blocked" }),
+        fmt(t.log.floodItem, { n: i + 1, result: w ? "opened" : "blocked" })
       );
     }
   };

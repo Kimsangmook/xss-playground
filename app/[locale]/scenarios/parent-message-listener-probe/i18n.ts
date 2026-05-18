@@ -44,7 +44,8 @@ const en: IScenarioPageI18n = {
     noReplies: "// no responses",
   },
   log: {
-    received: "message received from parent/other frame: origin={origin} data={data}",
+    received:
+      "message received from parent/other frame: origin={origin} data={data}",
     sending: "fire: {label}",
     sentAll: "sent {count} payloads",
   },
@@ -84,8 +85,7 @@ const ja: IScenarioPageI18n = {
 
 const zh: IScenarioPageI18n = {
   title: "父页面 message listener 指纹探测",
-  summary:
-    "向父页面发送多种 postMessage payload，并观察响应或副作用。",
+  summary: "向父页面发送多种 postMessage payload，并观察响应或副作用。",
   actionsHeading: "执行",
   explanationHeading: "说明",
   buttons: {

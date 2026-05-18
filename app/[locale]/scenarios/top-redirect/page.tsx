@@ -7,23 +7,22 @@ import { ScenarioHeader } from "@/app/ScenarioHeader";
 import { buildRedirectTarget } from "@/lib/redirectTarget";
 import { findScenario } from "@/lib/scenarios";
 import { useScenarioBody } from "../useScenarioBody";
-import { useState } from "react";
 
 const TopRedirectPage = () => {
   const scenario = findScenario("top-redirect")!;
   const { lines, push, clear } = useLog();
-  const [autoFireSec, setAutoFireSec] = useState(5);
+  const autoFireSec = 5;
   const { locale, actions, log, explanation, scenarioPage } =
     useScenarioBody("top-redirect");
   const target = buildRedirectTarget(
     typeof window === "undefined" ? "" : window.location.origin,
     locale,
-    "top-redirect",
+    "top-redirect"
   );
 
   const tryTopLocation = () => {
     push(
-      log("checkTop", { value: window.top === window.self ? "true" : "false" }),
+      log("checkTop", { value: window.top === window.self ? "true" : "false" })
     );
     push(log("tryTopLog", { target }));
     try {

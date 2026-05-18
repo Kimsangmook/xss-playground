@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LOCALES, type Locale } from "@/i18n/types";
+import { type Locale, LOCALES } from "@/i18n/types";
 import { getDictionary } from "@/i18n";
 import { createLocaleBaseMetadata } from "@/components/seo/Seo";
 import { LocaleSidebar } from "./LocaleSidebar";
 
-export const generateStaticParams = () => LOCALES.map((locale) => ({ locale }));
+export const generateStaticParams = () => LOCALES.map(locale => ({ locale }));
 
 interface ILayoutProps {
   children: React.ReactNode;

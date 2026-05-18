@@ -29,9 +29,21 @@ const useSearchParams = () => {
 };
 
 const TEXT = {
-  ko: { clear: "지우기", empty: "// 로그 없음", autoScheduled: "자동 실행 예약" },
-  en: { clear: "clear", empty: "// no logs", autoScheduled: "auto-fire scheduled" },
-  ja: { clear: "クリア", empty: "// ログなし", autoScheduled: "自動実行を予約" },
+  ko: {
+    clear: "지우기",
+    empty: "// 로그 없음",
+    autoScheduled: "자동 실행 예약",
+  },
+  en: {
+    clear: "clear",
+    empty: "// no logs",
+    autoScheduled: "auto-fire scheduled",
+  },
+  ja: {
+    clear: "クリア",
+    empty: "// ログなし",
+    autoScheduled: "自動実行を予約",
+  },
   zh: { clear: "清除", empty: "// 无日志", autoScheduled: "已安排自动执行" },
 } as const;
 
@@ -43,7 +55,8 @@ export const EmbedShell = ({
 }: IEmbedShellProps) => {
   const { slug, locale } = useEmbedContext();
   const dict = getDictionary(locale);
-  const localizedTitle = (slug && getScenarioI18n(locale, slug)?.title) ?? title;
+  const localizedTitle =
+    (slug && getScenarioI18n(locale, slug)?.title) ?? title;
   const t = TEXT[locale];
   const badge = dict.scenarioPage.embeddedBadge;
 
@@ -54,7 +67,7 @@ export const EmbedShell = ({
 
   const push = (msg: string) => {
     const ts = new Date().toISOString().slice(11, 19);
-    setLines((p) => [...p, `[${ts}] ${msg}`]);
+    setLines(p => [...p, `[${ts}] ${msg}`]);
   };
   const clear = () => setLines([]);
 
@@ -75,7 +88,7 @@ export const EmbedShell = ({
     }
     setRemaining(delay);
     const id = setInterval(() => {
-      setRemaining((r) => {
+      setRemaining(r => {
         if (r === null) return null;
         if (r <= 1) {
           clearInterval(id);

@@ -7,7 +7,8 @@
   overflow: auto;
   background: #050705;
   color: #c9d1d9;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI",
+    sans-serif;
 }
 
 /*
@@ -24,8 +25,10 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(70, 255, 120, 0.08) 1px, transparent 1px),
+  background-image: linear-gradient(
+      rgba(70, 255, 120, 0.08) 1px,
+      transparent 1px
+    ),
     linear-gradient(90deg, rgba(70, 255, 120, 0.08) 1px, transparent 1px);
   background-size: 18px 18px;
   box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.78);
@@ -643,8 +646,12 @@
   padding: 0;
   border: 0;
   border-radius: 0;
-  background:
-    linear-gradient(135deg, transparent 0 58%, #6e7681 59% 65%, transparent 66%),
+  background: linear-gradient(
+      135deg,
+      transparent 0 58%,
+      #6e7681 59% 65%,
+      transparent 66%
+    ),
     linear-gradient(135deg, transparent 0 74%, #6e7681 75% 81%, transparent 82%);
   cursor: nwse-resize;
 }
@@ -674,7 +681,8 @@
   min-height: 100vh;
   background: #050705;
   color: #c9d1d9;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI",
+    sans-serif;
 }
 
 /*
@@ -828,9 +836,7 @@
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transition:
-    color 0.16s ease,
-    background-color 0.16s ease;
+  transition: color 0.16s ease, background-color 0.16s ease;
 }
 
 .sim-mobile-tab:hover {

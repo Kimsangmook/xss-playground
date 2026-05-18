@@ -96,8 +96,7 @@ const ja: IScenarioPageI18n = {
 
 const zh: IScenarioPageI18n = {
   title: "script 标签注入",
-  summary:
-    "检查用户输入被直接作为 HTML 文档解析时，script 标签是否会执行。",
+  summary: "检查用户输入被直接作为 HTML 文档解析时，script 标签是否会执行。",
   checks: [
     "确认输入是被转义为文本，还是被解析成真实 script 标签",
     "确认 HTML 过滤器是否移除 script 标签和危险属性",
@@ -122,4 +121,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

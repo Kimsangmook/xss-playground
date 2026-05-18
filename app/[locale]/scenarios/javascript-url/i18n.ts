@@ -4,12 +4,12 @@ import type { IScenarioPageI18n } from "../types";
 const payloads = [
   {
     label: "anchor href javascript",
-    value: '<a href="javascript:alert(\'xss-playground\')">click me</a>',
+    value: "<a href=\"javascript:alert('xss-playground')\">click me</a>",
   },
   {
     label: "form action javascript",
     value:
-      '<form action="javascript:alert(\'xss-playground\')"><button>submit</button></form>',
+      "<form action=\"javascript:alert('xss-playground')\"><button>submit</button></form>",
   },
 ];
 
@@ -24,7 +24,10 @@ const ko: IScenarioPageI18n = {
   ],
   payloads: [
     { ...payloads[0], note: "사용자 클릭 후 실행되는 URL 프로토콜 기반 XSS." },
-    { ...payloads[1], note: "href 뿐 아니라 action 같은 URL 속성도 함께 검증." },
+    {
+      ...payloads[1],
+      note: "href 뿐 아니라 action 같은 URL 속성도 함께 검증.",
+    },
   ],
   explanationHeading: "해설",
   explanation: [
@@ -44,8 +47,14 @@ const en: IScenarioPageI18n = {
     "Confirm that delayed payloads requiring a user click are also blocked",
   ],
   payloads: [
-    { ...payloads[0], note: "URL-protocol XSS that executes after a user click." },
-    { ...payloads[1], note: "Checks URL attributes beyond href, such as form action." },
+    {
+      ...payloads[0],
+      note: "URL-protocol XSS that executes after a user click.",
+    },
+    {
+      ...payloads[1],
+      note: "Checks URL attributes beyond href, such as form action.",
+    },
   ],
   explanationHeading: "Explanation",
   explanation: [
@@ -65,8 +74,14 @@ const ja: IScenarioPageI18n = {
     "ユーザークリックが必要な遅延 payload もブロックされるか確認",
   ],
   payloads: [
-    { ...payloads[0], note: "ユーザークリック後に実行される URL プロトコル型 XSS。" },
-    { ...payloads[1], note: "href だけでなく action などの URL 属性も検証します。" },
+    {
+      ...payloads[0],
+      note: "ユーザークリック後に実行される URL プロトコル型 XSS。",
+    },
+    {
+      ...payloads[1],
+      note: "href だけでなく action などの URL 属性も検証します。",
+    },
   ],
   explanationHeading: "解説",
   explanation: [
@@ -98,4 +113,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

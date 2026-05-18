@@ -102,8 +102,7 @@ const ja: IScenarioPageI18n = {
 
 const zh: IScenarioPageI18n = {
   title: "自动播放媒体 / 自动全屏",
-  summary:
-    "尝试自动播放带声音的媒体，或通过 requestFullscreen 占用全屏。",
+  summary: "尝试自动播放带声音的媒体，或通过 requestFullscreen 占用全屏。",
   actionsHeading: "执行",
   explanationHeading: "说明",
   buttons: {
@@ -134,4 +133,3 @@ const zh: IScenarioPageI18n = {
 };
 
 export const I18N: Record<Locale, IScenarioPageI18n> = { ko, en, ja, zh };
-

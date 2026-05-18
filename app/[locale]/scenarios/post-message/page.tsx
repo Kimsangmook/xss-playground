@@ -50,13 +50,13 @@ const PostMessagePage = () => {
         <div>
           <input
             value={target}
-            onChange={(e) => setTarget(e.target.value)}
+            onChange={e => setTarget(e.target.value)}
             placeholder={text("targetPlaceholder")}
           />
         </div>
       </div>
       <div className="actions">
-        {PRESET_PAYLOADS.map((p) => (
+        {PRESET_PAYLOADS.map(p => (
           <button key={p.key} className="danger" onClick={() => send(p.data)}>
             {actions(p.key)}
           </button>

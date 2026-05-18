@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { SITE_URL } from "@/lib/site";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/types";
+import { DEFAULT_LOCALE, type Locale, LOCALES } from "@/i18n/types";
 import { getScenarioI18n } from "@/app/[locale]/scenarios/i18nRegistry";
 
 interface IQuickEmbedCopyProps {
@@ -41,7 +41,9 @@ export const QuickEmbedCopy = ({ slug, title }: IQuickEmbedCopyProps) => {
   }, []);
 
   const url = `${origin}/embed/${slug}?lang=${locale}`;
-  const snippet = `<iframe src="${url}" title="XSS Playground - ${escapeAttribute(localizedTitle)}" width="600" height="420" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  const snippet = `<iframe src="${url}" title="XSS Playground - ${escapeAttribute(
+    localizedTitle
+  )}" width="600" height="420" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(snippet);

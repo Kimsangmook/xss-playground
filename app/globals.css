@@ -37,7 +37,8 @@ a:hover {
 
 code,
 pre {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    monospace;
 }
 
 pre {
@@ -227,7 +228,8 @@ body.embed-route [data-only-standalone] {
  * ============================================================ */
 .embed-page {
   padding: 10px 12px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI",
+    sans-serif;
 }
 .embed-header {
   display: flex;

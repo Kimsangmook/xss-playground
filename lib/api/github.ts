@@ -42,10 +42,10 @@ export const fetchRepositoryIssues = async ({
         "X-GitHub-Api-Version": "2022-11-28",
       },
       timeout: 10_000,
-    },
+    }
   );
 
-  return data.filter((issue) => !issue.pull_request);
+  return data.filter(issue => !issue.pull_request);
 };
 
 /**
@@ -53,7 +53,7 @@ export const fetchRepositoryIssues = async ({
  * 예: "https://github.com/Kimsangmook/xss-playground" → { owner: "Kimsangmook", repo: "xss-playground" }
  */
 export const parseGithubRepoUrl = (
-  url: string,
+  url: string
 ): { owner: string; repo: string } | null => {
   const match = url.match(/github\.com\/([^/]+)\/([^/?#]+)/);
   if (!match) return null;
